@@ -581,7 +581,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: TriggerByLabel
         m_Mode: 5
@@ -1257,7 +1257,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: Trigger
         m_Mode: 5
@@ -1403,7 +1403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &694398080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1456,9 +1456,9 @@ MonoBehaviour:
       timeMode: 0
     preferences:
       zoomSettings:
-        zoomFactor: 1.2
+        zoomFactor: 0.5
       dragSettings:
-        dragOffset: {x: 65.492775, y: 121.07044}
+        dragOffset: {x: 36.82612, y: 281.0704}
       gridSettings:
         isEnabled: 1
       labelSettings:
@@ -1825,7 +1825,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1606329955}
+  - {fileID: 4852611656540770878}
   - {fileID: 20172375}
   - {fileID: 247066033}
   m_Father: {fileID: 0}
@@ -1913,7 +1913,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: Trigger
         m_Mode: 5
@@ -2045,58 +2045,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1081081950}
   m_CullTransparentMesh: 0
---- !u!1 &1144659682
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1144659683}
-  - component: {fileID: 1144659684}
-  m_Layer: 0
-  m_Name: Preferences
-  m_TagString: EditorOnly
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1144659683
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144659682}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1606329955}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1144659684
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144659682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc45ecc61c61ffe4280b05fb0d362c44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoomSettings:
-    zoomFactor: 1
-  dragSettings:
-    dragOffset: {x: -22, y: 69}
-  gridSettings:
-    isEnabled: 1
-  labelSettings:
-    isEnabled: 1
 --- !u!1 &1251859824
 GameObject:
   m_ObjectHideFlags: 0
@@ -2180,7 +2128,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: Trigger
         m_Mode: 5
@@ -2264,9 +2212,9 @@ RectTransform:
   - {fileID: 337056243}
   m_Father: {fileID: 83078165}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 359.99997, y: -974.9999}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1261250912
@@ -2313,7 +2261,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: TriggerByLabel
         m_Mode: 5
@@ -2572,291 +2520,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!1 &1606329954
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1606329955}
-  - component: {fileID: 1606329956}
-  m_Layer: 0
-  m_Name: State Machine
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1606329955
-Transform:
-  m_ObjectHideFlags: 2
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606329954}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1144659683}
-  m_Father: {fileID: 885928385}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1606329956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606329954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c95737371d97a2747845a945bae3b2de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  graph:
-    states:
-    - position: {x: 299, y: 306}
-      id: Menu
-      onEnterState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1946214244}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 1
-            m_CallState: 2
-      onExitState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1946214244}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      onUpdateState:
-        m_PersistentCalls:
-          m_Calls: []
-    - position: {x: 478.33517, y: 148.04675}
-      id: Page 1
-      onEnterState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1613135442}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 1
-            m_CallState: 2
-      onExitState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1613135442}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      onUpdateState:
-        m_PersistentCalls:
-          m_Calls: []
-    - position: {x: 540.6157, y: 305.61526}
-      id: Page 2
-      onEnterState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 211026346}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 1
-            m_CallState: 2
-      onExitState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 211026346}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      onUpdateState:
-        m_PersistentCalls:
-          m_Calls: []
-    - position: {x: 776, y: 303}
-      id: Page 3
-      onEnterState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 271230521}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 1
-            m_CallState: 2
-      onExitState:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 271230521}
-            m_TargetAssemblyTypeName: 
-            m_MethodName: SetActive
-            m_Mode: 6
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      onUpdateState:
-        m_PersistentCalls:
-          m_Calls: []
-    anyStates:
-    - position: {x: 737.03357, y: 76.92969}
-      id: AnyState
-    transitions:
-    - id: Open Page 1
-      label: 
-      originID: Menu
-      targetID: Page 1
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Open Page 2
-      label: 
-      originID: Menu
-      targetID: Page 2
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Exit Page 2
-      label: Return
-      originID: Page 2
-      targetID: Menu
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Exit Page 1
-      label: Return
-      originID: Page 1
-      targetID: Menu
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Exit Page 3
-      label: Return
-      originID: Page 3
-      targetID: Page 2
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Open Page 3
-      label: 
-      originID: Page 2
-      targetID: Page 3
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    - id: Transition
-      label: 
-      originID: AnyState
-      targetID: Page 1
-      onEnterTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      onExitTransition:
-        m_PersistentCalls:
-          m_Calls: []
-      duration: 0
-      timeMode: 0
-    preferences:
-      zoomSettings:
-        zoomFactor: 1.1
-      dragSettings:
-        dragOffset: {x: -151.51907, y: 134.83585}
-      gridSettings:
-        isEnabled: 1
-      labelSettings:
-        isEnabled: 1
-    entryState: Menu
 --- !u!1 &1613135442
 GameObject:
   m_ObjectHideFlags: 0
@@ -2872,7 +2535,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1613135443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3169,7 +2832,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1606329956}
+      - m_Target: {fileID: 1324934484295066372}
         m_TargetAssemblyTypeName: 
         m_MethodName: TriggerByLabel
         m_Mode: 5
@@ -3298,6 +2961,329 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2053631825}
   m_CullTransparentMesh: 0
+--- !u!114 &1324934484295066372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1829344230733570725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c95737371d97a2747845a945bae3b2de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graph:
+    states:
+    - position: {x: 302.33252, y: 326.00006}
+      id: Menu
+      onEnterState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1946214244}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onExitState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1946214244}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      onUpdateState:
+        m_PersistentCalls:
+          m_Calls: []
+    - position: {x: 480.33502, y: 151.38}
+      id: Page 1
+      onEnterState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1613135442}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onExitState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1613135442}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      onUpdateState:
+        m_PersistentCalls:
+          m_Calls: []
+    - position: {x: 543.94916, y: 324.28198}
+      id: Page 2
+      onEnterState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 211026346}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onExitState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 211026346}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      onUpdateState:
+        m_PersistentCalls:
+          m_Calls: []
+    - position: {x: 771.9995, y: 317.00015}
+      id: Page 3
+      onEnterState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 271230521}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      onExitState:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 271230521}
+            m_TargetAssemblyTypeName: 
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      onUpdateState:
+        m_PersistentCalls:
+          m_Calls: []
+    anyStates: []
+    transitions:
+    - id: Open Page 1
+      label: 
+      originID: Menu
+      targetID: Page 1
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    - id: Open Page 2
+      label: 
+      originID: Menu
+      targetID: Page 2
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    - id: Exit Page 2
+      label: Return
+      originID: Page 2
+      targetID: Menu
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    - id: Exit Page 1
+      label: Return
+      originID: Page 1
+      targetID: Menu
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    - id: Exit Page 3
+      label: Return
+      originID: Page 3
+      targetID: Page 2
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    - id: Open Page 3
+      label: 
+      originID: Page 2
+      targetID: Page 3
+      onEnterTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      onExitTransition:
+        m_PersistentCalls:
+          m_Calls: []
+      duration: 0
+      timeMode: 0
+    preferences:
+      zoomSettings:
+        zoomFactor: 1.4
+      dragSettings:
+        dragOffset: {x: -166.1604, y: 148.1056}
+      gridSettings:
+        isEnabled: 1
+      labelSettings:
+        isEnabled: 1
+    entryState: Menu
+--- !u!1 &1829344230733570725
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4852611656540770878}
+  - component: {fileID: 1324934484295066372}
+  m_Layer: 0
+  m_Name: State Machine
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3481855917007645900
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5485987506879183945}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4852611656540770878}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4852611656540770878
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1829344230733570725}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3481855917007645900}
+  m_Father: {fileID: 885928385}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5485987506879183945
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3481855917007645900}
+  - component: {fileID: 7931281819759009911}
+  m_Layer: 0
+  m_Name: Preferences
+  m_TagString: EditorOnly
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &7931281819759009911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5485987506879183945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc45ecc61c61ffe4280b05fb0d362c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomSettings:
+    zoomFactor: 1
+  dragSettings:
+    dragOffset: {x: -22, y: 69}
+  gridSettings:
+    isEnabled: 1
+  labelSettings:
+    isEnabled: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

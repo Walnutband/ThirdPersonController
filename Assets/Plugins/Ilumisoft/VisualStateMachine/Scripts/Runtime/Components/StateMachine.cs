@@ -534,10 +534,10 @@
                 }
                 // Otherwise it will be executed instantly立即完成转换
                 else
-                {
+                {//没有duration，直接完成
                     IsRunning = false;
-                    StartTransition();
-                    CompleteTransition(); //没有duration，直接完成
+                    StartTransition(); //退出旧状态，进入转换
+                    CompleteTransition(); //退出转换，进入新状态
                 }
             }
 

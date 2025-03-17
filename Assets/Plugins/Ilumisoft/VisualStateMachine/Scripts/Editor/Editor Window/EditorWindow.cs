@@ -47,7 +47,7 @@
             this.wantsMouseMove = true; //窗口内是否接受鼠标移动事件
 
             this.editorWindowGUI = new EditorWindowGUI(this);
-
+            //注意每次启动编辑器时窗口所引用的状态机都会变为None，即丢失引用，应该就需要从这里下手，对状态机的实例ID做一个缓存，使其不要随编辑器关闭而丢失
             Context.Reload();
 
             IsEnabled = true;
@@ -59,7 +59,7 @@
         private void Update()
         {
             if (EditorApplication.isPlaying)
-            {
+            {//在运行模式下不断重绘，注意运行模式下的当前状态对应的矩形背景色会变成黄色
                 Repaint();
             }
         }
@@ -80,6 +80,11 @@
             Context.Reload();
         }
 
+        /*
+        当编辑器的选中对象发生变化时，例如在场景视图中选择了一个新的物体，或者在层级视图中选择了不同的对象时，这个方法会被自动调用。
+        这个方法通常在自定义的编辑窗口（EditorWindow）中使用，你可以重写它来处理选中对象的更改。
+        例如，你可以在 OnSelectionChange 方法中更新编辑窗口的显示内容，以反映当前选中的对象。
+        */
         /// <summary>
         /// Updates the context if a state machine is selected
         /// 选中一个状态机时更新context数据
@@ -95,7 +100,7 @@
         /// <summary>
         /// Reloads the context if the editor window is enabled and gets focused
         /// </summary>
-        private void OnFocus()
+        private void OnFocus() //窗口获取键盘焦点时调用
         {
             if (IsEnabled)
             {
@@ -104,7 +109,7 @@
         }
 
         /// <summary>
-        /// Draws the Graph and processes Input
+        /// Draws the Graph and processes Input绘制图形化界面并处理输入
         /// </summary>
         private void OnGUI()
         {

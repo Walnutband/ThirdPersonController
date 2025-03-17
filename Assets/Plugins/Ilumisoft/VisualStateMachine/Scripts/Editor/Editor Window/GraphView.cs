@@ -45,7 +45,7 @@
         }
 
         /// <summary>
-        /// Draws the graph
+        /// Draws the graph绘制图形界面
         /// </summary>
         /// <param name="rect"></param>
         public void Repaint(Rect rect)
@@ -67,7 +67,7 @@
         }
 
         /// <summary>
-        /// Processes input events on the graph
+        /// Processes input events on the graph处理在图形界面上的输入事件
         /// </summary>
         /// <param name="rect"></param>
         public void ProcessEvents(Rect rect)

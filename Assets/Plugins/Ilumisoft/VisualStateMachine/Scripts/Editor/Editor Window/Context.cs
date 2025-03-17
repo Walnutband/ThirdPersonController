@@ -28,12 +28,12 @@
         [System.NonSerialized]
         private StateMachine stateMachine = null;
 
-        public bool IsPrefabAsset
+        public bool IsPrefabAsset //窗口当前加载的状态机所挂载的对象是否是预制体
         {
             get => IsStateMachineLoaded && PrefabUtility.IsPartOfAnyPrefab(StateMachine.gameObject);
         }
 
-        public bool IsPlayMode => EditorApplication.isPlaying;
+        public bool IsPlayMode => EditorApplication.isPlaying; //是否处于运行模式
 
         /// <summary>
         /// Gets the currently loaded StateMachine获取当前加载的状态机
@@ -42,11 +42,11 @@
         {
             get => stateMachine;
             private set
-            {
+            {//非空且非预制体，则会做三件事：获取给定状态机的Graph，获取首选项，最后获取状态机本身
                 if (value != null)
                 {
                     if (PrefabUtility.IsPartOfPrefabAsset(value))
-                    {
+                    {//不能是预制体？
                         return;
                     }
 
@@ -83,12 +83,13 @@
         }
 
         /// <summary>
-        /// The list of selected states
+        /// The list of selected states所选中状态的列表
         /// </summary>
         public List<Node> SelectedNodes { get; } = new List<Node>();
 
         /// <summary>
         /// The temporary preview of a not completely created transition
+        /// 对于一个还没有完全创建的转换的临时预览
         /// </summary>
         public Node TransitionPreview
         {
@@ -96,8 +97,9 @@
             set => transitionPreview = value;
         }
 
+        //在渲染图形化界面时会根据以下对应的布尔变量来决定是否绘制相应的内容
         /// <summary>
-        /// Enables or disables the grid of the graph
+        /// Enables or disables the grid of the graph启用或禁用网格
         /// </summary>
         public bool IsGridEnabled
         {
@@ -113,7 +115,7 @@
 
         /// <summary>
         /// Gets or sets the ZoomFactor of the graph.
-        /// If the value has changed, an event is fired.
+        /// If the value has changed, an event is fired.如果值发生了改变则触发一个事件
         /// </summary>
         public float ZoomFactor
         {
@@ -149,6 +151,10 @@
             Reload();
         }
 
+        /// <summary>
+        /// 加载状态机的首选项
+        /// </summary>
+        /// <param name="stateMachine"></param>
         private void LoadSettings(StateMachine stateMachine)
         {
             if (stateMachine != null)
@@ -188,6 +194,7 @@
 
         /// <summary>
         /// Searches for the state machine with the given instanceID
+        /// 搜索带有给定的实例ID的状态机
         /// </summary>
         /// <param name="instanceID"></param>
         /// <param name="stateMachine"></param>
@@ -196,6 +203,12 @@
         {
             stateMachine = null;
             //查找项目中所有类型为 StateMachine 的对象
+            /*查找范围
+            所有加载的场景：包括当前活动场景和所有已经加载的场景中的对象。
+            所有资源：不仅包括场景中的对象，还包括在项目资源（Resources）文件夹中的资源。
+            未激活的对象：包括那些在场景中未激活的对象（例如隐藏的游戏对象）。
+            不可见的对象：包括那些在场景中不可见的对象。
+            */
             var machines = Resources.FindObjectsOfTypeAll<StateMachine>();
             //遍历比较
             foreach (StateMachine machine in machines)
@@ -212,7 +225,7 @@
 
         public void UpdateSelection()
         {
-            if (Selection.activeGameObject != null)
+            if (Selection.activeGameObject != null) //点击空白处就会取消之前的选中，所以就会为null
             {
                 GameObject selection = Selection.activeGameObject;
 

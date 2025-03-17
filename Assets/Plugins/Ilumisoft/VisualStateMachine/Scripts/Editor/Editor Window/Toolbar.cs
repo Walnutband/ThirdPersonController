@@ -24,11 +24,12 @@
         }
 
         /// <summary>
-        /// Draws the toolbar
+        /// Draws the toolbar绘制顶部的工具栏
         /// </summary>
         /// <param name="rect"></param>
         public void OnGUI(Rect rect)
         {
+            //通过判断 !Event.current.isKey，可以过滤掉所有与键盘输入相关的事件，仅处理那些与键盘无关的事件。
             if (!Event.current.isKey)
             {
                 //窗口左上角开始，窗口宽度，固定高度（Unity内置工具栏的固定高度）

@@ -2,11 +2,11 @@
 {
     using UnityEngine;
 
-    public enum MouseButton { Left = 0, Right = 1, Middle = 2 }
+    public enum MouseButton { Left = 0, Right = 1, Middle = 2 } //鼠标按键，左右中
 
     public class GraphLayer
     {
-        private Matrix4x4 transformMatrix = Matrix4x4.identity;
+        private Matrix4x4 transformMatrix = Matrix4x4.identity; //一个标准的4*4变换矩阵
 
         public GraphLayer(EditorWindow editorWindow)
         {

@@ -6,13 +6,13 @@
     [AddComponentMenu(""), DisallowMultipleComponent, ExecuteInEditMode]
     public class Graph : MonoBehaviour, ISerializationCallbackReceiver
     {
-        [SerializeField] private string entryState = string.Empty;
+        [SerializeField] private string entryState = string.Empty; //进入状态
 
-        [SerializeField] private List<State> states = new List<State>();
+        [SerializeField] private List<State> states = new List<State>(); //（普通）状态列表
 
-        [SerializeField] private List<AnyState> anyStates = new List<AnyState>();
+        [SerializeField] private List<AnyState> anyStates = new List<AnyState>();//AnyState列表
 
-        [SerializeField] private List<Transition> transitions = new List<Transition>();
+        [SerializeField] private List<Transition> transitions = new List<Transition>(); //转换列表
 
         public string EntryState
         {
@@ -31,7 +31,7 @@
 
         private void Start()
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying) //如果处于运行模式
             {
                 ExportDataToStateMachineRuntime();
             }
@@ -58,7 +58,7 @@
             Debug.Log("Imported graph", stateMachine);
 
             UnityEditor.EditorUtility.SetDirty(stateMachine);
-                
+
             //Not part of any prefab? Destroy the obsolete graph data
             if (UnityEditor.PrefabUtility.IsPartOfAnyPrefab(this) == false)
             {

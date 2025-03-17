@@ -62,10 +62,10 @@ public class TextInputExample : MonoBehaviour
     {
         Vector3 worldPos = position;
         Quaternion q = Quaternion.AngleAxis(angle, axis); //获取绕axis旋转angle角度的四元数
-        //就是向量减法，以及向量乘以四元数相当于进行相应旋转
-        Vector3 dif = worldPos - point;
+        //就是向量减法，以及向量乘以四元数相当于进行相应旋转（准确来说是四元数左乘一个向量）
+        Vector3 dif = worldPos - point;//中心为首，围绕为尾，相当于从圆心指向半径。
         dif = q * dif;
-        worldPos = point + dif; //起点加上旋转后的向量得到终点。
+        worldPos = point + dif; //起点加上旋转后的向量得到终点。（先旋转再位移）
         position = worldPos;
         //对象本身旋转，上面是对象绕轴旋转，但其实本质上就是位移，只是看起来像旋转，不过确实可以用一个父对象旋转带动该对象位移，也可以看作是旋转，不过是父对象。
         //RotateAroundInternal(axis, angle * Mathf.Deg2Rad);
@@ -74,8 +74,8 @@ public class TextInputExample : MonoBehaviour
 
     private void RotateAroundInternal(Vector3 axis, float angle)
     {
-        Quaternion q = Quaternion.AngleAxis(angle, axis);
-        rotation *= q;
+        Quaternion q = Quaternion.AngleAxis(angle, axis); //围绕旋转了多少，自身就旋转相同角度
+        rotation *= q; //似乎四元数是不满足乘法交换律的，所以这里需要注意是否是左乘还是右乘
     }
     #endregion
 }

@@ -4,7 +4,7 @@
 
     public static class GraphColors
     {
-        public static Color BackgroundColor { get; } = new Color(42, 42, 42, 255) / 255;
+        public static Color BackgroundColor { get; } = new Color(42, 42, 42, 255) / 255; //黑色带点灰，就是Unity内置窗口的那种背景色
 
         public static Color SelectionRectColor { get; } = new Color(100, 200, 255, 32) / 255;
 
