@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+//其实这种围绕旋转的同时自身也在旋转，就相当于行星的公转和自转速度相同，比如月球，面向地球的始终是同一个面，这样就不会看到月球的背面，也就是潮汐锁定现象
 
 public class MovementTest : MonoBehaviour
 {

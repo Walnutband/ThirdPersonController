@@ -1,15 +1,30 @@
 ﻿using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+
 //using UnityEngine.UIElements;
 
 public class TextInputExample : MonoBehaviour
 {
     //在字段初始化中不能访问非静态实体，不过可以使用get（和set），在进行读写时执行相应的操作
     //注意set访问器如果写了，就必须实现，如果没写则为只读
-    public Vector3 position { get { return transform.position; } set { transform.position = value; } }
-    public Quaternion rotation { get { return transform.rotation; } set { transform.rotation = value; } }
+    /*序列化只会序列化字段，不会序列化属性，所以如果需要序列化，就需要将属性改为字段，
+    默认情况下，Unity不会序列化属性（property），因为它只处理字段。然而，若需要对属性进行类似序列化的功能，可以通过自定义代码或某些第三方工具实现。
+    Unity序列化系统的工作原理是在编译时生成数据结构，而属性（property）仅是方法的语法糖，因此无法直接映射到数据。*/
+    public Vector3 position
+    {
+        get { return transform.position; }
+        set { transform.position = value; }
+    }
 
+    public Quaternion rotation
+    {
+        get { return transform.rotation; }
+        set { transform.rotation = value; }
+    }
+
+
+    public bool isActive;
     public Transform target;
     public Transform startPoint;
     public Transform endPoint;
@@ -19,10 +34,10 @@ public class TextInputExample : MonoBehaviour
 
     public bool setFirst;
 
-    private void Awake()
-    {
-        //Cursor.lockState = CursorLockMode.Locked;
-    }
+    //private void Awake()  
+    //{
+    //    //Cursor.lockState = CursorLockMode.Locked;
+    //}
 
     //void Update()
     //{
@@ -36,10 +51,12 @@ public class TextInputExample : MonoBehaviour
 
     private void Update()
     {
-        if (setFirst)
-        {
-            transform.SetAsFirstSibling();
-        }
+        //if (setFirst)   
+        //{
+        //    transform.SetAsFirstSibling();
+        //}
+        if (isActive) target.gameObject.SetActive(true);
+        else target.gameObject.SetActive(false);
     }
 
     private Vector3 GetDirection(Vector3 startPoint, Vector3 endPoint)
@@ -57,19 +74,21 @@ public class TextInputExample : MonoBehaviour
     }
 
     #region 似乎实现了RotateAround方法
+
     //这是RotateAround方法的源码写法
     public void RotateAround(Vector3 point, Vector3 axis, float angle)
     {
         Vector3 worldPos = position;
         Quaternion q = Quaternion.AngleAxis(angle, axis); //获取绕axis旋转angle角度的四元数
         //就是向量减法，以及向量乘以四元数相当于进行相应旋转（准确来说是四元数左乘一个向量）
-        Vector3 dif = worldPos - point;//中心为首，围绕为尾，相当于从圆心指向半径。
+        Vector3 dif = worldPos - point; //中心为首，围绕为尾，相当于从圆心指向半径。
         dif = q * dif;
         worldPos = point + dif; //起点加上旋转后的向量得到终点。（先旋转再位移）
         position = worldPos;
         //对象本身旋转，上面是对象绕轴旋转，但其实本质上就是位移，只是看起来像旋转，不过确实可以用一个父对象旋转带动该对象位移，也可以看作是旋转，不过是父对象。
         //RotateAroundInternal(axis, angle * Mathf.Deg2Rad);
         RotateAroundInternal(axis, angle);
+
     }
 
     private void RotateAroundInternal(Vector3 axis, float angle)
@@ -77,5 +96,6 @@ public class TextInputExample : MonoBehaviour
         Quaternion q = Quaternion.AngleAxis(angle, axis); //围绕旋转了多少，自身就旋转相同角度
         rotation *= q; //似乎四元数是不满足乘法交换律的，所以这里需要注意是否是左乘还是右乘
     }
+
     #endregion
 }
