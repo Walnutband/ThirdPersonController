@@ -1,0 +1,16 @@
+{
+    "name": "GoodUI-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9711a68170e1e294396b889bb79c0187"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

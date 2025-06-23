@@ -1,0 +1,16 @@
+{
+    "name": "VisualSM-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5816354a50aa51a40ab168fc80ff907a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

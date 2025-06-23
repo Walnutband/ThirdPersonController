@@ -1,0 +1,16 @@
+{
+    "name": "BehaviourDesigner-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:51da442f6be3edb4ba514e7ab35cba44"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -48,6 +48,7 @@
         };
 
         public BindableProperty<int> Life { get; } = new BindableProperty<int>();
+
         //读取数据，注册存储方法。开始面板，初始数据：最高分0、生命3、金币0
         protected override void OnInit()
         {//加载初始值，注册存储方法

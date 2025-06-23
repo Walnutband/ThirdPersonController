@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a40be4a53fee64b4fac14e1a555927dc, type: 3}
+  m_Name: UIConfigData
+  m_EditorClassIdentifier: 
+  UIConfig:
+  - UIViewType: 0
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UIStartView.prefab
+    isPopWindow: 0
+    UILayer: 3000
+  - UIViewType: 1
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UIExitView.prefab
+    isPopWindow: 1
+    UILayer: 4000
+  - UIViewType: 2
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UILoadingView.prefab
+    isPopWindow: 0
+    UILayer: 5000
+  - UIViewType: 3
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UIMainView.prefab
+    isPopWindow: 0
+    UILayer: 3000

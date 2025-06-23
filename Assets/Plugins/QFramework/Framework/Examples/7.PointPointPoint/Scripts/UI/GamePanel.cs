@@ -44,6 +44,7 @@ namespace QFramework.PointGame
             // 每 20 帧 更新一次。这是个优化技巧，因为可以确定在 至少20 帧内不会有变化，就是利用这一个特殊的已知条件来减少 Update 的调用次数
             if (Time.frameCount % 20 == 0)
             {
+                //更新UI文本
                 transform.Find("CountDownText").GetComponent<Text>().text =
                     mCountDownSystem.CurrentRemainSeconds + "s";
 

@@ -10,6 +10,7 @@ namespace QFramework.PointGame
     {
     }
 
+    //每个成就的类，数据很少，但需要对Unlocked进行修改，也就是写，所以不能使用结构体，结构体往往用于存储比较少的只用读的数据
     public class AchievementItem
     {
         public string Name { get; set; } //成就名字

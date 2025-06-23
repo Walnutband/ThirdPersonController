@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "com.greenbamboogames.playablegraphmonitor": "https://github.com/SolarianZ/UnityPlayableGraphMonitorTool.git",
+    "com.unity.addressables": "1.22.3",
     "com.unity.animation.rigging": "1.2.1",
     "com.unity.burst": "1.8.19",
     "com.unity.cinemachine": "2.10.3",
@@ -9,6 +11,10 @@
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.inputsystem": "1.11.2",
     "com.unity.mathematics": "1.3.2",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.playablegraph-visualizer": "https://github.com/Unity-Technologies/graph-visualizer.git",
+    "com.unity.polybrush": "1.1.8",
+    "com.unity.probuilder": "5.2.4",
     "com.unity.render-pipelines.universal": "14.0.11",
     "com.unity.test-framework": "1.1.33",
     "com.unity.textmeshpro": "3.0.7",

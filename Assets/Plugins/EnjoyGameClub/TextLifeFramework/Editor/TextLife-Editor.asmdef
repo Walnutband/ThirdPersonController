@@ -1,0 +1,16 @@
+{
+    "name": "TextLife-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c237f3a24c6d0e1488de7de86c6f88ac"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

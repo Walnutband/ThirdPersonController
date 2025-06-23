@@ -1,0 +1,26 @@
+[
+  {
+    "UIViewType": "UIStartView",
+    "path": "Assets/AssetsPackage/GoodUI/Prefabs/UIStartView.prefab",
+    "isPopWindow": false,
+    "UILayer": "NormalLayer"
+  },
+  {
+    "UIViewType": "UIExitView",
+    "path": "Assets/AssetsPackage/GoodUI/Prefabs/UIExitView.prefab",
+    "isPopWindow": true,
+    "UILayer": "InfoLayer"
+  },
+  {
+    "UIViewType": "UILoadingView",
+    "path": "Assets/AssetsPackage/GoodUI/Prefabs/UILoadingView.prefab",
+    "isPopWindow": false,
+    "UILayer": "TopLayer"
+  },
+  {
+    "UIViewType": "UIMainView",
+    "path": "Assets/AssetsPackage/GoodUI/Prefabs/UIMainView.prefab",
+    "isPopWindow": false,
+    "UILayer": "NormalLayer"
+  }
+]
