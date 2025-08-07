@@ -74,6 +74,14 @@ namespace MyPlugins.GoodUI
 
         }
 
+        public void ResetElementState()
+        {//全部重置为折叠状态
+            m_Transition = Transition.Instant;
+            elements.ForEach((element) => element.isExpand = false);
+            m_Transition = Transition.Tween;
+
+        }
+
         /// <summary>
         /// 确定有效状态，就是判断是否符合限制条件，此处唯一可能存在的限制条件就是字段allowMultiOn指定的是否允许多个元素处于On状态即展开状态，而始终都是允许全部关闭的
         /// </summary>

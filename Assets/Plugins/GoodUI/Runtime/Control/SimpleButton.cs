@@ -19,7 +19,7 @@ namespace MyPlugins.GoodUI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            onClick.Invoke();
+            onClick?.Invoke();
         }
 
         public void AddListener(Action action)

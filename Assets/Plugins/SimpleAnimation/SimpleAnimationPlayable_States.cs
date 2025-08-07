@@ -47,31 +47,34 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (!IsValid())
                     throw new InvalidOperationException("The collection has been modified, this Enumerator is invalid");
 
-                if (index < 0 || index >= m_Owner.m_States.count)
+                if (index < 0 || index >= m_Owner.m_StateManager.count)
                     throw new InvalidOperationException("Enumerator is invalid");
 
-                StateInfo state = m_Owner.m_States[index];
+                StateInfo state = m_Owner.m_StateManager[index]; //数组索引器
                 if (state == null)
                     throw new InvalidOperationException("Enumerator is invalid");
 
                 return new StateHandle(m_Owner, state.index, state.playable);
             }
 
+            //对于IEnumerator和IEnumerator<T>的Current的显式实现。
             object IEnumerator.Current { get { return GetCurrentHandle(m_Index); } }
 
             IState IEnumerator<IState>.Current { get { return GetCurrentHandle(m_Index); } }
 
             public void Dispose() { }
 
+            //这里的接口方法就是将m_Index移动到下一个不为空的元素位置，如果超出了边界当然就直接退出，而返回值就是表明是否超出了边界。
+            //注意这是一个do-while语句，所以首先的一层含义是必然向后移动一位，如果发现是空元素的话，那么就继续移动。直到不为空或者超出边界。
             public bool MoveNext()
             {
                 if (!IsValid())
                     throw new InvalidOperationException("The collection has been modified, this Enumerator is invalid");
 
                 do
-                { m_Index++; } while (m_Index < m_Owner.m_States.count && m_Owner.m_States[m_Index] == null);
+                { m_Index++; } while (m_Index < m_Owner.m_StateManager.count && m_Owner.m_StateManager[m_Index] == null);
 
-                return m_Index < m_Owner.m_States.count;
+                return m_Index < m_Owner.m_StateManager.count;
             }
 
             public void Reset()
@@ -83,9 +86,10 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         }
     }
     
+    //Tip：IState定义了一个动画片段的所有应有属性，需要做到的是一想到动画片段就能立刻联想到这些属性。
     public interface IState
     {
-        bool IsValid();
+        bool IsValid(); //enabled指的是自己本身的有效状态，而IsValid涉及到处于某一个整体中的自身的有效状态
 
         bool enabled { get; set; }
 
@@ -126,7 +130,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States[m_Index].enabled;
+                return m_Parent.m_StateManager[m_Index].enabled;
             }
 
             set
@@ -134,9 +138,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
                 if (value)
-                    m_Parent.m_States.EnableState(m_Index);
+                    m_Parent.m_StateManager.EnableState(m_Index);
                 else
-                    m_Parent.m_States.DisableState(m_Index);
+                    m_Parent.m_StateManager.DisableState(m_Index);
 
             }
         }
@@ -147,13 +151,13 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateTime(m_Index);
+                return m_Parent.m_StateManager.GetStateTime(m_Index);
             }
             set
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                m_Parent.m_States.SetStateTime(m_Index, value);
+                m_Parent.m_StateManager.SetStateTime(m_Index, value);
             }
         }
 
@@ -164,22 +168,22 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
 
-                float length = m_Parent.m_States.GetClipLength(m_Index);
+                float length = m_Parent.m_StateManager.GetClipLength(m_Index);
                 if (length == 0f)
                     length = 1f;
 
-                return m_Parent.m_States.GetStateTime(m_Index) / length;
+                return m_Parent.m_StateManager.GetStateTime(m_Index) / length;
             }
             set
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
 
-                float length = m_Parent.m_States.GetClipLength(m_Index);
+                float length = m_Parent.m_StateManager.GetClipLength(m_Index);
                 if (length == 0f)
                     length = 1f;
 
-                m_Parent.m_States.SetStateTime(m_Index, value *= length);
+                m_Parent.m_StateManager.SetStateTime(m_Index, value *= length);
             }
         }
 
@@ -189,13 +193,13 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateSpeed(m_Index);
+                return m_Parent.m_StateManager.GetStateSpeed(m_Index);
             }
             set
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                m_Parent.m_States.SetStateSpeed(m_Index, value);
+                m_Parent.m_StateManager.SetStateSpeed(m_Index, value);
             }
         }
 
@@ -205,7 +209,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateName(m_Index);
+                return m_Parent.m_StateManager.GetStateName(m_Index);
             }
             set
             {
@@ -213,7 +217,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                     throw new System.InvalidOperationException("This StateHandle is not valid");
                 if (value == null)
                     throw new System.ArgumentNullException("A null string is not a valid name");
-                m_Parent.m_States.SetStateName(m_Index, value);
+                m_Parent.m_StateManager.SetStateName(m_Index, value);
             }
         }
 
@@ -223,7 +227,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States[m_Index].weight;
+                return m_Parent.m_StateManager[m_Index].weight;
             }
             set
             {
@@ -232,7 +236,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (value < 0)
                     throw new System.ArgumentException("Weights cannot be negative");
 
-                m_Parent.m_States.SetInputWeight(m_Index, value);
+                m_Parent.m_StateManager.SetInputWeight(m_Index, value);
             }
         }
 
@@ -242,7 +246,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateLength(m_Index);
+                return m_Parent.m_StateManager.GetStateLength(m_Index);
             }
         }
 
@@ -252,7 +256,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateClip(m_Index);
+                return m_Parent.m_StateManager.GetStateClip(m_Index);
             }
         }
 
@@ -262,7 +266,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             {
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
-                return m_Parent.m_States.GetStateWrapMode(m_Index);
+                return m_Parent.m_StateManager.GetStateWrapMode(m_Index);
             }
         }
 
@@ -276,7 +280,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     private class StateInfo
     {
         public void Initialize(string name, AnimationClip clip, WrapMode wrapMode)
-        {
+        {//这些是基本信息，也就是静态信息，而比如time、speed、weight之类的就是动态信息，就会通过对应的方法来控制。
             m_StateName = name;
             m_Clip = clip;
             m_WrapMode = wrapMode;
@@ -292,6 +296,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             return m_Time;
         }
 
+        /// <summary>
+        /// 直接设置状态的time（以及对应的Playable的time）
+        /// </summary>
         public void SetTime(float newTime)
         {
             m_Time = newTime;
@@ -305,7 +312,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 return;
 
             m_EnabledDirty = true;
-            m_Enabled = true;
+            m_Enabled = true; //注意这里的enabled只是一个标记而已，并没有直接参与到生命周期
         }
 
         public void Disable()
@@ -329,6 +336,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             m_Playable.Play();
         }
 
+        /// <summary>
+        /// 停止，注意区别于暂停Pause。这里会直接重置状态，就是重置各个属性值。
+        /// </summary>
         public void Stop()
         {
             m_FadeSpeed = 0f;
@@ -345,6 +355,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         public void ForceWeight(float weight)
         {
            m_TargetWeight = weight;
+           //因为Fade过渡就是逐渐改变权重。
            m_Fading = false;
            m_FadeSpeed = 0f;
            SetWeight(weight);
@@ -453,6 +464,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         private AnimationClip m_Clip;
 
+
         public void SetPlayable(Playable playable)
         {
             m_Playable = playable;
@@ -460,6 +472,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         public bool isDone { get { return m_Playable.IsDone(); } }
 
+        /// <summary>
+        /// 记录所关联的AnimationClipPlayable
+        /// </summary>
         public Playable playable
         {
             get { return m_Playable; }
@@ -489,6 +504,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         private bool m_ReadyForCleanup;
 
+        /// <summary>
+        /// parent指的是克隆对象，并非是层级方面的关系。
+        /// </summary>
         public StateHandle parentState
         {
             get { return m_ParentState; }
@@ -496,6 +514,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         public StateHandle m_ParentState;
 
+        //启用状态和权重，其实从含义上来看m_TimeIsUpToDate也可以设置为timeDirty。
         public bool enabledDirty { get { return m_EnabledDirty; } }
         public bool weightDirty { get { return m_WeightDirty; } }
 
@@ -508,6 +527,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         private bool m_WeightDirty;
         private bool m_EnabledDirty;
 
+        /*Tip：这里设置为方法而不是属性，是因为只需要只应该开放给外部标记该字段为false的权利，如果用属性的话，虽然可以自定义setter，但终究不够明确具体的开放内容。
+        总之还是理解封装，封装一方面是把数据和行为合理地融洽地放在一个具有特定含义的类中，一方面是向外部开放非常有限的接口，限制外部可以对自己进行的操作，不过同时
+        也是对外部的一些提示，因为既是不希望被执行某些操作，又是希望被执行某些操作。*/
         public void InvalidateTime() { m_TimeIsUpToDate = false; }
         private bool m_TimeIsUpToDate;
     }
@@ -517,13 +539,19 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         return new StateHandle(this, info.index, info.playable);
     }
 
-    private class StateManagement
+    /// <summary>
+    /// 存储与管理（所存在的）状态。
+    /// </summary>
+    private class StateManager
     {
         private List<StateInfo> m_States;
 
         public int count { get { return m_Count; } }
 
-        private int m_Count;
+        /// <summary>
+        /// 记录的是m_States列表中实际存在的状态，不包含为空引用的元素。
+        /// </summary>
+        private int m_Count; 
 
         public StateInfo this[int i]
         {
@@ -533,18 +561,24 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             }
         }
 
-        public StateManagement()
+        public StateManager()
         {
             m_States = new List<StateInfo>();
         }
 
+        /// <summary>
+        /// 插入状态到状态列表中。
+        /// </summary>
+        /// <returns></returns>
         public StateInfo InsertState()
         {
             StateInfo state = new StateInfo();
 
+            //Tip:寻找空位，可能由于种种原因，导致已经分配过的位置上的引用为空，所以就正好利用空位直接插入。
             int firstAvailable = m_States.FindIndex(s => s == null);
             if (firstAvailable == -1)
             {
+                //没有空位就添加到最后一个元素的下一个位置。
                 firstAvailable = m_States.Count;
                 m_States.Add(state);
             }
@@ -553,14 +587,16 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 m_States.Insert(firstAvailable, state);
             }
 
-            state.index = firstAvailable;
+            state.index = firstAvailable; //状态自己记录索引。
             m_Count++;
             return state;
         }
+
         public bool AnyStatePlaying()
         {
             return m_States.FindIndex(s => s != null && s.enabled) != -1;
         }
+
 
         public void RemoveState(int index)
         {
@@ -576,7 +612,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             for (int i = 0; i < m_States.Count; i++)
             {
                 StateInfo state = m_States[i];
-                if (state != null &&state.clip == clip)
+                if (state != null && state.clip == clip)
                 {
                     RemoveState(i);
                     removed = true;
@@ -587,11 +623,14 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         public StateInfo FindState(string name)
         {
-            int index = m_States.FindIndex(s => s != null && s.stateName == name);
-            if (index == -1)
-                return null;
+            return m_States.Find(s => s != null && s.stateName == name);
+            //Tip:有点没看懂这里官方先找到index，然后再返回元素，属实莫名其妙，不是可以直接用一行Find就可以解决了吗？
+            // int index = m_States.FindIndex(s => s != null && s.stateName == name);
+            // if (index == -1)
+            //     return null;
 
-            return m_States[index];
+            // return m_States[index];
+
         }
 
         public void EnableState(int index)
@@ -610,7 +649,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         {
             StateInfo state = m_States[index];
             state.SetWeight(weight);
-           
+
         }
 
         public void SetStateTime(int index, float time)
@@ -645,6 +684,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             return m_States[index].weight;
         }
 
+        /// <summary>
+        /// 获取状态长度，就是AnimationClip的考虑了speed的实际长度
+        /// </summary>
         public float GetStateLength(int index)
         {
             AnimationClip clip = m_States[index].clip;
@@ -691,8 +733,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             m_States[index].stateName = name;
         }
 
+        
         public void StopState(int index, bool cleanup)
-        {
+        {//
             if (cleanup)
             {
                 RemoveState(index);
@@ -705,6 +748,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     }
 
+    //队列状态，就是连续过渡的若干状态，使用QueuedState封装起来而实现功能。
     private struct QueuedState
     {
         public QueuedState(StateHandle s, float t)

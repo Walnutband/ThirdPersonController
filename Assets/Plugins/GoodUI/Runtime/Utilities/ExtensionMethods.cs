@@ -1,7 +1,9 @@
 
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class ExtensionMethods
 {
@@ -115,5 +117,13 @@ public static class ExtensionMethods
             dict[key] = value;
         else
             dict.Add(key, value);
+    }
+
+    public static void SetAlpha(this Image image, float alpha)
+    {
+        alpha = Mathf.Clamp01(alpha);
+        Color color = image.color;
+        color.a = alpha;
+        image.color = color;
     }
 }

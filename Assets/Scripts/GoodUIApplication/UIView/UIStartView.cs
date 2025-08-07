@@ -87,6 +87,7 @@ namespace MyPlugins.GoodUI
             go_ProgressBar.SetActive(true);
             go_Enter.SetActive(false);
             slider_Progress.value = 0f;
+            button_Exit.interactable = false;
         }
 
         //TODO:现在只是对进度条的一个模拟，这里的逻辑原本应该是异步加载资源（比如绝区零就是加载配置数据），随着加载进度而更新进度条。
@@ -143,6 +144,7 @@ namespace MyPlugins.GoodUI
         {
             go_ProgressBar.SetActive(false);
             go_Enter.SetActive(true);
+            button_Exit.interactable = true;
             //TODO:应该加上渐变切换的动画，使用CanvasGroup组件的alpha来控制。
             // Sequence sequence = DOTween.Sequence();
             // sequence.Append()

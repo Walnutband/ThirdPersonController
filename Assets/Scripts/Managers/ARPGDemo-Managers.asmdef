@@ -1,0 +1,16 @@
+{
+    "name": "ARPGDemo-Managers",
+    "rootNamespace": "",
+    "references": [
+        "GUID:691481807caacbd438531a3edad28f4d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

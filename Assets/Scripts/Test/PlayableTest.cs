@@ -3,42 +3,46 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
 
-[RequireComponent(typeof(Animator))]
-public class PlayWithTimeControlSample : MonoBehaviour
+namespace ARPGDemo.Test
 {
-    public AnimationClip clip;
-    public float time;
-    PlayableGraph playableGraph;
-    AnimationClipPlayable playableClip;
 
-    void Start()
+    [RequireComponent(typeof(Animator))]
+    public class PlayWithTimeControlSample : MonoBehaviour
     {
-        playableGraph = PlayableGraph.Create();
-        var playableOutput = AnimationPlayableOutput.Create(playableGraph, "Animation", GetComponent<Animator>());
+        public AnimationClip clip;
+        public float time;
+        PlayableGraph playableGraph;
+        AnimationClipPlayable playableClip;
 
-        // Wrap the clip in a playable.
-        playableClip = AnimationClipPlayable.Create(playableGraph, clip);
+        void Start()
+        {
+            playableGraph = PlayableGraph.Create();
+            var playableOutput = AnimationPlayableOutput.Create(playableGraph, "Animation", GetComponent<Animator>());
 
-        // Connect the Playable to an output.
-        playableOutput.SetSourcePlayable(playableClip);
+            // Wrap the clip in a playable.
+            playableClip = AnimationClipPlayable.Create(playableGraph, clip);
 
-        // Plays the Graph.
-        playableGraph.Play();
+            // Connect the Playable to an output.
+            playableOutput.SetSourcePlayable(playableClip);
 
-        // Stops time from progressing automatically.
-        playableClip.Pause();
-    }
+            // Plays the Graph.
+            playableGraph.Play();
 
-    void Update()
-    {
-        // Control the time manually.
-        playableClip.SetTime(time);
-    }
+            // Stops time from progressing automatically.
+            playableClip.Pause();
+        }
 
-    void OnDisable()
-    {
-        // Destroys all Playables and Outputs created by the graph.
-        playableGraph.Destroy();
+        void Update()
+        {
+            // Control the time manually.
+            playableClip.SetTime(time);
+        }
+
+        void OnDisable()
+        {
+            // Destroys all Playables and Outputs created by the graph.
+            playableGraph.Destroy();
+        }
     }
 }
 

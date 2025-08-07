@@ -38,7 +38,7 @@
                     "id": "33fc6d25-d3f5-49a6-889e-dcc4b3e99696",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press",
                     "initialStateCheck": false
                 },
                 {
@@ -203,6 +203,39 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Custom",
+                    "id": "cc1d615f-ad6f-4576-b08f-3917c4dec676",
+                    "path": "Custom",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Multiplier",
+                    "id": "f312d3ee-c40e-4616-a337-8cbeb885bfff",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "stick",
+                    "id": "80a5c1bb-69dc-4886-8b4c-14052dec64a1",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -380,7 +413,7 @@
                     "name": "Submit",
                     "type": "Button",
                     "id": "af2edf1d-33c3-4312-9105-d81731361502",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -722,17 +755,6 @@
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "9e92bb26-7e3b-4ec4-b06b-3c8f8e498ddc",
-                    "path": "*/{Submit}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
-                    "action": "Submit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 },
                 {
                     "name": "",

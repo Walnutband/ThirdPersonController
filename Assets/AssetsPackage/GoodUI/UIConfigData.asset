@@ -20,12 +20,24 @@ MonoBehaviour:
   - UIViewType: 1
     path: Assets/AssetsPackage/GoodUI/Prefabs/UIExitView.prefab
     isPopWindow: 1
-    UILayer: 4000
+    UILayer: 3000
   - UIViewType: 2
     path: Assets/AssetsPackage/GoodUI/Prefabs/UILoadingView.prefab
     isPopWindow: 0
     UILayer: 5000
   - UIViewType: 3
     path: Assets/AssetsPackage/GoodUI/Prefabs/UIMainView.prefab
+    isPopWindow: 0
+    UILayer: 3000
+  - UIViewType: 5
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UIAttributeView.prefab
+    isPopWindow: 1
+    UILayer: 3000
+  - UIViewType: 4
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UISettingsView.prefab
+    isPopWindow: 0
+    UILayer: 3000
+  - UIViewType: 6
+    path: Assets/AssetsPackage/GoodUI/Prefabs/UICharacterView.prefab
     isPopWindow: 0
     UILayer: 3000

@@ -8,7 +8,7 @@ using System;
 public partial class SimpleAnimationPlayable : PlayableBehaviour
 {
     LinkedList<QueuedState> m_StateQueue;
-    StateManagement m_States;
+    StateManager m_StateManager;
     bool m_Initialized;
 
     bool m_KeepStoppedPlayablesConnected = true;
@@ -19,16 +19,16 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         {
             if (value != m_KeepStoppedPlayablesConnected)
             {
-                m_KeepStoppedPlayablesConnected = value;
+                m_KeepStoppedPlayablesConnected = value; 
             }
         }
     }
 
     void UpdateStoppedPlayablesConnections()
     {
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state == null)
                 continue;
             if (state.enabled)
@@ -54,7 +54,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     public System.Action onDone = null;
     public SimpleAnimationPlayable()
     {
-        m_States = new StateManagement();
+        m_StateManager = new StateManager();
         this.m_StateQueue = new LinkedList<QueuedState>();
     }
 
@@ -66,6 +66,10 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         return m_Mixer.GetInput(index);
     }
 
+    /// <summary>
+    /// 在拥有该PlayableBehaviour的Playable被创建的时候
+    /// </summary>
+    /// <param name="playable">这是拥有当前PlayableBehaviour的Playable</param>
     public override void OnPlayableCreate(Playable playable)
     {
         m_ActualPlayable = playable;
@@ -87,7 +91,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public IState GetState(string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             return null;
@@ -99,7 +103,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     private StateInfo DoAddClip(string name, AnimationClip clip)
     {
         //Start new State
-        StateInfo newState = m_States.InsertState();
+        StateInfo newState = m_StateManager.InsertState();
         newState.Initialize(name, clip, clip.wrapMode);
         //Find at which input the state will be connected
         int index = newState.index;
@@ -128,7 +132,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool AddClip(AnimationClip clip, string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state != null)
         {
             Debug.LogError(string.Format("Cannot add state with name {0}, because a state with that name already exists", name));
@@ -144,7 +148,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool RemoveClip(string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot remove state with name {0}, because a state with that name doesn't exist", name));
@@ -153,19 +157,19 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
         RemoveClones(state);
         InvalidateStates();
-        m_States.RemoveState(state.index);
+        m_StateManager.RemoveState(state.index);
         return true;
     }
 
     public bool RemoveClip(AnimationClip clip)
     {
         InvalidateStates();
-        return m_States.RemoveClip(clip);
+        return m_StateManager.RemoveClip(clip);
     }
 
     public bool Play(string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot play state with name {0} because there is no state with that name", name));
@@ -177,9 +181,10 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private bool Play(int index)
     {
-        for (int i = 0; i < m_States.count; i++)
+        //这里遍历是为了播放指定动画的同时停止其他动画，这个Play方法就是“硬执行”，也算是最基本的播放操作，
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state.index == index)
             {
                 state.Enable();
@@ -196,7 +201,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool PlayQueued(string name, QueueMode queueMode)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot queue Play to state with name {0} because there is no state with that name", name));
@@ -222,7 +227,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public void Rewind(string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot Rewind state with name {0} because there is no state with that name", name));
@@ -233,16 +238,17 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     }
 
     private void Rewind(int index)
-    {
-        m_States.SetStateTime(index, 0f);
+    {//将指定State对应的Playable的time设置为0，也就是开始时刻。
+        m_StateManager.SetStateTime(index, 0f);
     }
 
+    //将所有State的Playable的time都重置为开始时刻。
     public void Rewind()
     {
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            if (m_States[i] != null)
-                m_States.SetStateTime(i, 0f);
+            if (m_StateManager[i] != null) 
+                m_StateManager.SetStateTime(i, 0f);
         }
     }
 
@@ -253,7 +259,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         {
             var next = it.Next;
 
-            StateInfo queuedState = m_States[it.Value.state.index];
+            StateInfo queuedState = m_StateManager[it.Value.state.index];
             if (queuedState.parentState.index == state.index)
             {
                 m_StateQueue.Remove(it);
@@ -266,7 +272,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool Stop(string name)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot stop state with name {0} because there is no state with that name", name));
@@ -282,10 +288,10 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private void DoStop(int index)
     {
-        StateInfo state = m_States[index];
+        StateInfo state = m_StateManager[index];
         if (state == null)
             return;
-        m_States.StopState(index, state.isClone);
+        m_StateManager.StopState(index, state.isClone);
         if (!state.isClone)
         {
             RemoveClones(state);
@@ -294,7 +300,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool StopAll()
     {
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
             DoStop(i);
         }
@@ -306,12 +312,12 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool IsPlaying()
     {
-        return m_States.AnyStatePlaying();
+        return m_StateManager.AnyStatePlaying();
     }
 
     public bool IsPlaying(string stateName)
     {
-        StateInfo state = m_States.FindState(stateName);
+        StateInfo state = m_StateManager.FindState(stateName);
         if (state == null)
             return false;
 
@@ -320,9 +326,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private bool IsClonePlaying(StateInfo state)
     {
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo otherState = m_States[i];
+            StateInfo otherState = m_StateManager[i];
             if (otherState == null)
                 continue;
 
@@ -338,9 +344,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     public int GetClipCount()
     {
         int count=0;
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            if (m_States[i] != null)
+            if (m_StateManager[i] != null)
             {
                 count++;
             }
@@ -362,15 +368,15 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private bool Crossfade(int index, float time)
     {
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state == null)
                 continue;
 
             if (state.index == index)
             {
-                m_States.EnableState(index);
+                m_StateManager.EnableState(index);
             }
 
             if (state.enabled == false)
@@ -385,7 +391,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private StateInfo CloneState(int index)
     {
-        StateInfo original = m_States[index];
+        StateInfo original = m_StateManager[index];
         string newName = original.stateName + "Queued Clone";
         StateInfo clone = DoAddClip(newName, original.clip);
         clone.SetAsCloneOf(new StateHandle(this, original.index, original.playable));
@@ -394,7 +400,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool Crossfade(string name, float time)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot crossfade to state with name {0} because there is no state with that name", name));
@@ -409,7 +415,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool CrossfadeQueued(string name, float time, QueueMode queueMode)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot queue crossfade to state with name {0} because there is no state with that name", name));
@@ -435,9 +441,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private bool Blend(int index, float targetWeight, float time)
     {
-        StateInfo state = m_States[index];
+        StateInfo state = m_StateManager[index];
         if (state.enabled == false)
-            m_States.EnableState(index);
+            m_StateManager.EnableState(index);
 
         if (time == 0f)
         {
@@ -453,7 +459,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool Blend(string name, float targetWeight, float time)
     {
-        StateInfo state = m_States.FindState(name);
+        StateInfo state = m_StateManager.FindState(name);
         if (state == null)
         {
             Debug.LogError(string.Format("Cannot blend state with name {0} because there is no state with that name", name));
@@ -469,9 +475,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         if (!self.IsValid())
             return;
 
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state == null)
                 continue;
             //Graph停止播放时，根据条件（也不知道为何是这样的条件），将time重置到开始即为0。
@@ -488,7 +494,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private void UpdateDoneStatus()
     {
-        if (!m_States.AnyStatePlaying())
+        if (!m_StateManager.AnyStatePlaying())
         {
             bool wasDone = playable.IsDone();
             playable.SetDone(true);
@@ -503,9 +509,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     private void CleanClonedStates()
     {
-        for (int i = m_States.count-1; i >= 0; i--)
+        for (int i = m_StateManager.count-1; i >= 0; i--)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state == null)
                 continue;
 
@@ -514,7 +520,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 Playable toDestroy = m_Mixer.GetInput(state.index);
                 graph.Disconnect(m_Mixer, state.index);
                 graph.DestroyPlayable(toDestroy);
-                m_States.RemoveState(i);
+                m_StateManager.RemoveState(i);
             }
         }
     }
@@ -523,14 +529,14 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     {
         if (keepStoppedPlayablesConnected)
         {
-            m_States[index].Pause();
+            m_StateManager[index].Pause();
         }
         graph.Disconnect(m_Mixer, index);
     }
 
     private void ConnectInput(int index)
     {
-        StateInfo state = m_States[index];
+        StateInfo state = m_StateManager[index];
         graph.Connect(state.playable, 0, m_Mixer, state.index);
     }
 
@@ -538,9 +544,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     {
         bool mustUpdateWeights = false;
         float totalWeight = 0f;
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
 
             //Skip deleted states
             if (state == null)
@@ -614,9 +620,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         if (mustUpdateWeights)
         {
             bool hasAnyWeight = totalWeight > 0.0f;
-            for (int i = 0; i < m_States.count; i++)
+            for (int i = 0; i < m_StateManager.count; i++)
             {
-                StateInfo state = m_States[i];
+                StateInfo state = m_StateManager[i];
                 if (state == null)
                     continue;
 
@@ -630,9 +636,9 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
     {
         float longestTime = -1f;
 
-        for (int i = 0; i < m_States.count; i++)
+        for (int i = 0; i < m_StateManager.count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             //Skip deleted states
             if (state == null || !state.enabled || !state.playable.IsValid())
                 continue;
@@ -643,7 +649,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             }
 
             float speed = state.speed;
-            float stateTime = m_States.GetStateTime(state.index);
+            float stateTime = m_StateManager.GetStateTime(state.index);
             float remainingTime;
             if (speed > 0 )
             {
@@ -674,7 +680,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             while (it.MoveNext())
             {
                 QueuedState queuedState = it.Current;
-                m_States.StopState(queuedState.state.index, true);
+                m_StateManager.StopState(queuedState.state.index, true);
             }
         }
         m_StateQueue.Clear();
@@ -711,12 +717,16 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         }
     }
 
+    /// <summary>
+    /// 被PrepareFrame所调用，就是标记所有状态的time无效，也就是说需要更新，因为这些是周期之外的属性，而更新就是从Playable通过GetTime方法来获取最新time，
+    /// 因为Playable是参与到生命周期中的。
+    /// </summary>
     void InvalidateStateTimes()
     {
-        int count = m_States.count;
+        int count = m_StateManager.count;
         for (int i = 0; i < count; i++)
         {
-            StateInfo state = m_States[i];
+            StateInfo state = m_StateManager[i];
             if (state == null)
                 continue;
 
@@ -743,7 +753,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         if (!ValidateIndex(index))
             return false;
 
-        StateInfo state = m_States[index];
+        StateInfo state = m_StateManager[index];
         if (state == null || !state.playable.IsValid() || state.playable.GetHandle() != input.GetHandle())
             return false;
 
@@ -752,6 +762,6 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
 
     public bool ValidateIndex(int index)
     {
-        return index >= 0 && index < m_States.count;
+        return index >= 0 && index < m_StateManager.count;
     }
 }

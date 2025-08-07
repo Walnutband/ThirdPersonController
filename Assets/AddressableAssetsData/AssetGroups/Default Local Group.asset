@@ -17,25 +17,29 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: e404123cdd2899f47813656fddcc839d
   m_SerializeEntries:
-  - m_GUID: 171358a0c0eb29b49bdb1fe8b38c5f2d
-    m_Address: Assets/AssetsPackage/TestModel.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: eb85910fd7527bf45a02be06618737c0
-    m_Address: Assets/AssetsPackage/GoodUI
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 14457fe471ff61d4783e769ed846d408
     m_Address: Assets/AssetsPackage
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 171358a0c0eb29b49bdb1fe8b38c5f2d
+    m_Address: Assets/AssetsPackage/TestModel.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e38d77a83b5c3fe4a83538656a1886f7
     m_Address: Textures
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb85910fd7527bf45a02be06618737c0
+    m_Address: Assets/AssetsPackage/GoodUI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f98c3ef50f7c7d949a27c03d70d70572, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 5f36f6ef90b08bd4b81dc0659a32337e, type: 2}
     - {fileID: 11400000, guid: 0e3a52f26ee73004b8bb140fba4d349b, type: 2}
+    - {fileID: 11400000, guid: 5f36f6ef90b08bd4b81dc0659a32337e, type: 2}

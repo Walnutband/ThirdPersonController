@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="Overlay" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgb(56, 56, 56); border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; max-height: 250px; min-height: 250px; min-width: 533px; max-width: 533px;">
+            <ui:VisualElement style="flex-grow: 1; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px; background-color: rgb(56, 56, 56);">
+                <ui:Label text="新建行为树" display-tooltip-when-elided="true" style="-unity-text-align: middle-center; font-size: 25px; color: rgb(210, 210, 210); -unity-font-style: bold;" />
+                <ui:TextField picking-mode="Ignore" label="文件名" value="New Behaviour Tree" text="New Behaviour Tree" name="TreeName" style="margin-top: 20px;" />
+                <ui:TextField picking-mode="Ignore" label="文件路径" value="Assets/" text="Assets/" name="LocationPath" readonly="false" style="margin-top: 10px;" />
+                <ui:VisualElement style="flex-grow: 1;" />
+                <ui:Button text="创建" display-tooltip-when-elided="true" name="CreateButton" style="min-height: 40px; -unity-font-style: normal; font-size: 14px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

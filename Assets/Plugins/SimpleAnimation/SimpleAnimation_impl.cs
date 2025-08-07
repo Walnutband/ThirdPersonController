@@ -138,13 +138,17 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
     }
 
     [System.Serializable]
+    //Ques：为何不用结构体，而是用类？似乎序列化和自定义PropertyDrawer都适用于结构体，没有想到使用类的理由。
     public class EditorState
     {
         public AnimationClip clip;
         public string name;
-        public bool defaultState;
+        public bool defaultState; //是否为默认State，就是Animations数组中的第一个Animation
     }
 
+    /// <summary>
+    /// 确保PlayableGraph处于播放状态
+    /// </summary>
     protected void Kick()
     {
         if (!m_IsPlaying)
@@ -159,6 +163,9 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
     protected PlayableHandle m_TransitionMixer;
     protected Animator m_Animator;
     protected bool m_Initialized;
+    /// <summary>
+    /// 标记PlayableGrpah是否处于播放状态
+    /// </summary>
     protected bool m_IsPlaying;
 
     protected SimpleAnimationPlayable m_Playable;
@@ -179,7 +186,7 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
     protected AnimationClip m_Clip;
 
     [SerializeField]
-    private EditorState[] m_States;
+    private EditorState[] m_States; //数组，但是在Unity编辑器中经过了特殊处理，可以动态扩容。
 
     protected virtual void OnEnable()
     {
@@ -214,16 +221,18 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
         if (m_Initialized)
             return;
 
+        //获取Animator组件，确定循环周期，确定剔除方式。
         m_Animator = GetComponent<Animator>();
         m_Animator.updateMode = m_AnimatePhysics ? AnimatorUpdateMode.AnimatePhysics : AnimatorUpdateMode.Normal;
         m_Animator.cullingMode = m_CullingMode;
+        //创建PlayableGraph以及自定义PlayableBehaviour，注册回调
         m_Graph = PlayableGraph.Create();
         m_Graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
         SimpleAnimationPlayable template = new SimpleAnimationPlayable();
-
-        var playable = ScriptPlayable<SimpleAnimationPlayable>.Create(m_Graph, template, 1);
-        m_Playable = playable.GetBehaviour();
+        var playable = ScriptPlayable<SimpleAnimationPlayable>.Create(m_Graph, template, 1); //已有PlayableBehaviour实例，所以直接传入
+        m_Playable = playable.GetBehaviour(); //注意使用的是经过处理之后的PlayableBehaviour，至于具体进行了什么处理，就不得而知了。
         m_Playable.onDone += OnPlayableDone;
+        //初始化Animations数组
         if (m_States == null)
         {
             m_States = new EditorState[1];
@@ -231,7 +240,6 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
             m_States[0].defaultState = true;
             m_States[0].name = "Default";
         }
-
 
         if (m_States != null)
         {
@@ -274,6 +282,9 @@ public partial class SimpleAnimation: MonoBehaviour, IAnimationClipSource
         }
     }
 
+    /// <summary>
+    /// 停止PlayableGraph
+    /// </summary>
     private void OnPlayableDone()
     {
         m_Graph.Stop();

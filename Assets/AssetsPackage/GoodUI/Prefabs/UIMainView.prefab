@@ -334,7 +334,7 @@ MonoBehaviour:
     type: Button
     targets:
     - {fileID: 3185789830665050327}
-  - name: button_Attribute
+  - name: button_Character
     type: Button
     targets:
     - {fileID: 4715336559374236124}
@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 7729148385967252321}
   - component: {fileID: 4715336559374236124}
   m_Layer: 5
-  m_Name: '[Button]Attribute'
+  m_Name: '[Button]Character'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -73,12 +73,12 @@ class StateDrawer : PropertyDrawer
         Rect nameRect = new Rect(position.x + position.width/2 + 5, position.y, position.width/2 - 5, position.height);
 
 
-        EditorGUI.BeginDisabledGroup(property.FindPropertyRelative("defaultState").boolValue);
+        EditorGUI.BeginDisabledGroup(property.FindPropertyRelative("defaultState").boolValue); 
             EditorGUI.PropertyField(nameRect, property.FindPropertyRelative("clip"), GUIContent.none);
             EditorGUI.PropertyField(clipRect, property.FindPropertyRelative("name"), GUIContent.none);
             if (property.FindPropertyRelative("defaultState").boolValue)
             {
-                EditorGUI.LabelField(position, Styles.disabledTooltip);
+                EditorGUI.LabelField(position, Styles.disabledTooltip); //如果是默认State的话，就添加一个Tooltip
             }
         
         EditorGUI.EndDisabledGroup();

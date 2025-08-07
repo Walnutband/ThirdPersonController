@@ -1,0 +1,16 @@
+{
+    "name": "CombatEditor-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:463bd9b9d13a44640807ba1d9eca5e52"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

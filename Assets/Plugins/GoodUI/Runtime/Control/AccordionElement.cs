@@ -5,6 +5,8 @@ using UnityEngine.Events;
 using System;
 using UnityEngine.AddressableAssets;
 using UnityEditor;
+using UnityEngine.U2D;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace MyPlugins.GoodUI
 {
@@ -218,10 +220,16 @@ namespace MyPlugins.GoodUI
         {
             Debug.Log("LoadAssets");
             //异步加载的同步执行写法。
-            // expandTopSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Arrow Top (64x).png").Result;
-            // expandBottomSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Arrow Bottom (64x).png").Result;
-            ResourceManager.Instance.SimpleLoadAsset<Sprite>("Textures/Icons/Navigation/Arrow Top (64x).png", (result) => expandTopSprite = result);
-            ResourceManager.Instance.SimpleLoadAsset<Sprite>("Textures/Icons/Navigation/Arrow Bottom (64x).png", (result) => expandBottomSprite = result);
+            SimpleLoadAsset<SpriteAtlas>("Textures/Icons/Navigation/Flags.spriteatlasv2", (atlas) =>
+            {
+                expandTopSprite = atlas.GetSprite("Arrow Top (64x)");
+                expandBottomSprite = atlas.GetSprite("Arrow Bottom (64x)");
+            });
+            // expandTopSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Flags.spriteatlasv2[Arrow Top (64x)]").Result;
+            // expandBottomSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Flags.spriteatlasv2[Arrow Bottom (64x)]").Result;
+            // ResourceManager.Instance.SimpleLoadAsset<Sprite>("Textures/Icons/Navigation/Arrow Top (64x).png", (result) => expandTopSprite = result);
+            // ResourceManager.Instance.SimpleLoadAsset<Sprite>("Textures/Icons/Navigation/Arrow Bottom (64x).png", (result) => expandBottomSprite = result);
+
         }
 
 #if UNITY_EDITOR
@@ -245,6 +253,31 @@ namespace MyPlugins.GoodUI
             m_MinHeight = LayoutUtility.GetMinHeight(headerRect);
         }
 
+        public void SimpleLoadAsset<T>(string path, Action<T> onComplete) where T : UnityEngine.Object
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                onComplete?.Invoke(null);
+            }
+            AsyncOperationHandle handle;
+            handle = Addressables.LoadAssetAsync<T>(path);
+            Debug.Log("正在加载");
+            handle.Completed += (op) =>
+            {
+                if (op.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Debug.Log("加载成功");
+                    onComplete?.Invoke(op.Result as T); //传入加载好的资产引用（内存地址）
+                }
+                else
+                {
+                    Debug.LogErrorFormat($"[LoadAssetAsync] {path} 加载失败！");
+                    onComplete?.Invoke(null);
+                }
+            };
+        }
+
+
 #endif
 
         public void UpdateHeaderHeight()
@@ -253,7 +286,7 @@ namespace MyPlugins.GoodUI
             {
                 Debug.Log("header");
                 //通过AccordionElement检视器直接控制Header高度
-                headerRect.GetComponent<LayoutElement>().minHeight = m_MinHeight; 
+                headerRect.GetComponent<LayoutElement>().minHeight = m_MinHeight;
                 //BugFix:在实现单个AccordionElement即不位于组中时，因为不需要LayoutElement，就将其移除了，结果就出现空引用错误，并且检视面板直接黑屏了，最后发现是这里没有判空，因为之前都是默认有LayoutElement组件的，而且这次很迷惑的是，我印象中空引用错误是会打印出具体哪个变量空引用了，而且也仅仅是个空引用错误而已，结果这次竟然检视面板直接黑屏，简直离谱，前所未见。
                 if (m_IsExpand == false && m_LayoutElement != null)
                 {

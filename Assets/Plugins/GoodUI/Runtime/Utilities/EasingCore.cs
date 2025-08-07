@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-namespace MyPlugins.GoodUI
+namespace MyPlugins.GoodUI.Tweening
 {
     public enum Ease
     {

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
 
 /*底层条件：
 从上往下，索引从0到1，content对象的pivot在左上角以及锚点也在左上角，初始情况为content对象的anchoredPosition为0，即上边界与ViewPort的上边界重合，
@@ -25,10 +26,12 @@ namespace MyPlugins.GoodUI
     public class HorizontalSnapper : UIBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public bool hasEffect = false;
+        public Action<int> toBorder; 
 
         public float duration = 0.1f;
         public int viewCount = 0;
         public float itemSize = 0f; //水平就是指的宽度
+        
 
         private RectTransform content; //通过移动content位置来移动元素，边界元素在移动时基于偏移量与尺寸的比值来对scale和alpha进行插值
         private RectTransform viewport;
@@ -78,7 +81,11 @@ namespace MyPlugins.GoodUI
             // tracker = new DrivenRectTransformTracker();
             // tracker.Add(this, content,)
 
+            CheckToBorder();
+
         }
+
+
 
         /*之前的Snap方法，可以处理元素尺寸不同的情况，但是严格来说是吸附于上边界。不过从商业使用来看，根本不会出现元素的尺寸不同的情况，所以就弃用了，其实代码还更好写了
         /// <summary>
@@ -168,9 +175,23 @@ namespace MyPlugins.GoodUI
                 }
             }
 
-            snapSequence.Join(content.DOAnchorPosX(targetPosition, duration, true));
+            snapSequence.Join(content.DOAnchorPosX(targetPosition, duration, true)).onComplete += CheckToBorder;
         }
 
+        private void CheckToBorder()
+        {
+            if (Mathf.Approximately(content.anchoredPosition.x, maxX))
+            {
+                toBorder?.Invoke(-1); //到达左边界
+            }
+            else if (Mathf.Approximately(content.anchoredPosition.x, 0f))
+            {
+                toBorder?.Invoke(1); //到达右边界
+            }
+            else toBorder?.Invoke(0); //0表示没有触碰边界。
+        }
+
+        //Tip：由于边界修正的存在，ScrollRect的Elastic就不起作用了，就都是表现为Clamped了
         /// <summary>
         /// 边界修正。在Content位于边界位置时进行位置、缩放、alpha的修正，保证不会因为边界而出现意外情况。
         /// </summary>
@@ -180,8 +201,9 @@ namespace MyPlugins.GoodUI
             int upIndex, downIndex;
 
             //除了修正位置以外，由于会导致跳过（ApplyEffect）后续逻辑，所以需要同时补上对于视图内元素的scale和alpha修正
-            if (Mathf.Approximately(content.anchoredPosition.x, maxX))
+            if (Mathf.Approximately(content.anchoredPosition.x, maxX) || content.anchoredPosition.x > maxX)
             {
+                toBorder?.Invoke(-1); //到达左边界
                 content.anchoredPosition = new Vector2(maxX, 0f);
                 // preDownIndex = items.Length - 1;
                 // preUpIndex = preDownIndex - viewCount;
@@ -191,8 +213,9 @@ namespace MyPlugins.GoodUI
                 ViewCorrect(upIndex, downIndex);
                 return true;
             }
-            else if (Mathf.Approximately(content.anchoredPosition.x, 0f))
+            else if (Mathf.Approximately(content.anchoredPosition.x, 0f) || content.anchoredPosition.x < 0f)
             {
+                toBorder?.Invoke(1); //到达右边界
                 content.anchoredPosition = new Vector2(0f, 0f);
                 // preUpIndex = 0;
                 // preDownIndex = preUpIndex + viewCount;
@@ -201,7 +224,9 @@ namespace MyPlugins.GoodUI
                 ViewCorrect(upIndex, downIndex);
                 return true;
             }
-
+            //Tip:这里也是一个修正，（对于恢复Flag）不要完全以边界作为边界，要留出一部分空间，否则会发现Flag闪烁的情况。
+            if (content.anchoredPosition.x < maxX - itemSize / 5 && content.anchoredPosition.x > 0f + itemSize / 5)
+                toBorder?.Invoke(0); //0表示没有触碰边界。
             return false;
         }
 

@@ -614,10 +614,15 @@ namespace UnityEngine.UI
                     return SelectionState.Disabled;
                 if (isPointerDown)
                     return SelectionState.Pressed;
-                if (hasSelection)
-                    return SelectionState.Selected;
+                // if (hasSelection)
+                //     return SelectionState.Selected;
+                // if (isPointerInside)
+                //     return SelectionState.Highlighted;
+                //Tip：Selectable这里调整顺序就是为了防止点击后进入被选中状态导致再次悬浮会没有状态响应的问题
                 if (isPointerInside)
                     return SelectionState.Highlighted;
+                if (hasSelection)
+                    return SelectionState.Selected;
                 return SelectionState.Normal;
             }
         }

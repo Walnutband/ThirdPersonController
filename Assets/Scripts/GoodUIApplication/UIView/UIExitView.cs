@@ -28,11 +28,7 @@ namespace MyPlugins.GoodUI
 #pragma warning restore 0649
         #endregion
 
-
-
         private string returnStartScene = "StartScene";
-
-
 
         private Vector2 sizeDelta;
 
@@ -87,11 +83,11 @@ namespace MyPlugins.GoodUI
             canvasGroup.DOFade(0f, 0.1f);
         }
 
-        public override void OnCancel()
-        {
-            base.OnCancel();
-            UIManager.Instance.Close(UIViewType.UIExitView);
-        }
+        // public override void OnCancel()
+        // {
+        //     base.OnCancel();
+        //     UIManager.Instance.Close(UIViewType.UIExitView);
+        // }
 
         private void OnConfirm()
         {
