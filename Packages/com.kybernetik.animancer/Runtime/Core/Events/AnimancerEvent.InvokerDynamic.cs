@@ -50,7 +50,7 @@ namespace Animancer
             /// <summary>After animation update with dynamic timestep.</summary>
             protected virtual void LateUpdate()
             {
-                Debug.Log("LateUpdate");
+                // Debug.Log("LateUpdate");
                 InvokeAllAndClear();
             }
 

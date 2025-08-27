@@ -48,7 +48,7 @@ namespace Animancer.FSM
             else
                 UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
 #endif
-
+/*Ques：这里是将启用和禁用作为所有状态的进入和退出的默认行为了，我很怀疑这种做法是否合理，但是暂时又想不到哪里有问题。*/
             enabled = true;
         }
 

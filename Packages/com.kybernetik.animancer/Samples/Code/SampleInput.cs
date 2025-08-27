@@ -179,7 +179,8 @@ namespace Animancer.Samples
             get
             {
                 /*Tip：纯代码创建InputAction，显然不推荐，因为全是Magic strings，而且完全没必要，因为输入方式在运行时往往只需要开关，或者更改绑定，而不是运行时现场构造，
-                这是应该在编辑时完成的工作。*/
+                这是应该在编辑时完成的工作。
+                而且如果是纯代码的话，其实可以直接访问静态成员如Keyboard.current.aKey这样来直接读取指定控件的输入值，没必要手动构造InputAction。*/
                 if (_WasdAction == null)
                 {
                 _WasdAction = new(nameof(WASD), InputActionType.Value);
@@ -189,7 +190,6 @@ namespace Animancer.Samples
                         .With("Left", "<Keyboard>/a")
                         .With("Right", "<Keyboard>/d");
                 }
-
                 _WasdAction.Enable();
 
                 return _WasdAction.ReadValue<Vector2>();

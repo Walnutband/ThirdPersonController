@@ -353,7 +353,7 @@ namespace Animancer
         {
             //基类的CreatePlayable调用派生类实现的有参数CreatePlayable创建Playable节点实例，然后下面就连接端口。
             base.CreatePlayable();
-            Debug.Log($"{this.Clip.name}的index为{this.Index}");
+            // Debug.Log($"{this.Clip.name}的index为{this.Index}");
             //将自己的输出端口连接到父节点指定的输入端口
             if (Parent != null && (IsActive || Parent.KeepChildrenConnected))
                 Graph._PlayableGraph.Connect(Parent.Playable, Playable, Index, Weight);

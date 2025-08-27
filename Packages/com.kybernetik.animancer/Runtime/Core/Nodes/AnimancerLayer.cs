@@ -244,7 +244,7 @@ namespace Animancer
             if (state.TryDeactivate())
                 ActiveStatesInternal.Add(state); //还会连接节点
 
-            Debug.Log($"Graph.KeepChildrenConnected : {Graph.KeepChildrenConnected}");
+            // Debug.Log($"Graph.KeepChildrenConnected : {Graph.KeepChildrenConnected}");
             if (Graph.KeepChildrenConnected)
             {
                 // Debug.Log("");
@@ -904,7 +904,7 @@ namespace Animancer
             这是属于整个Graph的，与具体的Layer无关，而此处就是将该State绑定到具体的AnimancerLayer上，实质上就是将AnimationClipPlayable绑定到AnimationMixerPlayable。
             ————其实也很直观，因为Play本来就是在具体的Layer上执行的，当然就要将要播放的节点绑定到该Layer上*/
             state = GetOrCreateState(state);
-            Debug.Log($"{state.Clip.name}的index为{state.Index}");
+            // Debug.Log($"{state.Clip.name}的index为{state.Index}");
 
             CurrentState = state; //正在播放的State
             //停止该Layer下其他所有正在播放的State

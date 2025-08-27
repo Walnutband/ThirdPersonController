@@ -1,0 +1,19 @@
+{
+    "name": "ARPGDemo",
+    "rootNamespace": "",
+    "references": [
+        "Unity.InputSystem",
+        "Kybernetik.Animancer",
+        "GoodUI",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

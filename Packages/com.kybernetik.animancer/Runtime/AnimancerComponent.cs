@@ -536,7 +536,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
 
-        //Tip：使用”<para></para>“可以提行，极其实用。
+        //使用”<para></para>“可以提行，极其实用。
         //Ques：看了下这里的访问，现在也想不明白到底应不应该让AnimancerComponent直接访问到Graph的Layers，但是属性本来就是公开给其他类调用的
         //Tip：总结为，播放AnimationLayerMixerPlayable第一个输入端口上的指定Clip。并且直接使用AnimancerComponent的Play方法的话，都是默认第1个Layer
         /// <summary>Stops all other animations on the same layer, plays the `clip`, and returns its state.</summary>

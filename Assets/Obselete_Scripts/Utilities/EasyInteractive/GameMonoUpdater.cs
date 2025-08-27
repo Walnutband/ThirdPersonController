@@ -52,11 +52,12 @@ namespace HalfDog.GameMonoUpdater
 
 		void Awake()
 	    {
-	        if (_instance != null) 
-	        {
-	            Destroy(gameObject);
-	            return;
-	        }
+			Debug.Log("GameMonoUpdater Awake");
+	        if (_instance != null)
+			{
+				Destroy(gameObject);
+				return;
+			}
 			_instance = this;
 			DontDestroyOnLoad(gameObject);
 	    }

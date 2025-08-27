@@ -1,0 +1,124 @@
+using Animancer;
+using UnityEngine;
+
+namespace ARPGDemo.ControlSystem
+{
+    [AddComponentMenu("ARPGDemo/ControlSystem/States/PlayerLightAttackState", 40)]
+    public class PlayerLightAttackState : PlayerStateBehaviour
+    {
+        /*TODO：暂时以魂游为例的动画不可打断（除了外部情况以外）来编写此处状态逻辑。*/
+        [SerializeField] protected bool m_IsEnd;
+        public override bool isEnd => m_IsEnd;
+        // [SerializeField] protected bool m_CanExitState;
+        // public override bool canExitState => m_CanExitState;
+        public override bool canExitState => isEnd;
+        [SerializeField] protected bool m_CanTransitionToSelf;
+        public override bool canTransitionToSelf => m_CanTransitionToSelf;
+        public override int tempPriority => 10;
+
+        [SerializeField] protected bool m_Restart = true;
+        public bool restart { get => m_Restart; set => m_Restart = value; }
+
+        //TODO：这里的计算连招段数的combo还需要改进计算方式
+        [SerializeField] protected int combo = 1;
+        [SerializeField] protected StringAsset m_CanExitEventName;
+        [SerializeField] protected ClipTransition m_AttackOne;
+        [SerializeField] protected ClipTransition m_AttackTwo;
+        [SerializeField] protected ClipTransition m_AttackThree;
+
+        protected AnimancerState m_CurrentState;
+
+        public override void OnEnterState()
+        {
+            base.OnEnterState();
+            /*BugFix：通常有m_IsEnd字段的都需要在Enter方法中设置为false*/
+            /*Tip：isEnd代表自然结束，canExitState代表主动结束，用在这种具有连招的状态中，也就是在一段动画的某个节点之后就可以接上下一个连段了，这就是canExitState，但是
+            如果没有主动接上下一段的话，就应该等这一段执行完成之后才是isEnd。
+            从这一点理解的话，canExitstate应该是isEnd的必要不充分条件*/
+            m_IsEnd = false;
+            // m_CanExitState = false;
+            m_CanTransitionToSelf = false;
+
+            // animPlayer.Animator.ApplyBuiltinRootMotion
+            Debug.Log("PlayerLightAttackState.OnEnterState");
+            // if (stateMachine.previousState == this)
+            if (m_Restart == true)
+            {
+                combo = 1;
+            }
+            m_AnimPlayer.GetComponent<RootMotionController>().ApplyRootMotion(true);
+            switch (combo)
+            {
+                case 1:
+                    // animPlayer.Play(m_AttackOne).Events(this).OnEnd = () => m_IsEnd = true;
+                    //调整OnEnd触发的时机。
+                    // animPlayer.Play(m_AttackOne).Events(this).OnEnd = () => m_IsEnd = true;
+                    // m_AttackOne.Events.OnEnd = () =>
+                    // {
+                    //     Debug.Log("AttackOne End");
+                    //     m_IsEnd = true;
+                    // };
+                    /*Tip：在这里将m_CanExitState改为m_CanTransitionToSelf意义在于，如果是主动接上下一段攻击，那么就可以在设置的提前位置接上下一段，而
+                    如果主动的操作并非接上下一段攻击，而是其他状态，则只能等到动画结束才能接上。这当然牵扯到游戏设计，但是促使我如此改变的原因是，在
+                    提前位置接上比如翻滚的话，动画插值表现会很奇怪，因为连段攻击的各个片段之间是衔接好的，但是攻击动画和翻滚动画又没有衔接好，所以就会出现
+                    很难看的动画效果。*/
+                    // m_AttackOne.Events.SetCallback(m_CanExitEventName, () => m_CanExitState = true);
+                    // m_AttackOne.Events.SetCallback(m_CanExitEventName, () => m_CanTransitionToSelf = true);
+                    // animPlayer.Play(m_AttackOne);
+                    m_CurrentState = animPlayer.Play(m_AttackOne);
+                    m_CurrentState.Events(this).OnEnd = () =>
+                    {
+                        Debug.Log("AttackOne End");
+                        m_IsEnd = true;
+                    };
+                    m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () => m_CanTransitionToSelf = true);
+                    combo = 2;
+                    break;
+                case 2:
+                    m_CurrentState = animPlayer.Play(m_AttackTwo);
+                    m_CurrentState.Events(this).OnEnd = () =>
+                    {
+                        Debug.Log("AttackOne End");
+                        m_IsEnd = true;
+                    };
+                    m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () => m_CanTransitionToSelf = true);
+                    combo = 3;
+                    break;
+                case 3:
+                    // animPlayer.Play(m_AttackThree).Events(this).OnEnd = () => m_IsEnd = true;
+                    animPlayer.Play(m_AttackThree).Events(this).OnEnd = () =>
+                    {
+                        Debug.Log("AttackThree End");
+                        m_IsEnd = true;
+                        m_CanTransitionToSelf = true;
+                    };
+                    /*BUG：如果这样去注册的话会发现无法触发OnEnd，但是上面第一和第二段动画以这样的方式注册方法是可以正常触发OnEnd的，就很奇怪。
+                    不过随后反应过来，ClipTransition属于单独的、持久的对象，在实际播放动画时是以它为源数据创建AnimancerState，这才是实际运行时所使用的对象，
+                    所以在Play之后再在ClipTransition上注册方法当然是无法反映到运行时的、临时的AnimancerSate，要么先注册再Play，要么其实更好的做法是获取到
+                    Play创建的AnimancerState，然后在AnimancerState上注册方法，而且播放完之后自己就会销毁。*/
+                    // m_AttackThree.Events.OnEnd = () =>
+                    // {
+                    //     Debug.Log("AttackThree End");
+                    //     m_IsEnd = true;
+                    //     m_CanExitState = true;
+                    // };
+                    combo = 1;
+                    break;
+            }
+        }
+
+        public override void OnExitState()
+        {
+            base.OnExitState();
+
+            m_AnimPlayer.GetComponent<RootMotionController>().ApplyRootMotion(false);
+        }
+
+        // public override void OnUpdate()
+        // {
+        //     base.OnUpdate();
+
+
+        // }
+    }
+}

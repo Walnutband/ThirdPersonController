@@ -56,7 +56,8 @@ namespace HalfDog.EasyInteractive
         public IDragable currentDraged => _currentDraged;
         public IDragable readyDrag { get => _readyDrag; set => _readyDrag = value; }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        /*Tip：这个特性可以直接将标记的方法注册到引擎内部，无需创建实例也无需再脚本中调用，引擎就会自动调用。*/
+        // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void MakesureInstanceExist()
         {
             _instance = new EasyInteractive();
