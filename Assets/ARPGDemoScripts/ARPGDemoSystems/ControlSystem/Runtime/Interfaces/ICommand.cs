@@ -39,7 +39,7 @@ namespace ARPGDemo.ControlSystem
     #region 所有命令接收者接口
     public interface IMove_Consumer : ICommandConsumer
     {
-        bool Move(Vector2 moveInput);
+        bool Move(Vector2 moveInput, MoveCommand.MoveType moveType);
     }
 
     /*TODO：预计不会单独设置Sprint冲刺和Walk（按下Ctrl的慢走，正常其实是Run），而是根据是否在移动时按下了Ctrl或者Shift作为Move方法的第二个参数（枚举类型Walk、Run、Sprint），
@@ -81,6 +81,7 @@ namespace ARPGDemo.ControlSystem
     #region 个体命令接口
 
     //就是为了将这些要用到的命令接口放在同一个接口处，以免放在具体类的声明中造成不必要的干扰。
+    //捆绑命令？
     public interface IPlayerConsumer : IController,
     IMove_Consumer, IJump_Consumer, IDodge_Consumer,
     ILightAttack_Consumer, IHeavyAttack_Consumer
@@ -89,6 +90,8 @@ namespace ARPGDemo.ControlSystem
         bool Zoom(Vector2 zoomInput);
         bool ResetCamera();
         bool ChangePlayer(CommandProducer producer);
+        bool UseItem();
+        bool Interact();
     }
     #endregion
 }

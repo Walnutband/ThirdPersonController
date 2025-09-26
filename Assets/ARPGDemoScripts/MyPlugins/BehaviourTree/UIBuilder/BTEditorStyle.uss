@@ -1,0 +1,283 @@
+#Overlay .button-create {
+    min-height: 40px;
+    -unity-font-style: bold;
+    font-size: 30px;
+    flex-grow: 1;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-top-width: 5px;
+    border-bottom-width: 5px;
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    background-color: rgb(188, 188, 188);
+    max-width: none;
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#Overlay .button-create:focus {
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#Overlay .button-create:hover {
+    border-left-color: rgb(12, 168, 50);
+    border-right-color: rgb(12, 168, 50);
+    border-top-color: rgb(12, 168, 50);
+    border-bottom-color: rgb(12, 168, 50);
+}
+
+#Overlay .button-create:active:hover:focus {
+    border-left-color: rgb(123, 174, 250);
+    border-right-color: rgb(123, 174, 250);
+    border-top-color: rgb(123, 174, 250);
+    border-bottom-color: rgb(123, 174, 250);
+    background-color: rgb(255, 255, 255);
+}
+
+#Overlay .button-create-quick {
+    min-height: 40px;
+    -unity-font-style: bold;
+    font-size: 20px;
+    flex-grow: 1;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    height: auto;
+    flex-shrink: 1;
+    width: auto;
+    max-width: 150px;
+    background-color: rgb(236, 219, 59);
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#Overlay .button-create-quick:focus {
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#Overlay .button-create-quick:hover {
+    border-left-color: rgb(12, 168, 50);
+    border-right-color: rgb(12, 168, 50);
+    border-top-color: rgb(12, 168, 50);
+    border-bottom-color: rgb(12, 168, 50);
+}
+
+#Overlay .button-create-quick:active:hover:focus {
+    border-left-color: rgb(123, 174, 250);
+    border-right-color: rgb(123, 174, 250);
+    border-top-color: rgb(123, 174, 250);
+    border-bottom-color: rgb(123, 174, 250);
+    background-color: rgb(255, 255, 255);
+}
+
+#TabContainer .tabButton-selected {
+    background-color: rgb(110, 141, 226);
+}
+
+#TabContainer .tab-button {
+    flex-grow: 1;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    flex-shrink: 1;
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+    color: rgb(0, 0, 0);
+}
+
+#TabContainer .tab-button:focus {
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#TabContainer .tab-button:hover {
+    border-left-color: rgb(200, 200, 200);
+    border-right-color: rgb(200, 200, 200);
+    border-top-color: rgb(200, 200, 200);
+    border-bottom-color: rgb(200, 200, 200);
+}
+
+#TabContainer .tab-button:active:hover:focus {
+    border-left-color: rgb(123, 174, 250);
+    border-right-color: rgb(123, 174, 250);
+    border-top-color: rgb(123, 174, 250);
+    border-bottom-color: rgb(123, 174, 250);
+    background-color: rgb(255, 255, 255);
+}
+
+#MSG-NoBlackboard #CreateBlackboard {
+    -unity-font-style: normal;
+    font-size: 25px;
+    flex-grow: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-top-width: 5px;
+    border-bottom-width: 5px;
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    background-color: rgb(188, 188, 188);
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+    margin-top: 28px;
+    max-width: 200px;
+}
+
+#MSG-NoBlackboard #CreateBlackboard:focus {
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#MSG-NoBlackboard #CreateBlackboard:hover {
+    border-left-color: rgb(12, 168, 50);
+    border-right-color: rgb(12, 168, 50);
+    border-top-color: rgb(12, 168, 50);
+    border-bottom-color: rgb(12, 168, 50);
+}
+
+#MSG-NoBlackboard #CreateBlackboard:active:hover:focus {
+    border-left-color: rgb(123, 174, 250);
+    border-right-color: rgb(123, 174, 250);
+    border-top-color: rgb(123, 174, 250);
+    border-bottom-color: rgb(123, 174, 250);
+    background-color: rgb(255, 255, 255);
+}
+
+#BlackboardContent .addVariable-button {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    flex-grow: 1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    right: 0;
+    background-color: rgb(188, 188, 188);
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#BlackboardContent .addVariable-button:focus {
+    flex-grow: 1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    max-width: 50px;
+    min-width: 50px;
+    max-height: 30px;
+    min-height: 30px;
+    right: 0;
+    background-color: rgb(188, 188, 188);
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+}
+
+#BlackboardContent .addVariable-button:hover {
+    flex-grow: 1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    max-width: 50px;
+    min-width: 50px;
+    max-height: 30px;
+    min-height: 30px;
+    right: 0;
+    background-color: rgb(188, 188, 188);
+    border-left-color: rgb(12, 168, 50);
+    border-right-color: rgb(12, 168, 50);
+    border-top-color: rgb(12, 168, 50);
+    border-bottom-color: rgb(12, 168, 50);
+}
+
+#BlackboardContent .addVariable-button:active:hover:focus {
+    flex-grow: 1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    max-width: 50px;
+    min-width: 50px;
+    max-height: 30px;
+    min-height: 30px;
+    right: 0;
+    background-color: rgb(255, 255, 255);
+    border-left-color: rgb(123, 174, 250);
+    border-right-color: rgb(123, 174, 250);
+    border-top-color: rgb(123, 174, 250);
+    border-bottom-color: rgb(123, 174, 250);
+}
+
+#BlackboardContent :checked {
+    background-color: rgb(93, 115, 174);
+}

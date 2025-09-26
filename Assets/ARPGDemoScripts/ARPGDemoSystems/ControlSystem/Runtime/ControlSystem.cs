@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ARPGDemo.ControlSystem
 {
-    [AddComponentMenu("ARPGDemo/ControlSystem/ControlSystem")]
+    [AddComponentMenu("ARPGDemo/系统与管理器/ControlSystem")]
     public class ControlSystem : SingletonMono<ControlSystem> //让控制系统在DontDestroy场景中参与生命周期以及维持生命期。
     {
         private struct CommandPair
@@ -66,9 +66,13 @@ namespace ARPGDemo.ControlSystem
             // }
         }
 
+        /*TODO：本来想的是各种实体都可以通过ControlSystem的SendCommand方法来发送命令，但是发现，本来都可以生成命令，
+        那么直接生成后Execute不就行了？似乎没必要调用SendCommand，因为这些逻辑自己都能执行。*/
         public void SendCommand(CommandConsumer consumer, ICommand command)
         {
+            if (consumer == null || command == null) return;
 
+            command.Execute(consumer);
         }
 
         public void SendCommand(CommandConsumer consumer, List<ICommand> commands)

@@ -1,0 +1,68 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/ARPGDemoScripts/MyPlugins/BehaviourTree/UIBuilder/BTEditorStyle.uss?fileID=7433441132597879392&amp;guid=77b0720a9618cbd4e823ade61d96a780&amp;type=3#BTEditorStyle" />
+    <uie:Toolbar name="EditorToolbar" style="height: 25px; visibility: visible; display: flex; justify-content: space-between;">
+        <uie:ToolbarMenu display-tooltip-when-elided="true" text="Assets" name="Assets" style="flex-grow: 0; font-size: 13px;" />
+        <ui:VisualElement name="ObjectName" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; color: rgb(0, 0, 0); justify-content: center;">
+            <ui:Label tabindex="-1" text="&lt;无游戏对象&gt;" display-tooltip-when-elided="true" name="GameObjectName" binding-path="name" style="color: rgb(0, 0, 0); font-size: 16px; -unity-text-align: middle-left; margin-right: 10px;" />
+            <ui:Label tabindex="-1" text="&lt;无行为树&gt;" display-tooltip-when-elided="true" name="BehaviourTreeName" binding-path="name" style="background-color: rgb(150, 150, 150); -unity-text-align: middle-left; font-size: 16px;" />
+        </ui:VisualElement>
+        <uie:ToolbarButton text="Frame" display-tooltip-when-elided="true" name="Frame" focusable="false" style="-unity-text-align: middle-left; font-size: 13px;" />
+    </uie:Toolbar>
+    <MyPlugins.BehaviourTree.EditorSection.SplitView fixed-pane-initial-dimension="300" style="visibility: visible; display: flex;">
+        <ui:VisualElement name="left-panel" style="min-width: 200px;">
+            <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
+                <ui:VisualElement name="TabContainer" style="flex-grow: 0; background-color: rgb(0, 0, 0); left: 0; right: 0; top: 0; bottom: 0; flex-direction: row; height: 40px; max-height: 30px; min-height: 30px; align-items: stretch;">
+                    <ui:Button text="Inspector" display-tooltip-when-elided="true" name="InspectorTab" class="tab-button" style="flex-grow: 1; font-size: 18px; -unity-text-align: middle-center; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" />
+                    <ui:Button text="Blackboard" display-tooltip-when-elided="true" name="BlackboardTab" class="tab-button" style="flex-grow: 1; font-size: 18px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="InfoViewContainer" style="flex-grow: 1; position: relative; left: 0; bottom: 0; right: -13px; top: auto; height: 411px;">
+                    <ui:VisualElement name="BlackboardView" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+                        <ui:VisualElement name="BlackboardContent" style="display: flex;">
+                            <ui:VisualElement name="CreatePane" style="flex-direction: column;">
+                                <ui:TextField picking-mode="Ignore" label="变量名" name="VariableName" value="newVariable" style="-unity-text-align: middle-center; align-items: stretch; white-space: nowrap; flex-direction: row; background-color: rgb(100, 100, 100); margin-top: 10px; margin-bottom: 10px; max-height: 40px; min-height: 20px; font-size: 15px; color: rgb(0, 0, 0); flex-grow: 1;" />
+                                <ui:VisualElement name="VisualElement" style="background-color: rgba(0, 0, 0, 0); flex-direction: row; min-height: 20px; max-height: 40px; margin-bottom: 10px; flex-shrink: 0; flex-grow: 1; justify-content: space-between; align-items: center;">
+                                    <ui:DropdownField label="变量类型" index="-1" name="VariableType" style="flex-direction: row; align-items: stretch; -unity-text-align: middle-center; background-color: rgb(100, 100, 100); color: rgb(0, 0, 0); flex-grow: 0; min-height: 20px; max-height: 20px; flex-shrink: 0; font-size: 15px; position: absolute; right: 50px; left: 0;" />
+                                    <ui:Button text="添加" display-tooltip-when-elided="true" name="AddVariable" class="addVariable-button" style="color: rgb(0, 0, 0); font-size: 15px; position: absolute; width: 50px; height: 30px;" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="Variable" style="border-top-width: 0; border-top-color: rgb(111, 111, 111);">
+                                <uie:Toolbar style="justify-content: flex-start; border-bottom-width: 0; height: 28px;">
+                                    <uie:ToolbarButton text="上移  " display-tooltip-when-elided="true" name="MoveUp" focusable="false" style="-unity-text-align: middle-left;" />
+                                    <uie:ToolbarButton text="下移" display-tooltip-when-elided="true" name="MoveDown" focusable="false" style="-unity-text-align: middle-left;" />
+                                    <uie:ToolbarSpacer style="flex-grow: 1;" />
+                                    <uie:ToolbarButton text="删除" display-tooltip-when-elided="true" name="Delete" focusable="false" style="-unity-text-align: middle-left;" />
+                                </uie:Toolbar>
+                                <ui:ListView focusable="true" name="VariableList" fixed-item-height="20" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="MSG-NoBlackboard" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.65); position: absolute; top: 0; left: 0; bottom: 0; right: 0; justify-content: center; display: flex; align-items: center; visibility: visible;">
+                            <ui:Label tabindex="-1" text="请为当前行为树绑定一个" display-tooltip-when-elided="true" style="background-color: rgba(255, 248, 255, 0); -unity-text-align: upper-center; font-size: 25px; color: rgb(255, 255, 255); padding-bottom: 15px;" />
+                            <ui:Label tabindex="-1" text="Blackboard！" display-tooltip-when-elided="true" style="-unity-text-align: upper-center; font-size: 35px; color: rgb(245, 6, 6);" />
+                            <ui:Button text="立刻创建" display-tooltip-when-elided="true" name="CreateBlackboard" style="min-width: 150px; color: rgb(0, 0, 0);" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <MyPlugins.BehaviourTree.EditorSection.InspectorView name="InspectorView" style="display: none;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="right-panel">
+            <ui:Label text="节点视图" display-tooltip-when-elided="true" style="background-color: rgb(100, 100, 100); color: rgb(255, 255, 255);" />
+            <MyPlugins.BehaviourTree.EditorSection.BehaviourTreeView focusable="true" name="BehaviourTreeView" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </MyPlugins.BehaviourTree.EditorSection.SplitView>
+    <ui:VisualElement name="Overlay" style="position: absolute; left: 0; top: 25px; right: 1px; bottom: 0; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; display: none;">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgb(56, 56, 56); border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; max-height: 250px; min-height: 250px; min-width: 533px; max-width: 533px;">
+            <ui:VisualElement name="VisualElement" style="flex-grow: 1; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px; background-color: rgb(56, 56, 56); display: flex;">
+                <ui:Label text="可点击上方工具栏菜单“Assets”选择已有行为树" display-tooltip-when-elided="true" style="font-size: 12px; color: rgb(0, 255, 145); -unity-font-style: bold; width: 278px; border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px; border-left-color: rgb(125, 125, 125); border-right-color: rgb(125, 125, 125); border-top-color: rgb(125, 125, 125); border-bottom-color: rgb(125, 125, 125); border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+                <ui:Label text="点击下方按钮创建行为树" display-tooltip-when-elided="true" style="-unity-text-align: middle-center; font-size: 20px; color: rgb(210, 210, 210); -unity-font-style: bold; white-space: normal; margin-bottom: 10px; margin-top: 10px;" />
+                <ui:TextField picking-mode="Ignore" label="文件名" value="New Behaviour Tree" text="New Behaviour Tree" name="TreeName" style="margin-top: 2px; -unity-text-align: middle-center; background-color: rgba(200, 200, 200, 0.39); min-height: 50px; max-height: 50px; font-size: 20px;" />
+                <ui:VisualElement name="Separator" style="height: auto; min-height: 30px;" />
+                <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; flex-shrink: 1; height: 60px; min-height: auto; max-height: none; bottom: 5px; position: absolute; left: 0; right: 0;">
+                    <ui:Button text="创  建" display-tooltip-when-elided="true" name="CreateButton" class="button-create" style="color: rgb(0, 0, 0);" />
+                    <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); min-width: 20px; max-width: 40px;" />
+                    <ui:Button text="快速创建" display-tooltip-when-elided="true" name="QuickCreateButton" class="button-create-quick" style="color: rgb(0, 0, 0);" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

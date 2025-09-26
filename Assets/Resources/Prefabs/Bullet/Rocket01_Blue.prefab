@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1901018746005300673}
   m_Layer: 0
   m_Name: Rocket01_Blue
-  m_TagString: Untagged
+  m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,12 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1186385862722208}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.3, z: 0}
   m_LocalScale: {x: 0.03, y: 0.03, z: 0.03}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33257305087562526
 MeshFilter:
@@ -54,6 +55,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -99,6 +101,7 @@ MonoBehaviour:
   moveType: 1
   bodyRadius: 0.1
   smoothMove: 1
+  ignoreBorder: 1
 --- !u!114 &9041409331426782956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,5 +131,8 @@ MonoBehaviour:
   fireDegree: 0
   speed: 0
   duration: 0
+  timeElapsed: 0
   useFireDegreeForever: 0
   canHitAfterCreated: 0
+  followingTarget: {fileID: 0}
+  hp: 1

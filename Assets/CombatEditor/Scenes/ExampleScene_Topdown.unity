@@ -1415,6 +1415,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4248056860093966361, guid: 0202bf1ea2c78ef4aac867d8ea9d07ab,
+        type: 3}
+      propertyPath: CombatDatas.Array.data[0].CombatObjs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4248056860093966362, guid: 0202bf1ea2c78ef4aac867d8ea9d07ab,
         type: 3}
       propertyPath: m_RootOrder

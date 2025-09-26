@@ -1,5 +1,6 @@
 using Animancer;
 using UnityEngine;
+using ARPGDemo.BattleSystem;
 
 namespace ARPGDemo.ControlSystem
 {
@@ -18,6 +19,10 @@ namespace ARPGDemo.ControlSystem
 
         [SerializeField] protected bool m_Restart = true;
         public bool restart { get => m_Restart; set => m_Restart = value; }
+        [SerializeField] protected Vector3 m_MoveDir;
+        public Vector3 moveDir { get => m_MoveDir; set => m_MoveDir = value; }
+        [SerializeField] protected CollisionDetectionMonitor m_Monitor;
+        public CollisionDetectionMonitor monitor { get => m_Monitor; set => m_Monitor = value; }
 
         //TODO：这里的计算连招段数的combo还需要改进计算方式
         [SerializeField] protected int combo = 1;
@@ -39,12 +44,19 @@ namespace ARPGDemo.ControlSystem
             // m_CanExitState = false;
             m_CanTransitionToSelf = false;
 
+            m_Monitor.EnableCollider();
+
             // animPlayer.Animator.ApplyBuiltinRootMotion
-            Debug.Log("PlayerLightAttackState.OnEnterState");
+            // Debug.Log("PlayerLightAttackState.OnEnterState");
+            /*Tip：可以控制在每段攻击开始时的方向，才是通常的设计。
+            不过如下，貌似一般的设计是在第一段攻击开始可以立刻转向，连段不可以，单从动画的角度来看都会感觉很奇怪（不过动画效果很大程度上都是取决于原本的动画素材），*/
+            // transform.rotation = Quaternion.LookRotation(m_MoveDir, Vector3.up);
             // if (stateMachine.previousState == this)
             if (m_Restart == true)
             {
                 combo = 1;
+                //仍然别忘了，在没有方向输入的时候就维持原本的朝向不变
+                if (m_MoveDir != Vector3.zero) transform.rotation = Quaternion.LookRotation(m_MoveDir, Vector3.up);
             }
             m_AnimPlayer.GetComponent<RootMotionController>().ApplyRootMotion(true);
             switch (combo)
@@ -68,7 +80,7 @@ namespace ARPGDemo.ControlSystem
                     m_CurrentState = animPlayer.Play(m_AttackOne);
                     m_CurrentState.Events(this).OnEnd = () =>
                     {
-                        Debug.Log("AttackOne End");
+                        // Debug.Log("AttackOne End");
                         m_IsEnd = true;
                     };
                     m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () => m_CanTransitionToSelf = true);
@@ -78,7 +90,7 @@ namespace ARPGDemo.ControlSystem
                     m_CurrentState = animPlayer.Play(m_AttackTwo);
                     m_CurrentState.Events(this).OnEnd = () =>
                     {
-                        Debug.Log("AttackOne End");
+                        // Debug.Log("AttackOne End");
                         m_IsEnd = true;
                     };
                     m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () => m_CanTransitionToSelf = true);
@@ -88,7 +100,7 @@ namespace ARPGDemo.ControlSystem
                     // animPlayer.Play(m_AttackThree).Events(this).OnEnd = () => m_IsEnd = true;
                     animPlayer.Play(m_AttackThree).Events(this).OnEnd = () =>
                     {
-                        Debug.Log("AttackThree End");
+                        // Debug.Log("AttackThree End");
                         m_IsEnd = true;
                         m_CanTransitionToSelf = true;
                     };
@@ -110,6 +122,10 @@ namespace ARPGDemo.ControlSystem
         public override void OnExitState()
         {
             base.OnExitState();
+            // Debug.Log("Exit Light Attack State");
+            m_Monitor.DisableCollider();
+            /*TODO: 对于计时器的控制还需要进一步优化*/
+            m_Monitor.ClearTimers();
 
             m_AnimPlayer.GetComponent<RootMotionController>().ApplyRootMotion(false);
         }

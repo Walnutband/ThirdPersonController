@@ -11,7 +11,7 @@ namespace ARPGDemo.ControlSystem
         public AnimancerComponent animPlayer { get => m_AnimPlayer; set => m_AnimPlayer = value; }
 
         // [SerializeField] protected int m_TempPriority;
-        public override int tempPriority { get => -10; }
+        public override int tempPriority { get => -10; } //默认为-10
 
         // [SerializeField] protected AnimationClip[] clips;
 

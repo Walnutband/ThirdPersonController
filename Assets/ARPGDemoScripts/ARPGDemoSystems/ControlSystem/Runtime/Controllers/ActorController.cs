@@ -5,12 +5,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 using System.Collections;
-using NUnit.Framework.Internal.Commands;
+using ARPGDemo.BattleSystem;
 
 namespace ARPGDemo.ControlSystem
 {
     public class ActorController : CommandConsumer, IPlayerConsumer
     {
+        [SerializeField] private ActorObject m_Actor;
+
         /*TODO：到底是使用更抽象的CommandConsumer还是这里同类型的PlayerController，其实具体的纠结点就在于相机，感觉最好还是用CommandConsumer，因为可以使用类型转换检测其实际类型，如果
         不是的话那就少执行一些逻辑，这样看来也是完全兼容的，不需要特殊考虑。当然也要看具体的游戏设计，总之不是什么难题，纯粹是与具体游戏设计紧密相关的问题*/
         [SerializeField] private CommandConsumer targetConsumer;
@@ -34,8 +36,9 @@ namespace ARPGDemo.ControlSystem
         // [SerializeField] private CinemachineBrain brain;
         [SerializeField] private AnimancerComponent animPlayer;
         // [SerializeField] private AnimationList animationList; //用于animPlayer播放，其实就代表该控制器所控制的角色可以使用的所有动画。
-        [SerializeField] private RootMotionController rmController;
-        [SerializeField] private Animations anims;
+        // [SerializeField] private RootMotionController rmController;
+        // [SerializeField] private Animations anims;
+        [SerializeField] private CollisionDetectionMonitor weaponMonitor; //监视和控制武器的碰撞检测
 
         // public bool isAttack;
         // public bool notMove ;
@@ -76,6 +79,7 @@ namespace ARPGDemo.ControlSystem
         [SerializeField] private Vector2 m_MoveInput;
         [SerializeField] private Vector3 m_MoveDir; //就是考虑了相机朝向，并且这不是单位向量，而是带有输入量信息的方向向量。
         [SerializeField] private float m_GroundedRunSpeed = 5f;
+        [SerializeField] private float m_GroundedWalkSpeed = 2f;
         [SerializeField] private float m_GroundedSprintSpeed = 8f;
         [SerializeField] private float m_GroundedTurnSpeed = 10f;
         [SerializeField] private float m_DodgeMoveSpeed = 15f;
@@ -86,6 +90,8 @@ namespace ARPGDemo.ControlSystem
 
         private void Awake()
         {
+            m_Actor = GetComponent<ActorObject>(); //首先获取自己的控制对象
+
             //TODO：这种控制鼠标显隐的任务都不应该由控制器来做，应该要有专门的管理器。
             Cursor.lockState = CursorLockMode.Locked;
             // freelook ??= GameObject.FindObjectOfType<CinemachineFreeLook>(); //freelook为空才会查找赋值。
@@ -93,7 +99,10 @@ namespace ARPGDemo.ControlSystem
             camTransform = Camera.main.transform;
             m_StateMachine ??= new PlayerStateMachine();
             // rb = GetComponent<Rigidbody>();
-            physicsHandler = GetComponent<CharacterController>();
+            physicsHandler = GetComponent<CharacterController>(); //BUG：使用??=似乎又会遇到销毁不同步的bug。
+            animPlayer = transform.Find("Model")?.GetComponent<AnimancerComponent>();
+            /*TODO：考虑到扩展性，可能不只一把武器，而且也会切换武器，等等————而且为了方便运行时查找等目的，必然会专门制定规范，比如游戏对象的命名规范。*/
+            // weaponMonitor = transform.FindRecursively("Weapon").GetComponent<CollisionDetectionMonitor>();
 
             GetOrCreateAllStates();
         }
@@ -116,7 +125,27 @@ namespace ARPGDemo.ControlSystem
         {
             // Tip：在运行模式下可以简单地通过禁用再启用来切换（更新）FreeLook相机配置。
             zoomer = new FreeLookZoomer(freelook, minZoom, maxZoom);
+            weaponMonitor.triggerEnter += OnWeaponTriggerEnter;
         }
+
+        private void OnDisable()
+        {
+            weaponMonitor.triggerEnter -= OnWeaponTriggerEnter;
+        }
+
+
+        #region 物理相关
+
+        private void OnWeaponTriggerEnter(Collider collider)
+        {
+            Debug.Log("TriggerEnter" + collider.gameObject.name);
+            /*可以在碰撞体组件上指定层级来初步筛选要检测的物体，然后在检测触发的回调方法中进一步筛选。*/
+            // collider.GetComponent<SimpleController>().Hurt();
+            SimpleController controller = collider.GetComponent<SimpleController>();
+            if (controller != null) controller.Hurt();
+        }
+
+        #endregion
 
 
         private void GetOrCreateAllStates()
@@ -130,9 +159,9 @@ namespace ARPGDemo.ControlSystem
                 m_DodgeState = gameObject.AddComponent<PlayerDodgeState>();
             }
             if ((m_AirState = GetComponent<PlayerAirState>()) == null)
-                {
-                    m_AirState = gameObject.AddComponent<PlayerAirState>();
-                }
+            {
+                m_AirState = gameObject.AddComponent<PlayerAirState>();
+            }
             if ((m_LightAttackState = GetComponent<PlayerLightAttackState>()) == null)
             {
                 m_LightAttackState = gameObject.AddComponent<PlayerLightAttackState>();
@@ -163,6 +192,12 @@ namespace ARPGDemo.ControlSystem
         //         // m_AirState.isGrounded = m_IsGrounded;
         //         // PerformFall();
         //     }
+        // }
+
+        // private void OnTriggerEnter(Collider other)
+        // {
+        //     Debug.Log("TriggerEnter: " + other.gameObject.name);
+
         // }
 
         // private void OnTriggerExit(Collider other)
@@ -386,6 +421,7 @@ namespace ARPGDemo.ControlSystem
         {
             m_LightAttackState.animPlayer = animPlayer;
             m_LightAttackState.restart = true;
+            m_LightAttackState.monitor = weaponMonitor;
         }
 
         private void UpdateMoveInput()
@@ -401,6 +437,7 @@ namespace ARPGDemo.ControlSystem
             m_MoveDir = camFoward * m_MoveInput.y + camTransform.right * m_MoveInput.x;
             m_GroundedState.moveDir = m_MoveDir;
             m_AirState.moveDir = m_MoveDir; //一定要区别速度和方向（速度甚至准确来说是速度大小，就是水平和竖直的float值，而方向是Vector3向量）
+            m_LightAttackState.moveDir = m_MoveDir;
         }
 
         private void UpdateIsGrounded()
@@ -414,16 +451,11 @@ namespace ARPGDemo.ControlSystem
         //Check回调检查状态数据
         // private bool CheckIsGrounded()
         // {
-             
+
         // }
 
         #endregion
 
-
-        // private void UpdateIsGrounded()
-        // {
-        //     if ()
-        // }
 
         /*TODO：Idle和Move在动画上应该是位于同一个混合树中，然后由MoveInput来调整各片段的权重，而不是像现在这样分开，导致代码复杂度提高，而且毫无价值*/
 
@@ -433,13 +465,19 @@ namespace ARPGDemo.ControlSystem
         // }
 
         #region 接收命令
-        public bool Move(Vector2 _moveInput)
+        /*Tip：在设想结构中，控制器仅仅作为接收命令的中间层，体现在实现了各个命令接口的接口方法，稍微进行一些处理，然后就调用控制对象即ActorObject类型的m_Actor的一些执行方法，
+        比如PerformJump、PerformWalk之类的，这类方法就应该放在ActorObject中，当然状态机、状态管理、各个状态也都应该放在ActorObject中（或许专门定义一个ActorStateManager？），
+        总之在该控制器中不应该直接执行任何有关Actor本身的逻辑，只是通知Actor要执行什么行为（通知就是调用Actor的方法）、这些行为是Actor本身就能做的（行为就是Actor自身定义的方法）。*/
+
+
+        public bool Move(Vector2 _moveInput, MoveCommand.MoveType _moveType = MoveCommand.MoveType.Run)
         {
             // Debug.Log("Move");
             /*TODO：其实这种完全是状态所要使用的并且由输入产生的数据完全不需要在控制器中专门使用字段来存储，没啥意义。
             而对于非输入产生的比如跳跃的初速度，这种就需要专门定义字段来编辑了。
             但是计算移动方向确实需要用到moveInput，所以对于m_MoveInput来说确实还是需要的。*/
-            m_MoveInput = _moveInput;
+            // m_MoveInput = _moveInput;
+
             // m_AirState.horizontalSpeed = m_JumpInitialSpeed;
             /*Tip：触发式的输入，按理来说可以不需要额外执行相关的监测逻辑*/
             // UpdateMoveDir();
@@ -449,7 +487,25 @@ namespace ARPGDemo.ControlSystem
             // // m_AirState.moveInput = _moveInput;
             // m_StateMachine.TrySetState(m_GroundedState);
             // ChangeToGroundedState();
-            PerformGroundedRun();
+            switch (_moveType)
+            {
+                case MoveCommand.MoveType.Walk:
+                    PerformGroundedWalk(true);
+                    break;
+                case MoveCommand.MoveType.WalkCancel:
+                    PerformGroundedWalk(false);
+                    break;
+                case MoveCommand.MoveType.Run:
+                    m_MoveInput = _moveInput; //遇到只是WASD的情况才更新MoveInput，因为Walk和Sprint都只是单个按钮，不提供输入值信息，只传入了默认值来占位。
+                    PerformGroundedRun();
+                    break;
+                case MoveCommand.MoveType.Sprint:
+                    PerformGroundedSprint(true);
+                    break;
+                case MoveCommand.MoveType.SprintCancel:
+                    PerformGroundedSprint(false);
+                    break;
+            }
 
             return true;
         }
@@ -550,6 +606,18 @@ namespace ARPGDemo.ControlSystem
             return true;
         }
 
+        public bool UseItem()
+        {
+            m_Actor.UseConsumable();
+            return true;
+        }
+
+        public bool Interact()
+        {
+            m_Actor.Interact();
+            return true;
+        }
+
         #endregion
 
         /*Tip：通过私有的静态方法，使得相同Class的不同实例能够进行交流。其实还可以将freelook字段设置为静态，感觉其实更好。
@@ -610,19 +678,40 @@ namespace ARPGDemo.ControlSystem
             // m_GroundedState.move = anims.run;
             m_GroundedState.moveInput = m_MoveInput;
             m_GroundedState.moveDir = m_MoveDir;
-            m_GroundedState.moveSpeed = m_GroundedRunSpeed;
+            /*TODO：这里对于moveSpeed的赋值，会出现将Walk或Sprint的赋值覆盖的情况，而Walk和Sprint本身在松开时都会将MoveSpeed赋值为RunSpeed，就可以替代Run的赋值功能，
+            所以可以在此注释掉。但我始终感觉这种处理方式存在隐患，不过对于这一个具体功能来说暂时也够了，看后续的开发和测试效果如何了，*/
+            // m_GroundedState.moveSpeed = m_GroundedRunSpeed;
             m_GroundedState.turnSpeed = m_GroundedTurnSpeed;
             // m_AirState.moveInput = _moveInput;
             return m_StateMachine.TrySetState(m_GroundedState);
         }
 
-        private bool PerformGroundedSprint()
+        private bool PerformGroundedWalk(bool _enter)
         {
-            m_GroundedState.moveInput = m_MoveInput;
-            m_GroundedState.moveDir = m_MoveDir;
-            m_GroundedState.moveSpeed = m_GroundedSprintSpeed;
-            m_GroundedState.turnSpeed = m_GroundedTurnSpeed;
-            return m_StateMachine.TrySetState(m_GroundedState);
+            if (_enter)
+            {
+                m_GroundedState.moveSpeed = m_GroundedWalkSpeed;
+            }
+            else
+            {
+                m_GroundedState.moveSpeed = m_GroundedRunSpeed;
+            }
+
+            return true;
+        }
+
+        private bool PerformGroundedSprint(bool _enter)
+        {
+            if (_enter)
+            {
+                m_GroundedState.moveSpeed = m_GroundedSprintSpeed;
+            }
+            else
+            {
+                m_GroundedState.moveSpeed = m_GroundedRunSpeed;
+            }
+
+            return true;
         }
 
         private bool PerformDodge()
@@ -675,14 +764,14 @@ namespace ARPGDemo.ControlSystem
         {
             if (m_StateMachine.currentState == m_LightAttackState)
             {
-                Debug.Log("No Restart");
+                // Debug.Log("No Restart");
                 m_LightAttackState.restart = false;
                 // m_StateMachine.TryResetState(m_LightAttackState);
                 m_StateMachine.TrySetState(m_LightAttackState);
             }
             else
             {
-                Debug.Log("Restart");
+                // Debug.Log("Restart");
                 m_LightAttackState.restart = true;
                 m_StateMachine.TrySetState(m_LightAttackState); //其实用Reset也是一样的，兼容的。
             }

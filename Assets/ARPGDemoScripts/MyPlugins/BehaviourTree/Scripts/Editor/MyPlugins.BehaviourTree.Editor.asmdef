@@ -1,0 +1,16 @@
+{
+    "name": "MyPlugins.BehaviourTree.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7a8264f36dac8fc41a216a435c9ce1c8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

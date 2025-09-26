@@ -8,12 +8,13 @@ namespace ARPGDemo.ControlSystem
     public class PlayerGroundedState : PlayerStateBehaviour
     {
         public override bool isEnd => false;
-        
+
 
         // public Action<bool> onIsGroundedChanged;
 
         [SerializeField] protected ClipTransition idle;
         [SerializeField] protected ClipTransition m_Move;
+        [SerializeField] protected LinearMixerTransition m_MoveAnims;
         public ClipTransition move { get => m_Move; set => m_Move = value; }
         /*TODO：想到通过切换动画的方式来实现Run和Sprint甚至是SlowMove，其实理论上确实可以，但感觉还是使用混合树更好。*/
 
@@ -43,14 +44,28 @@ namespace ARPGDemo.ControlSystem
         protected Quaternion targetRotation;
         protected Quaternion originalRotation;
         protected float turnRatio = 0f;
+        protected Parameter<float> parameter;
+        protected float m_ActualMoveSpeed;
+        // protected float m_OriginalMoveSpeed;
+        [Tooltip("实际是按照比例插值来变化移动速度的，并非按照绝对数值")]
+        [SerializeField] protected float m_Acceleration = 5f;
 
 
         public override void OnEnterState()
         {
             base.OnEnterState();
 
-            if (m_MoveInput != Vector2.zero) animPlayer.Play(m_Move);
-            else animPlayer.Play(idle);
+            /*TODO：这行代码相当于一个补丁，因为有时候在切换状态时、切换到该状态时会突然转向，就是因为在其他状态时没有执行该状态中的MoveAndRotate方法更新targetRotation，
+            所以在转入该状态后如果（由于其他状态的相关逻辑导致）当前rotation确实不等于targetRotation的话，那么就会出现突然转向的现象，所以在此Enter方法中直接将目标设置为
+            当前的rotation，就可以直接避免这种情况，但是是否有其他代价暂不清楚，不过在该方法中的、这一行代码的影响范围本身就有限，所以想必不会带来什么意外的问题。*/
+            targetRotation = transform.rotation;
+
+            parameter = animPlayer.Parameters.GetOrCreate<float>(m_MoveAnims.ParameterName);
+            // if (m_MoveInput != Vector2.zero) animPlayer.Play(m_Move);
+            // if (m_MoveInput != Vector2.zero) animPlayer.Play(m_MoveAnims);
+            // else animPlayer.Play(idle);
+            animPlayer.Play(m_MoveAnims);
+            SetAnimParameter();
         }
 
         public override void OnUpdate()
@@ -59,9 +74,11 @@ namespace ARPGDemo.ControlSystem
             // MoveAndRotate();
 
             /*TODO：这里的动画播放肯定是要改进的，估计用混合树更好，但其实对于一个求职Demo来说，无所谓。*/
-            if (m_MoveInput != Vector2.zero) animPlayer.Play(m_Move); //moveInput影响播放什么动画，主要就是对于移动动画来说会这样，要是其他比如攻击动画的话，就不需要这种逻辑。
-            else animPlayer.Play(idle);
+            // if (m_MoveInput != Vector2.zero) animPlayer.Play(m_Move); //moveInput影响播放什么动画，主要就是对于移动动画来说会这样，要是其他比如攻击动画的话，就不需要这种逻辑。
+            // else animPlayer.Play(idle);
+            // m_ActualMoveSpeed = Mathf.Lerp(m_ActualMoveSpeed, m_MoveSpeed, m_Acceleration * Time.deltaTime);
             MoveAndRotate();
+            SetAnimParameter();
         }
 
         public override void OnFixedUpdate()
@@ -81,6 +98,9 @@ namespace ARPGDemo.ControlSystem
             /*TODO：应该要搞一个分类，逐渐转身还是立刻转身*/
             if (m_MoveInput != Vector2.zero)
             {
+                // m_ActualMoveSpeed = Mathf.Lerp(m_ActualMoveSpeed, m_MoveSpeed, m_Acceleration * Time.deltaTime);
+                m_ActualMoveSpeed = MathUtilities.FloatLerp(m_ActualMoveSpeed, m_MoveSpeed, m_Acceleration * Time.deltaTime);
+
                 //有变化才执行相应逻辑
                 if (Quaternion.LookRotation(m_MoveDir, Vector3.up) != transform.rotation)
                 {
@@ -92,6 +112,13 @@ namespace ARPGDemo.ControlSystem
                 // physicsHandler.transform.rotation = Quaternion.LookRotation(m_MoveDir, Vector3.up);
                 // transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
                 // transform.rotation = targetRotation;
+            }
+            else //moveInput为Vector2.zero就是无输入，无输入的话应该可以直接return了。
+            {
+                // m_ActualMoveSpeed = 0f; //停止输入的时候就是恢复到静止状态。
+                // m_ActualMoveSpeed = Mathf.Lerp(m_ActualMoveSpeed, 0f, m_Acceleration * Time.deltaTime);
+                m_ActualMoveSpeed = MathUtilities.FloatLerp(m_ActualMoveSpeed, 0f, m_Acceleration * Time.deltaTime);
+                // return;
             }
             //渐转但是不需要连续输入。Quaternion有自己的判断是否相等的逻辑。
             /*Tip：要知道，如果使用插值方法的话，turnSpeed就变成了比例速度而不是角度速度，也就是说虽然间隔时间相同，但实际旋转的角度不同，那就必然会出现旋转时卡顿、抖动的现象。
@@ -117,7 +144,9 @@ namespace ARPGDemo.ControlSystem
             */
             // transform.position = transform.position + m_MoveDir * m_MoveSpeed * Time.deltaTime;
             // m_PhysicsHandler.Move(m_MoveDir * m_MoveSpeed * Time.deltaTime);
-            m_PhysicsHandler.Move(m_MoveDir * m_MoveSpeed * Time.deltaTime + new Vector3(0f, -0.1f, 0f));
+            /*TODO：还值得考虑的是手柄适配，因为使用手柄和键鼠在代码上应该会有所差异，不过主要是在移动的控制上，其他操作的话应该是一样的。*/
+            // m_PhysicsHandler.Move(m_MoveDir * m_ActualMoveSpeed * Time.deltaTime + new Vector3(0f, -0.1f, 0f));
+            m_PhysicsHandler.Move(m_MoveDir.normalized * m_ActualMoveSpeed * Time.deltaTime + new Vector3(0f, -0.1f, 0f));
             // m_PhysicsHandler.Move(transform.TransformDirection(new Vector3(0f, 0f, 1f)) * m_MoveInput.magnitude* m_MoveSpeed * Time.deltaTime + new Vector3(0f, -0.1f, 0f));
 
 
@@ -131,6 +160,23 @@ namespace ARPGDemo.ControlSystem
             // rb.MovePosition(rb.transform.position + m_MoveDir * m_MoveSpeed * Time.fixedDeltaTime); //别忘了transform.position是世界坐标
             // rb.transform.position = rb.transform.position + m_MoveDir * m_MoveSpeed * Time.fixedDeltaTime; //别忘了transform.position是世界坐标
             // Idle();
+        }
+
+        private void SetAnimParameter()
+        {
+            /*这里只是需要在没有（WASD）方向输入的时候需要设置为Idle动画，应该直接设置参数，而不是设置m_MoveSpeed，因为moveSpeed牵涉到很多其他内容，而参数只是影响播放的动画，
+            这也算是一个基本原则，从最直接、对其他影响最小的地方入手。*/
+            // if (m_MoveInput == Vector2.zero) m_MoveSpeed = 0f;
+            if (m_MoveInput == Vector2.zero)
+            {
+                // parameter.SetValue(0f);
+                parameter.SetValue(m_ActualMoveSpeed);
+            }
+            else
+            {
+                parameter.SetValue(m_ActualMoveSpeed);
+            }
+            m_MoveAnims.State.Parameter = parameter;
         }
 
     }

@@ -22,6 +22,8 @@ namespace ARPGDemo.ControlSystem
 
     public abstract class StateBehaviour : MonoBehaviour, IState //作为组件的好处就是便于在编辑器中直接编辑
     {
+        /*Tip：加入了canTransitionToSelf之后，大概可以认为，canTransitionToSelf是canExitState的必要不充分条件，而canExitState又是isEnd的必要不充分条件，
+        canTransitionToSelf是开放给自己的，而canExitState是开放给其他状态的，而isEnd是开放给状态机的。*/
         //默认为true，因为通常都是指定转换状态、然后执行转换，如果存在不为true的情况的话，代表有所阻碍，这就是具体状态自身要做的事了。
         public virtual bool canEnterState => true;
         public virtual bool canExitState => true;
@@ -31,6 +33,7 @@ namespace ARPGDemo.ControlSystem
         // [SerializeField] protected bool m_IsEnd;
         public abstract bool isEnd { get; }
         public abstract int tempPriority { get; }
+        // public abstract int priority { get; } //TODO:状态优先级，应该叫切换优先级，可以作为控制状态转换的额外机制。
         public virtual void OnEnterState() { }
         public virtual void OnExitState() { }
         public virtual void OnFixedUpdate() { }
@@ -63,7 +66,7 @@ namespace ARPGDemo.ControlSystem
 
         public virtual void Initialize(TState _defaultState = null)
         {
-            Debug.Log("初始化状态机");
+            // Debug.Log("初始化状态机");
             //设计上，传入默认状态就肯定是非空的，要不然就不传入则默认为空。
             if (_defaultState != null) m_DefaultState = _defaultState;
             /*TODO：要么进入指定的当前状态，要么进入默认状态。但是从这个方法的过程，我想到状态机从逻辑上来看算是一个不断运行的机器，那么是否会加入暂停运行和恢复运行的功能？
@@ -89,7 +92,7 @@ namespace ARPGDemo.ControlSystem
 
         public virtual void OnUpdate()
         {
-            Debug.Log($"当前的NextState：{(m_TempNextState != null ? m_TempNextState.GetType().Name : "null")}");
+            // Debug.Log($"当前的NextState：{(m_TempNextState != null ? m_TempNextState.GetType().Name : "null")}");
             /*假设一种情况，某一帧在控制器中接收命令，通知状态机要切换状态，发现暂时切换不了，所以就缓存到了TempNextState，然后下一帧在这里的监测方法OnUpdate中一开始就
             尝试切换到TempNextState*/
             if (m_TempNextState != null)
@@ -166,7 +169,7 @@ namespace ARPGDemo.ControlSystem
                 }
                 return false;
             }
-            Debug.Log($"TrySetState: {state.GetType().Name}");
+            // Debug.Log($"TrySetState: {state.GetType().Name}");
             return TryResetState(state);
         }
 
@@ -192,7 +195,7 @@ namespace ARPGDemo.ControlSystem
             if (!CanSetState(state))
                 return false;
             // m_TempNextState = null; //可以转换，那就不存储了，所以本质上是TempNextState。
-            Debug.Log($"TryResetState: {state.GetType().Name}");
+            // Debug.Log($"TryResetState: {state.GetType().Name}");
             ForceSetState(state);
             return true;
         }
@@ -224,7 +227,7 @@ namespace ARPGDemo.ControlSystem
             // state?.OnEnterState();
             if (state != null)
             {
-                Debug.Log("ForceSetState: " + state.GetType().Name);
+                // Debug.Log("ForceSetState: " + state.GetType().Name);
                 state.OnEnterState();
                 //消耗掉TempNextState
                 if (state == m_TempNextState) m_TempNextState = null;
@@ -242,7 +245,7 @@ namespace ARPGDemo.ControlSystem
             //     return true;
             // }
             // else return false;
-            Debug.Log("尝试设置NextState：" + state.GetType().Name);
+            // Debug.Log("尝试设置NextState：" + state.GetType().Name);
             if (m_TempNextState != null && state.tempPriority < m_TempNextState.tempPriority)
                 return false;
             else

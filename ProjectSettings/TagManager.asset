@@ -7,6 +7,11 @@ TagManager:
   - System
   - Osbtacle
   - Ground
+  - Character
+  - AoE
+  - Bullet
+  - MapTile
+  - UICamera
   layers:
   - Default
   - TransparentFX
@@ -16,10 +21,10 @@ TagManager:
   - UI
   - Obstacle
   - Ground
-  - 
-  - 
-  - 
-  - 
+  - Enemy
+  - Player
+  - NPC
+  - Item
   - 
   - 
   - 

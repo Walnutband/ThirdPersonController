@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="VariableContainer" style="justify-content: space-between; align-items: center; flex-direction: row; border-bottom-width: 1px; border-bottom-color: rgb(255, 255, 255);">
+        <ui:Label text="Variable Name" display-tooltip-when-elided="true" name="VariableName" style="-unity-font-style: bold; color: rgb(0, 0, 0); margin-left: 2px; margin-top: 2px; margin-bottom: 2px; font-size: 16px; height: 18px; -unity-text-align: middle-left; flex-grow: 1; flex-shrink: 1;" />
+        <uie:PropertyField name="Field" style="flex-grow: 1; align-items: center; justify-content: space-between; position: absolute; right: 0; top: 0; bottom: 0; flex-direction: row; flex-shrink: 0;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <MyPlugins.BehaviourTree.EditorSection.SplitView orientation="Vertical" fixed-pane-initial-dimension="400">
+        <ui:VisualElement name="inspector-container">
+            <ui:Label text="Inspector" display-tooltip-when-elided="true" style="background-color: rgb(37, 37, 37);" />
+            <MyPlugins.BehaviourTree.EditorSection.InspectorView />
+        </ui:VisualElement>
+        <ui:VisualElement name="blackboard-container">
+            <ui:Label text="Blackboard" display-tooltip-when-elided="true" style="background-color: rgb(37, 37, 37);" />
+            <ui:IMGUIContainer />
+        </ui:VisualElement>
+    </MyPlugins.BehaviourTree.EditorSection.SplitView>
+</ui:UXML>

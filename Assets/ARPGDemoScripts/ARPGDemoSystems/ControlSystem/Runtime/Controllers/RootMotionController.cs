@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ARPGDemo.ControlSystem
 {
-    /*TODO：这个应该是动画系统自身自带的功能才对。*/
+    /*TODO：这个应该是动画系统自身自带的功能才对。而且现在这个还很垃圾，不过必须要有更多关于动画的知识尤其是RootMotion的根本原理，才能进一步扩展*/
     public class RootMotionController : MonoBehaviour
     {
         [SerializeField] private Animator animator;
@@ -35,7 +35,7 @@ namespace ARPGDemo.ControlSystem
 
         public void ApplyRootMotion(bool apply)
         {
-            Debug.Log("ApplyRootMotion");
+            // Debug.Log("ApplyRootMotion");
             applyRootMotion = apply;
         }
 

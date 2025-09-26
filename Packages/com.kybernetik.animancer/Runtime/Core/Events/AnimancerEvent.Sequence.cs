@@ -367,7 +367,7 @@ namespace Animancer
             public Sequence(Sequence copyFrom)
             {
                 _Events = Array.Empty<AnimancerEvent>();
-                Debug.Log($"{(copyFrom == null ? "copyFrom为null" : "copyFrom不为null")}");
+                // Debug.Log($"{(copyFrom == null ? "copyFrom为null" : "copyFrom不为null")}");
                 if (copyFrom != null)
                     CopyFrom(copyFrom);
             }

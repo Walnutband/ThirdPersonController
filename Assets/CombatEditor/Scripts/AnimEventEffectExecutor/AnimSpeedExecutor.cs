@@ -8,8 +8,8 @@ using UnityEngine;
 	public class CharacterAnimSpeedModifier
 	{
 	    public float SpeedScale;
-	    public float MaxTime;
-	    public float StartTime;
+	    public float MaxTime; //总时长
+	    public float StartTime; //开始时刻（似乎还是从应用开始时计算的时刻）
 	    public bool SelfDestroy;
 	    public CharacterAnimSpeedModifier(float speedScale, float maxTime)
 	    {
@@ -34,7 +34,7 @@ using UnityEngine;
 	    public CombatController _combatController;
 	    public void Execute()
 	    {
-	        _combatController._animator.speed = GetCurrentSpeedModifier();
+	        _combatController._animator.speed = GetCurrentSpeedModifier(); 
 	    }
 	
 	    public List<CharacterAnimSpeedModifier> _animSpeedModifiers = new List<CharacterAnimSpeedModifier>();
@@ -62,12 +62,13 @@ using UnityEngine;
 	        float Speed = 1;
 	        for (int i = 0; i < _animSpeedModifiers.Count; i++)
 	        {
-                if(Time.time - _animSpeedModifiers[i].StartTime > _animSpeedModifiers[i].MaxTime && _animSpeedModifiers[i].SelfDestroy)
-                {
-                    _animSpeedModifiers.RemoveAt(i);
-                    i -= 1;
-                    continue;
-                }
+				//
+                if (Time.time - _animSpeedModifiers[i].StartTime > _animSpeedModifiers[i].MaxTime && _animSpeedModifiers[i].SelfDestroy)
+				{
+					_animSpeedModifiers.RemoveAt(i);
+					i -= 1;
+					continue;
+				}
 	            Speed *= _animSpeedModifiers[i].SpeedScale;
 	        }
 	        return Speed;

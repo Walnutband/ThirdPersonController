@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
   m_DefaultGroup: e404123cdd2899f47813656fddcc839d
-  m_CachedHash:
+  m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: ae230470fe02645a21358926f00834bc
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -32,11 +32,14 @@ MonoBehaviour:
   m_ShaderBundleNaming: 0
   m_ShaderBundleCustomNaming: 
   m_MonoScriptBundleNaming: 0
+  m_CheckForContentUpdateRestrictionsOption: 0
   m_MonoScriptBundleCustomNaming: 
   m_RemoteCatalogBuildPath:
     m_Id: 
   m_RemoteCatalogLoadPath:
     m_Id: 
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
+  m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: 
@@ -54,31 +57,31 @@ MonoBehaviour:
       m_Id: ecd7b5080817d3543a2d8891ddab1f2c
       m_ProfileName: Default
       m_Values:
-      - m_Id: 7b747a91634cc0946bb479068d2e83e1
-        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
-      - m_Id: bc7fb1709a2cb9948adcdae1d1a89c68
-        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
-      - m_Id: 4b89b798cc92eb34c8adb467ab7e68c9
-        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
-      - m_Id: 9be96e8e7eed8874680c12db27ec1545
-        m_Value: ServerData/[BuildTarget]
       - m_Id: 4b1249f075e8554478d43ccdb6bd2e00
         m_Value: http://[PrivateIpAddress]:[HostingServicePort]
+      - m_Id: 4b89b798cc92eb34c8adb467ab7e68c9
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: 7b747a91634cc0946bb479068d2e83e1
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: 9be96e8e7eed8874680c12db27ec1545
+        m_Value: ServerData/[BuildTarget]
+      - m_Id: bc7fb1709a2cb9948adcdae1d1a89c68
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
     m_ProfileEntryNames:
-    - m_Id: 7b747a91634cc0946bb479068d2e83e1
-      m_Name: BuildTarget
-      m_InlineUsage: 0
-    - m_Id: bc7fb1709a2cb9948adcdae1d1a89c68
-      m_Name: Local.BuildPath
+    - m_Id: 4b1249f075e8554478d43ccdb6bd2e00
+      m_Name: Remote.LoadPath
       m_InlineUsage: 0
     - m_Id: 4b89b798cc92eb34c8adb467ab7e68c9
       m_Name: Local.LoadPath
       m_InlineUsage: 0
+    - m_Id: 7b747a91634cc0946bb479068d2e83e1
+      m_Name: BuildTarget
+      m_InlineUsage: 0
     - m_Id: 9be96e8e7eed8874680c12db27ec1545
       m_Name: Remote.BuildPath
       m_InlineUsage: 0
-    - m_Id: 4b1249f075e8554478d43ccdb6bd2e00
-      m_Name: Remote.LoadPath
+    - m_Id: bc7fb1709a2cb9948adcdae1d1a89c68
+      m_Name: Local.BuildPath
       m_InlineUsage: 0
     m_ProfileVersion: 1
   m_LabelTable:
@@ -103,3 +106,4 @@ MonoBehaviour:
     m_Settings: {fileID: 11400000}
     m_NextInstanceId: 0
     m_RegisteredServiceTypeRefs: []
+    m_PingTimeoutInMilliseconds: 5000

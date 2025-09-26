@@ -1,0 +1,146 @@
+#node-border {
+    background-color: rgb(56, 56, 56);
+    border-left-color: rgb(37, 37, 37);
+    border-right-color: rgb(37, 37, 37);
+    border-top-color: rgb(37, 37, 37);
+    border-bottom-color: rgb(37, 37, 37);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+#input {
+    align-items: center;
+}
+
+#output {
+    align-items: center;
+}
+
+#selection-border {
+    border-left-color: rgba(0, 165, 255, 0.84);
+    border-right-color: rgba(0, 165, 255, 0.84);
+    border-top-color: rgba(0, 165, 255, 0.84);
+    border-bottom-color: rgba(0, 165, 255, 0.84);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+:hover > #selection-border {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+:selected > #selection-border {
+    border-left-width: 1.5px;
+    border-right-width: 1.5px;
+    border-top-width: 1.5px;
+    border-bottom-width: 1.5px;
+}
+
+:hover:selected > #selection-border {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.node {
+    min-width: 150px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#title {
+    -unity-font-style: bold;
+    font-size: 14px;
+    min-height: 40px;
+}
+
+#description {
+    font-size: 10px;
+    white-space: normal;
+    max-width: 140px;
+    display: none;
+}
+
+NodeView:hover #description {
+    display: flex;
+}
+
+#divider {
+    min-height: 1px;
+    background-color: rgb(72, 72, 72);
+}
+
+.action NodePort {
+    background-color: rgb(211, 255, 0);
+}
+
+.composite NodePort {
+    background-color: rgb(0, 141, 255);
+}
+
+.decorator NodePort {
+    background-color: rgb(255, 167, 0);
+}
+
+.root #input {
+    background-color: rgb(255, 81, 84);
+    min-height: 20px;
+}
+
+.root NodePort {
+    background-color: rgb(255, 81, 84);
+    min-height: 20px;
+}
+
+#node-state {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background-color: rgba(161, 43, 43, 0);
+}
+
+.running #node-state {
+    background-color: rgb(255, 213, 0);
+}
+
+.success #node-state {
+    background-color: rgba(60, 212, 0, 0.54);
+}
+
+.failure #node-state {
+    background-color: rgba(250, 25, 25, 0.67);
+}
+
+.node-port {
+    width: auto;
+    min-width: 100px;
+}

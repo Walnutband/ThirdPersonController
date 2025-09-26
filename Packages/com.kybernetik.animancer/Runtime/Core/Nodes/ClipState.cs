@@ -148,7 +148,7 @@ namespace Animancer
         /// <summary>Creates and assigns the <see cref="AnimationClipPlayable"/> managed by this node.</summary>
         protected override void CreatePlayable(out Playable playable)
         {
-            Debug.Log("创建AnimationClipPlayable");
+            // Debug.Log("创建AnimationClipPlayable");
             playable = AnimationClipPlayable.Create(Graph._PlayableGraph, _Clip);
         }
 

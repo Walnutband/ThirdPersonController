@@ -9,9 +9,12 @@ namespace ARPGDemo.ControlSystem
     {
         protected bool m_IsEnd;
         public override bool isEnd => m_IsEnd;
-        protected bool m_CanExitState;
-        public override bool canExitState => m_CanExitState;
+        // protected bool m_CanExitState;
+        // public override bool canExitState => m_CanExitState;
         // public override bool canTransitionToSelf => true;
+        public override bool canExitState => isEnd;
+        [SerializeField] protected bool m_CanTransitionToSelf;
+        public override bool canTransitionToSelf => m_CanTransitionToSelf;
         public override int tempPriority => 10;
 
         [SerializeField] protected StringAsset m_CanExitEventName;
@@ -39,7 +42,7 @@ namespace ARPGDemo.ControlSystem
             base.OnEnterState();
 
             m_IsEnd = false;
-            m_CanExitState = false;
+            m_CanTransitionToSelf = false;
 
             m_ActualMoveSpeed = 0f;
             if (moveInput == Vector2.zero)
@@ -52,8 +55,8 @@ namespace ARPGDemo.ControlSystem
                 m_CurrentState.Events(this).OnEnd = () => m_IsEnd = true;
                 m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () =>
                 {
-                    Debug.Log("avoidBack CanExit");
-                    m_CanExitState = true;
+                    // Debug.Log("avoidBack CanExit");
+                    m_CanTransitionToSelf = true;
                     /*BugFix: */
                     // m_MoveSpeed = 0f;
                 });
@@ -72,8 +75,8 @@ namespace ARPGDemo.ControlSystem
                 m_CurrentState.Events(this).OnEnd = () => m_IsEnd = true;
                 m_CurrentState.Events(this).SetCallback(m_CanExitEventName, () =>
                 {
-                    Debug.Log("roll CanExit");
-                    m_CanExitState = true;
+                    // Debug.Log("roll CanExit");
+                    m_CanTransitionToSelf = true;
                     // m_MoveSpeed = 0f;
                 });
                 // animPlayer.Play(roll).Events(this).OnEnd = () => m_IsEnd = true; //翻滚完就结束
@@ -110,12 +113,13 @@ namespace ARPGDemo.ControlSystem
 
         private void Ease(float progress)
         {
-            Debug.Log("progress:" + progress);
+            // Debug.Log("progress:" + progress);
             if (progress <= 0f || progress >= 1f) return;
             if (progress <= 0.5f)
             {
                 // m_ActualMoveSpeed = Mathf.Lerp(0f, m_MoveSpeed, progress * 2f);
                 // m_ActualMoveSpeed = -Mathf.Pow((progress - 0.5f), 2) + m_MoveSpeed;
+                //TODO：使用二次函数抛物线的曲线来控制移速，当然这里只是很低级的运用，不过也暂时足够了。
                 m_ActualMoveSpeed = Mathf.Max(-Mathf.Pow(7 * (progress), 2) + m_MoveSpeed, 0f);
             }
             else
