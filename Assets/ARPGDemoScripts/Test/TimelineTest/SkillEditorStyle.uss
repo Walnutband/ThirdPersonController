@@ -1,0 +1,29 @@
+#FunctionControls .function-control {
+    flex-shrink: 1;
+    flex-grow: 0;
+    width: 35px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    background-color: rgba(84, 84, 84, 0);
+}
+
+#FunctionControls .function-control:hover {
+    background-color: rgb(167, 167, 167);
+}
+
+#FunctionControls .function-control:active {
+    flex-shrink: 1;
+    flex-grow: 0;
+    background-color: rgb(204, 204, 204);
+}
+
+#FunctionControls #PlayControl.playing {
+    background-color: rgb(100, 113, 255);
+    background-image: url("project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/Pause.png?fileID=2800000&guid=c67b1d9f9df4b224babc05dab55afbb9&type=3#Pause");
+}
+
+#FunctionControls #PlayControl {
+    background-image: url("project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/Play.png?fileID=2800000&guid=617c93de1a8f30b419315d81e47157fe&type=3#Play");
+}

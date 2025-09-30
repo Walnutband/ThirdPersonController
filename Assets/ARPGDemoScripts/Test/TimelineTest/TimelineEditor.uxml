@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="TimelineEditor" style="flex-grow: 1;">
+        <APRGDemo.SkillSystemtest.SplitView fixed-pane-index="1">
+            <ui:VisualElement name="LeftView" style="flex-grow: 1; min-width: 250px;">
+                <ui:VisualElement name="PlaybackControls" style="height: 40px; flex-shrink: 0; background-color: rgb(52, 52, 52); flex-direction: row; justify-content: center;">
+                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" style="flex-shrink: 1; flex-grow: 0; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/FirstKey.png?fileID=2800000&amp;guid=04ff0243d5e7a314a9cbd95441c27998&amp;type=3#FirstKey&quot;); background-color: rgba(188, 188, 188, 0); width: 40px;" />
+                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" style="flex-shrink: 1; flex-grow: 0; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/PreKey.png?fileID=2800000&amp;guid=8da85ee8de503024f99bf56d713e9781&amp;type=3#PreKey&quot;); background-color: rgba(255, 255, 255, 0); width: 40px;" />
+                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" style="flex-shrink: 1; flex-grow: 0; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/Play.png?fileID=2800000&amp;guid=617c93de1a8f30b419315d81e47157fe&amp;type=3#Play&quot;); width: 40px; background-color: rgba(188, 188, 188, 0);" />
+                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" style="flex-shrink: 1; flex-grow: 0; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/NextKey.png?fileID=2800000&amp;guid=88589e5a8fb66ce4ba5dab29d7f4c36c&amp;type=3#NextKey&quot;); background-color: rgba(188, 188, 188, 0); width: 40px;" />
+                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" style="flex-shrink: 1; flex-grow: 0; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/LastKey.png?fileID=2800000&amp;guid=1deeb17915776a547a239677175d47f6&amp;type=3#LastKey&quot;); background-color: rgba(188, 188, 188, 0); width: 40px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="TrackView" style="flex-grow: 1;">
+                    <ui:ListView style="flex-grow: 1;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Placeholder" style="flex-grow: 0; flex-shrink: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="RightView" style="flex-grow: 1;">
+                <ui:VisualElement name="TimeRuler">
+                    <ARPGDemo.Test.Timeline.RulerElement />
+                </ui:VisualElement>
+                <ui:VisualElement name="ClipView" style="flex-grow: 1;">
+                    <ui:ListView style="flex-grow: 1;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </APRGDemo.SkillSystemtest.SplitView>
+    </ui:VisualElement>
+</ui:UXML>

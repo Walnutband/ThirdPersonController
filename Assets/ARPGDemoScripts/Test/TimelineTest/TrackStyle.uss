@@ -1,0 +1,8 @@
+#MuteControl {
+    background-image: url("project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/Show.png?fileID=2800000&guid=c9e0d13a1755cba4a9921617c57595d7&type=3#Show");
+    width: 30px;
+}
+
+#MuteControl.muting {
+    background-image: url("project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/Hide.png?fileID=2800000&guid=2bfb26365e58f9048b5c956eea4718c3&type=3#Hide");
+}

@@ -11,28 +11,74 @@ namespace ARPGDemo.Test.Timeline
     /// </summary>
     public class RulerElement : VisualElement
     {
+        public new class UxmlFactory : UxmlFactory<RulerElement, UxmlTraits> { }
+
         // 外部注入的访问器与回调，用于从父窗口获取/设置可见时间起点与缩放（px/sec）。
         /*Tip：突然想到，这种由外部传入方法决定如何获取某些数值，是一种很巧妙的程序技巧。*/
-        readonly Func<double> GetVisibleStartTime;
-        readonly Func<float> GetPixelsPerSecond;
-        readonly Action<double> SetVisibleStartTime;
-        readonly Action<float, float> SetScaleWithAnchor;
+        // readonly Func<double> GetVisibleStartTime;
+        private Func<double> m_GetVisibleStartTime;
+        /*Tip：公开一个属性的起因就是SkillEditorWindow中需要在初始化时调用OnAdjustEndFlag，需要这两个基本量，而又不适合把逻辑放在RulerElement中，也不适合设置一个初始化回调、因为
+        RulerElement初始化早于SkillEditorWindow、而且这样本来就有点冗余。*/
+        public double visibleStartTime => m_GetVisibleStartTime();
+        private Func<float> m_GetPixelsPerSecond;
+        public float pixelsPerSecond => m_GetPixelsPerSecond();
+        private Action<double> m_SetVisibleStartTime;
+        private Action<float, float> m_SetScaleWithAnchor; //第一个是新的pixelsPerSecond，第二个是缩放锚点的像素位置
+
+        // public Action<double, float> rulerInitialized;
+        public Action<double, float> rulerGeometryChanged;
+        public Action<double, float> preRulerScaled;
+        public Action<double, float> postRulerScaled; //参数就是visibleStartTime和pixelsPerSecond
+        public Action<double, float> rulerMoved; 
+
+        private double m_VisibleStartTime = 0.0;        // seconds at left edge
+        private float m_PixelsPerSecond = 100f;         // scale: px / sec
 
         // 平移交互状态（鼠标中键按住移动）
-        bool m_IsPanning = false;
-        Vector2 m_LastPointerPos; //用于处理鼠标移动的交互逻辑
+        private bool m_IsPanning = false;
+        private Vector2 m_LastPointerPos; //用于处理鼠标移动的交互逻辑
 
         // 构造函数：注入 getter/setter，注册绘制与事件回调
         public RulerElement(
+            Func<double> _getVisibleStartTime,
+            Func<float> _getPixelsPerSecond,
+            Action<double> _setVisibleStartTime,
+            Action<float, float> _setScaleWithAnchor)
+        {
+            Init(_getVisibleStartTime, _getPixelsPerSecond, _setVisibleStartTime, _setScaleWithAnchor);
+        }
+
+        public RulerElement()
+        {
+            Init(() => m_VisibleStartTime, () => m_PixelsPerSecond,
+                                     (newStart) => m_VisibleStartTime = newStart,
+                                     (newScale, anchorPx) =>
+                                     {
+                                        // adjust visibleStartTime to keep anchor time fixed
+                                        //anchorTime代表鼠标位置对应的时刻，anchorPx就是鼠标位置对应的像素
+                                        double anchorTime = PxToTime(anchorPx, this.m_VisibleStartTime, m_PixelsPerSecond);
+                                        m_PixelsPerSecond = newScale;
+                                        /*Tip：以鼠标位置为缩放锚点体现在，以鼠标位置时刻不变为前提，计算缩放后的鼠标位置与可视区域左边界的距离所代表的时长，减去即可得到此时
+                                        左边界的开始时刻。这就是一个简单的解方程，从逻辑关系来看原本应该是visibleStartTime + anchorPx / pixelsPerSecond = anchorTime，而
+                                        根据anchorTime、anchorPx、pixelsPerSecond已知，就可以求出visibleStartTime*/
+                                        m_VisibleStartTime = anchorTime - (anchorPx / m_PixelsPerSecond);
+                                        //  Debug.Log($"visibleStartTime: {m_VisibleStartTime}");
+                                        // Debug.Log($"锚点时刻：{anchorTime}, 锚点像素: {anchorPx}");
+                                     });
+
+            SetRegularStyle();
+        }
+
+        private void Init(
             Func<double> getVisibleStartTime,
             Func<float> getPixelsPerSecond,
             Action<double> setVisibleStartTime,
             Action<float, float> setScaleWithAnchor)
         {
-            GetVisibleStartTime = getVisibleStartTime;
-            GetPixelsPerSecond = getPixelsPerSecond;
-            SetVisibleStartTime = setVisibleStartTime;
-            SetScaleWithAnchor = setScaleWithAnchor;
+            m_GetVisibleStartTime = getVisibleStartTime;
+            m_GetPixelsPerSecond = getPixelsPerSecond;
+            m_SetVisibleStartTime = setVisibleStartTime;
+            m_SetScaleWithAnchor = setScaleWithAnchor;
 
             // 注册用于自定义几何绘制的委托（UI Toolkit retained-mode）
             // generateVisualContent 在需要重绘时被调用，内部使用 MeshGenerationContext 来绘制线与文本.
@@ -40,72 +86,121 @@ namespace ARPGDemo.Test.Timeline
 
             // 注册鼠标滚轮事件，用来缩放（以鼠标位置为锚）
             RegisterCallback<WheelEvent>(OnWheel);
+            // 纯粹为SkillEditorWindow提供回调事件，因为要用到这里的visibleStartTime和pixelsPerSecond基本量，而我又不想将其公开，所以就通过观察者模式实现。
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChangedEvent);
 
             // 注册指针按下/移动/抬起事件以实现平移（中键或右键）
-            RegisterCallback<PointerDownEvent>(OnPointerDown);
-            RegisterCallback<PointerMoveEvent>(OnPointerMove);
-            RegisterCallback<PointerUpEvent>(OnPointerUp);
+            // RegisterCallback<PointerDownEvent>(OnPointerDown);
+            // RegisterCallback<PointerMoveEvent>(OnPointerMove);
+            // RegisterCallback<PointerUpEvent>(OnPointerUp);
 
             // 使元素可接收焦点和指针交互
             focusable = true;
             pickingMode = PickingMode.Position; // 接收精确位置事件
+
+            // rulerInitialized?.Invoke(m_GetVisibleStartTime(), m_GetPixelsPerSecond());
+        }
+
+        private void OnGeometryChangedEvent(GeometryChangedEvent evt)
+        {
+            rulerGeometryChanged?.Invoke(m_GetVisibleStartTime(), m_GetPixelsPerSecond());
+        }
+
+
+        //常规样式，就是固定好的，应该不会变、因为会牵涉到时间轴中的其他部分
+        public void SetRegularStyle()
+        {
+            style.height = 40;
+            style.backgroundColor = new StyleColor(new Color(0.12f, 0.12f, 0.12f));
+            // style.marginLeft = 10; //在左边界留出一定空间主要是左边界为0时刻时更方便观察。片段容器设置marginRight也是同理
+        }
+
+        //主要用于求得缩放锚点（鼠标位置、时间线位置、左边界）所在位置对应的时刻。
+        static double PxToTime(float px, double visibleStartTime, float pixelsPerSecond)
+        {
+            return px / pixelsPerSecond + visibleStartTime;
         }
 
         // ---- 辅助映射函数：时间 <-> 像素 ----
         double TimeAtPixel(float px)
         {
             // visibleStartTime + px / pixelsPerSecond
-            return px / GetPixelsPerSecond() + GetVisibleStartTime();
+            return px / m_GetPixelsPerSecond() + m_GetVisibleStartTime();
         }
 
         //将（相对于可视区域左边界）时间长度转换为像素数量（坐标位置）
-        float PixelOfTime(double t)
+        public float PixelOfTime(double t)
         {//以刻度尺可见区域的左边界所代表的时刻为起点，计算当前时刻在可视区域中的位置。
          // (t - visibleStartTime) * pixelsPerSecond
-            return (float)((t - GetVisibleStartTime()) * GetPixelsPerSecond());
+            return (float)((t - m_GetVisibleStartTime()) * m_GetPixelsPerSecond());
         }
 
         // ---- 事件处理：滚轮缩放 ----
-        void OnWheel(WheelEvent e)
+        void OnWheel(WheelEvent evt)
         {
+            // Debug.Log("触发WheelEvent");
+            //触发缩放前回调
+            preRulerScaled?.Invoke(m_GetVisibleStartTime(), m_GetPixelsPerSecond());
+
             // 取本地鼠标 x 作为锚点
-            float mouseX = e.localMousePosition.x;
+            /*Tip：这里的参考系就是目标元素的本地坐标系，以目标元素的*内容区域*的左上角为原点，向右向下为正方向。*/
+            float mouseX = evt.localMousePosition.x;
 
             // 当前缩放值（px / sec）
             //Tip：缩放值完全等同于每秒所占的像素值。
-            float currentScale = GetPixelsPerSecond();
+            float currentScale = m_GetPixelsPerSecond();
 
             // wheel.delta: 若向上滚动通常为负/正因平台不同，取 -e.delta.y 让向上变 zoom in
             /*效果上看，向下滚动通常是收缩，向上滚动通常是放大*/
-            float delta = -e.delta.y;
-
+            // float delta = -evt.delta.y;
+            float delta;
+            /*BugFix: 我草了，Unity是默认按下Shift时滑动鼠标滚轮就是使用的delta.x，因为鼠标滚轮只有y竖直方向、所以通过此方式来模拟水平方向的滚轮输入*/
             // 缩放灵敏度调节
             // float zoomFactor = 1.0f + delta * 0.0015f;
-            float zoomFactor = 1.0f + delta * 0.005f;
+            float zoomFactor;
+            if ((evt.modifiers & EventModifiers.Shift) != 0)
+            {
+                delta = -evt.delta.x;
+                zoomFactor = 1.0f + delta * 0.015f;
+            }
+            else
+            {
+                delta = -evt.delta.y;
+                zoomFactor = 1.0f + delta * 0.005f;
+            }
+            // Debug.Log("zoomFactor: " + zoomFactor + "delta: " + delta);
             // float newScale = Mathf.Clamp(currentScale * zoomFactor, 10f, 3000f); //限定缩放的上下限，开发者正常使用几乎是不可能遇到这个界限的。
-            float newScale = Mathf.Clamp(currentScale * zoomFactor, 10f, 3000f); //限定缩放的上下限，开发者正常使用几乎是不可能遇到这个界限的。
+            float newScale = Mathf.Clamp(currentScale * zoomFactor, 20, 200f); //限定缩放的上下限，开发者正常使用几乎是不可能遇到这个界限的。
 
             //Tip：分情况确定选择哪个位置作为缩放锚点。
 
             // 回调父窗口，以鼠标像素位置作为锚点更新缩放（父实现会保持锚点时间不变）
             /*Tip：更新两个关键数据：可视区域的起始时间visibleStartTime、每秒换算的像素数pixelsPerSecond*/
             // SetScaleWithAnchor(newScale, mouseX);
-            if (Math.Abs(GetVisibleStartTime() - 0.0) < 0.01) //如果左边起始时间为0时刻
+            // if (Math.Abs(m_GetVisibleStartTime() - 0.0) < 0.01) //如果左边起始时间为0时刻
+            // if (Math.Abs(m_GetVisibleStartTime() - 0.0) < 0.001) //如果左边起始时间为0时刻
+            if (m_GetVisibleStartTime() <= 0.001) //如果左边起始时间为0时刻
             {
-                SetScaleWithAnchor(newScale, 0.0f); //以左边起始位置为锚点
+                m_SetVisibleStartTime(0.0); //修正为0
+                m_SetScaleWithAnchor(newScale, 0.0f); //以左边起始位置为锚点
             }
             else //起始非0时刻，并且没有时间线（没有处于预览模式），就将鼠标位置作为缩放锚点。
             {
-                SetScaleWithAnchor(newScale, mouseX);
+                // Debug.Log("以鼠标位置为缩放锚点");
+                m_SetScaleWithAnchor(newScale, mouseX);
                 /*BugFix：在以鼠标位置为缩放锚点时，可能会出现 visibleStartTime 为负数的情况，在这里进行修正。*/
-                if (GetVisibleStartTime() <= 0.0) SetVisibleStartTime(0.0);
+                // if (m_GetVisibleStartTime() <= 0.0) m_SetVisibleStartTime(0.0);
+                // Debug.Log("鼠标为锚点");
             }
+
+            //触发缩放后回调
+            postRulerScaled?.Invoke(m_GetVisibleStartTime(), m_GetPixelsPerSecond());
 
             // 请求重绘
             MarkDirtyRepaint();
 
             // 阻止冒泡，避免 ScrollView 同时处理滚动
-            e.StopImmediatePropagation();
+            evt.StopImmediatePropagation();
         }
 
         // ---- 事件处理：指针按下 开始平移 ----
@@ -133,16 +228,37 @@ namespace ARPGDemo.Test.Timeline
 
             // Debug.Log($"移动距离: {dx}");
 
-            // 平移时更新 visibleStartTime：左移(正dx) -> 时间减少
-            // visibleStartTime = visibleStartTime - dx / pixelsPerSecond
-            double newStart = GetVisibleStartTime() - dx / GetPixelsPerSecond();
-            /*Tip: 避免移动时左边超出0时刻*/
-            newStart = Math.Max(0.0, newStart);
+            DoMoveRuler(dx);
+            // // 平移时更新 visibleStartTime：左移(正dx) -> 时间减少
+            // // visibleStartTime = visibleStartTime - dx / pixelsPerSecond
+            // double newStart = m_GetVisibleStartTime() - dx / m_GetPixelsPerSecond();
+            // /*Tip: 避免移动时左边超出0时刻（变为负）*/
+            // newStart = Math.Max(0.0, newStart);
 
-            SetVisibleStartTime(newStart);
+            // m_SetVisibleStartTime(newStart);
 
-            MarkDirtyRepaint(); //下一帧重绘，就会触发generateVisualContent回调。
+            // MarkDirtyRepaint(); //下一帧重绘，就会触发generateVisualContent回调。
             e.StopImmediatePropagation();
+        }
+
+        /// <summary>
+        /// 传入移动距离（带方向，负为左移、正为右移）实现移动时间尺的效果
+        /// </summary>
+        /// <param name="_dx"></param>
+        public void DoMoveRuler(float _dx)
+        {
+            double newStart = m_GetVisibleStartTime() - _dx / m_GetPixelsPerSecond();
+            // Debug.Log($"_dx: {_dx},  m_GetPixelsPerSecond: {m_GetPixelsPerSecond()},  _dx / m_GetPixelsPerSecond: {_dx / m_GetPixelsPerSecond()}");
+            /*Tip: 避免移动时左边超出0时刻（变为负）,以及留出0.01的误差范围*/
+            // newStart = Math.Max(0.0, newStart);
+            if (newStart <= 0.001) newStart = 0.0;
+
+            m_SetVisibleStartTime(newStart);
+
+            rulerMoved?.Invoke(m_GetVisibleStartTime(), m_GetPixelsPerSecond());
+
+            MarkDirtyRepaint(); //下一帧重绘，就会触发generateVisualContent回调，然后才会调用OnGenerateVisualContent来更新时间尺画面内容。
+
         }
 
         // ---- 事件处理：指针抬起 结束平移 ----
@@ -159,6 +275,7 @@ namespace ARPGDemo.Test.Timeline
         /*Tip：在写好了这里的OnGenerateVisualContent逻辑之后，其他的交互方法Wheel、PointerMove等等就只是读取交互行为的相关数据来更新所要用到的一些基本数据即可。*/
 
         // ---- 主绘制函数：在 generateVisualContent 回调中被调用 ----
+        // 其实这个方法非常类似于IMGUI的OnGUI。
         void OnGenerateVisualContent(MeshGenerationContext mgc)
         {
             // 获取绘制区域（contentRect 是元素内容区域的本地矩形）
@@ -168,8 +285,8 @@ namespace ARPGDemo.Test.Timeline
             // 本地化常用变量
             float width = rect.width;
             float height = rect.height;
-            float pxPerSec = GetPixelsPerSecond();
-            double visibleStart = GetVisibleStartTime();
+            float pxPerSec = m_GetPixelsPerSecond();
+            double visibleStart = m_GetVisibleStartTime();
 
             /*Tip：该值只是一个参考值，要看下面ChooseNiceInternal的返回值才是真正用于绘制编辑器UI的数据。*/
             // 目标主刻度像素间隔（希望主刻度约为此像素间距）
@@ -187,7 +304,8 @@ namespace ARPGDemo.Test.Timeline
             通过Ceiling向上取整就能实现向右偏移的效果，也就找到了从左边界向右的第一个主刻度相对于0点的长度相当于多少个主刻度间隔，
             然后再乘以每个间隔的时长即secondsPerTick就可以得到可视区域内的第一个大刻度所代表的时刻了。*/
             double firstTickTime = Math.Ceiling(visibleStart / secondsPerTick) * secondsPerTick; //Ceiling向上取整
-                                                                                                 // Debug.Log($"visibleStartTime: {visibleStart}\n secondPerTick时间间隔: {secondsPerTick}");
+            // Debug.Log($"visibleStartTime: {visibleStart}\n secondPerTick时间间隔: {secondsPerTick}");
+
 
             double lastStartTickTime = Math.Floor(visibleStart / secondsPerTick) * secondsPerTick;
 
@@ -248,7 +366,7 @@ namespace ARPGDemo.Test.Timeline
 
             /*Tip：在左边界上方显示上一个可见第一个主刻度的时间，这是个很实用的功能。而在起始时间大于0的时候才显示，还是特殊化处理。*/
             // if (Math.Abs(GetVisibleStartTime() - 0.0) < 0.01)
-            if (GetVisibleStartTime() - 0.0 > 0.001)
+            if (m_GetVisibleStartTime() - 0.0 > 0.001)
             {
                 string lastStartTickLabel = FormatTimeLabel(lastStartTickTime);
                 // mgc.DrawText(lastStartTickLabel, new Vector2(2f, 0f), 14, labelColor);
@@ -273,17 +391,17 @@ namespace ARPGDemo.Test.Timeline
 
             // --- 绘制示例播放头Playhead（示范如何绘制一条竖线） ---
             // 真实项目中播放头的时间应该由外部驱动（传入 currentTime），此处示范固定 playTime = visibleStart + 2s
-            double playTime = visibleStart + 2.0;
-            float playX = PixelOfTime(playTime);
-            if (playX >= 0f && playX <= width) //在可视范围之内
-            {
-                painter.lineWidth = 2.0f;
-                painter.strokeColor = Color.red;
-                painter.BeginPath();
-                painter.MoveTo(new Vector2(playX, 0f));
-                painter.LineTo(new Vector2(playX, height));
-                painter.Stroke();
-            }
+            // double playTime = visibleStart + 2.0;
+            // float playX = PixelOfTime(playTime);
+            // if (playX >= 0f && playX <= width) //在可视范围之内
+            // {
+            //     painter.lineWidth = 2.0f;
+            //     painter.strokeColor = Color.red;
+            //     painter.BeginPath();
+            //     painter.MoveTo(new Vector2(playX, 0f));
+            //     painter.LineTo(new Vector2(playX, height));
+            //     painter.Stroke();
+            // }
         }
 
         // 选取“优美”的时间间隔（1,2,5 * 10^n）以得到整齐的刻度分布

@@ -55,11 +55,12 @@ namespace ARPGDemo.Test.Timeline
                                          左边界的开始时刻。这就是一个简单的解方程，从逻辑关系来看原本应该是visibleStartTime + anchorPx / pixelsPerSecond = anchorTime，而
                                          根据anchorTime、anchorPx、pixelsPerSecond已知，就可以求出visibleStartTime*/
                                          visibleStartTime = anchorTime - (anchorPx / pixelsPerSecond);
-                                         Debug.Log($"visibleStartTime: {visibleStartTime}");
+                                         Debug.Log($"锚点时刻：{anchorTime}, 锚点像素: {anchorPx}");
                                      });
             ruler.style.height = 40;
             // ruler.style.height = 50;
             ruler.style.backgroundColor = new StyleColor(new Color(0.12f, 0.12f, 0.12f));
+            ruler.style.marginLeft = 10;
             // ruler.style.paddingLeft = 10;
             container.Add(ruler);
 

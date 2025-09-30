@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" ue="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement class="unity-base-field" style="justify-content: space-between;">
+        <ui:Label focusable="true" class="unity-base-field__label" />
+        <ui:VisualElement class="unity-base-field__input" style="flex-direction: row; justify-content: space-between;">
+            <uie:DoubleField binding-path="value" style="flex-shrink: 1; position: absolute; right: 165px; left: 0;" />
+            <ui:VisualElement style="background-color: rgba(0, 0, 0, 0); flex-direction: row; position: absolute; right: 0;">
+                <uie:EnumField binding-path="unit" />
+                <ui:Button text="Convert" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

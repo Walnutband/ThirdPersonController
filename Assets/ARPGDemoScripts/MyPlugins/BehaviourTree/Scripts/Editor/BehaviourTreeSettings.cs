@@ -45,7 +45,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             var settings = FindSettings();
             if (settings == null) {
                 settings = ScriptableObject.CreateInstance<BehaviourTreeSettings>();
-                AssetDatabase.CreateAsset(settings, "Assets"); //创建资产文件，到路径Asset下。
+                AssetDatabase.CreateAsset(settings, "Assets/BehaviourTreeSettings.asset"); //创建资产文件，到路径Asset下。
                 AssetDatabase.SaveAssets();
             }
             return settings;

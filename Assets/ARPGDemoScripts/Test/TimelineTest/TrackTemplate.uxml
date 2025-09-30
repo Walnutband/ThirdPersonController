@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/ARPGDemoScripts/Test/TimelineTest/TrackStyle.uss?fileID=7433441132597879392&amp;guid=d5855cac464dd3149bda255662f69ad8&amp;type=3#TrackStyle" />
+    <ui:VisualElement style="flex-grow: 1; flex-direction: row; border-bottom-width: 2px; border-bottom-color: rgba(0, 0, 0, 0.29);">
+        <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" name="MuteControl" />
+        <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" name="Track" focusable="false" style="flex-shrink: 1; flex-grow: 1; margin-right: 10px; margin-left: 10px;" />
+        <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" name="RemoveControl" style="justify-content: space-around; width: 30px; background-image: url(&quot;project://database/Assets/ARPGDemoScripts/Test/TimelineTest/UIAssets/RemoveIcon.png?fileID=2800000&amp;guid=f29f4217f91ef0f4d8567a073161aae5&amp;type=3#RemoveIcon&quot;);" />
+    </ui:VisualElement>
+</ui:UXML>

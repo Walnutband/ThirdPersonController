@@ -191,7 +191,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityType: 0
   Clip: {fileID: -202535508892428158, guid: 8f94e1704ac24b348b1b128f23886a68, type: 3}
-  PreviewPercentageRange: {x: 0, y: -14316558}
+  PreviewPercentageRange: {x: 0.013333334, y: -14316558}
   loopCount: 0
   events:
   - EventTime: 0
@@ -231,7 +231,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -8963672547702523252}
   - EventTime: 0
-    EventRange: {x: 0.02, y: 0.12666667}
+    EventRange: {x: 0.74, y: 0.12666667}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -343,7 +343,7 @@ MonoBehaviour:
       type: 3}
     controlType: 0
     Offset: {x: -0.120544314, y: 0.17305705, z: 2.8351786}
-    Rot: {x: -0.15521988, y: 0.6770497, z: 0.7178298, w: 0.047231942}
+    Rot: {x: -0.1552197, y: 0.67704976, z: 0.7178298, w: 0.047231823}
     TargetNode: 0
     FollowNode: 0
     RotateByNode: 0
