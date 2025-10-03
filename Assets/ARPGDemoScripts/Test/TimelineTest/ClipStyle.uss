@@ -1,0 +1,10 @@
+.background-selected {
+    flex-grow: 1;
+    flex-shrink: 0;
+    position: absolute;
+    right: 208px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(44, 93, 135, 0.5);
+}

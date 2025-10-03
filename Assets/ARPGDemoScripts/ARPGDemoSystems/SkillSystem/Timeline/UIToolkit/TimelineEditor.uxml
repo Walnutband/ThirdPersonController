@@ -1,22 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/ARPGDemoScripts/ARPGDemoSystems/SkillSystem/Timeline/UIToolkit/TimelineEditor.uss?fileID=7433441132597879392&amp;guid=2dd1b734903e38842b03d1fed79d1021&amp;type=3#TimelineEditor" />
     <ui:VisualElement style="flex-grow: 1;">
-        <uie:Toolbar />
-        <APRGDemo.SkillSystemtest.SplitView>
-            <ui:VisualElement name="GroupView" style="flex-grow: 1;" />
-            <ui:VisualElement name="TimelineView" style="flex-grow: 1;">
-                <APRGDemo.SkillSystemtest.SplitView fixed-pane-index="1">
-                    <ui:VisualElement name="TrackView" style="flex-grow: 1;">
-                        <ui:VisualElement name="PlaybackControls" style="flex-grow: 0; height: 50px;" />
-                        <ui:ListView name="TrackList" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="ClipView" style="flex-grow: 1; left: 0;">
-                        <ui:VisualElement name="TimelineTicks" style="flex-grow: 0; height: 50px;" />
-                        <ui:ListView name="ClipList" />
-                        <ui:VisualElement name="PlayHead" style="flex-grow: 1; position: absolute; width: 2px; height: 375px; background-color: rgb(255, 255, 255); left: 149px;" />
-                    </ui:VisualElement>
-                </APRGDemo.SkillSystemtest.SplitView>
+        <uie:Toolbar>
+            <uie:ToolbarMenu tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" text="新建" />
+        </uie:Toolbar>
+        <ARPGDemo.SkillSystemtest.SplitView>
+            <ui:VisualElement name="TrackView" style="flex-grow: 1;">
+                <ui:ListView name="TrackContainer" />
             </ui:VisualElement>
-        </APRGDemo.SkillSystemtest.SplitView>
+            <ui:VisualElement name="ClipView" style="flex-grow: 1;" />
+        </ARPGDemo.SkillSystemtest.SplitView>
     </ui:VisualElement>
 </ui:UXML>

@@ -2,11 +2,12 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using APRGDemo.SkillSystemtest;
+using ARPGDemo.SkillSystemtest;
 using System.Collections.Generic;
 using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.InputSystem;
+using CodiceApp.EventTracking;
 
 namespace ARPGDemo.Test.Timeline
 {
@@ -28,6 +29,7 @@ namespace ARPGDemo.Test.Timeline
         private ListView m_TrackContainer;
         private ScrollView m_ClipContainer;
         private VisualElement m_ClipContentContainer;
+        private VisualElement m_ClipViewport;
         /*Tip：突然想到对于这种不太想要用专门字段引用的节点（感觉有点冗余），就可以直接用一个属性来返回、逻辑量可以忽略不计*/
         private ScrollView leftScroll => m_TrackContainer.Q<ScrollView>();
         private ScrollView rightScroll => m_ClipContainer;
@@ -36,6 +38,10 @@ namespace ARPGDemo.Test.Timeline
         // private VisualElement endFlag => m_TimelineRightView.Q("EndFlag");
         private VisualElement m_EndFlag;
 
+        //进一步，轨道与片段的相关交互功能所需元素
+        private VisualElement m_ClipContentBg; //放在可视区域中
+        private VisualElement m_ClipContent; //
+
         /*模版文件引用记录*/
         // private  trackTemplate;
 
@@ -43,7 +49,7 @@ namespace ARPGDemo.Test.Timeline
 
         private bool syncingScroll;
         private Vector2 m_LastScrollOffset; //右视图的ScrollView的上一次的偏移量。主要用于时间尺移动    
-        private double m_ClipContentPreciseWidth;
+        private double m_ClipContentPreciseWidth; //记录原本计算出来的精确数值，并且参与计算。
         private double m_ClipContentPreEndTime;
         private float m_ClipContentPreEndPosX;
         /*TODO：暂时将就，这就是避免在缩放时间尺的时候还会触发水平滚动条的valueChanged导致时间尺进行一个额外的移动.
@@ -53,8 +59,10 @@ namespace ARPGDemo.Test.Timeline
         private bool verticalSynced;
         private int currentEditorFrameCount;
 
+        /*Tip：轨道视图使用数据，主要是轨道的ListView使用。*/
         //轨道数据容器
-        List<Track> tracks = new List<Track>();
+        private List<Track> m_Tracks = new List<Track>();
+        // private 
 
 
         [MenuItem("MyPlugins/SkillEditor")]
@@ -114,17 +122,33 @@ namespace ARPGDemo.Test.Timeline
             m_TrackContainer = m_TimelineLeftView.Q<ListView>();
             m_ClipContainer = m_TimelineRightView.Q<ScrollView>();
             m_ClipContentContainer = m_ClipContainer.contentContainer;
+            m_ClipViewport = m_ClipContainer.Q("unity-content-viewport");
             //结束标志
             m_EndFlag = m_TimelineRightView.Q("EndFlag");
 
             leftScroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
-            /*Tip：设置片段内容容器的一些样式值，以便按照预期表现*/
+            /*Tip：设置片段内容容器的一些样式值，以便按照预期表现，因为ScrollView作为组件无法直接在UI Builder中修改其下层的各个元素。*/
+            m_ClipContentContainer.style.flexDirection = FlexDirection.Column;
             m_ClipContentContainer.style.flexGrow = 0f; //尺寸应当依赖于作为下层对象的各片段
             m_ClipContentContainer.style.flexShrink = 0f; //尺寸不被可视区域限制
+            m_ClipContentContainer.style.width = new StyleLength(StyleKeyword.Auto);
             m_ClipContentContainer.style.height = new StyleLength(StyleKeyword.Auto);
+            m_ClipContentContainer.RegisterCallback<GeometryChangedEvent>((evt) =>
+            {
+                Debug.Log("contentCOntainer几何变化");
+                //这一行相当于初始化，而Update方法中其实是用于缩放过程的，因为加入片段控制之后，就会有缩放之外的途径改变m_ClipContentPreciseWidth。
+                m_ClipContentPreciseWidth = m_ClipContentContainer.resolvedStyle.width;
+                UpdateClipContentPreciseWidth();
+            });
 
             // m_ClipContentPreciseWidth = m_ClipContentContainer.resolvedStyle.width;
             // Debug.Log($"m_ClipContentPreciseWidth: {m_ClipContentPreciseWidth}");
+
+            /*Tip：处理片段的创建等操作*/
+            // m_ClipViewport.AddManipulator(new ContextualMenuManipulator(evt =>
+            // {
+
+            // }));
 
             /*TODO：初步生成轨道和片段内容*/
             TrackViewContentForTest();
@@ -134,6 +158,7 @@ namespace ARPGDemo.Test.Timeline
             // Debug.Log($"m_ClipContentPreciseWidth: {m_ClipContentPreciseWidth}");
 
             var hScroller = m_ClipContainer.Q<Scroller>(className: "unity-scroller--horizontal");
+            var vScroller = m_ClipContainer.Q<Scroller>(className: "unity-scroller--vertical");
 
             //Tip：同步底部占位符。
             var placeholder = m_TimelineLeftView.Q("Placeholder");
@@ -212,7 +237,8 @@ namespace ARPGDemo.Test.Timeline
                 // m_ClipContentPreEndTime = rect.width / _pixelsPerSecond;
                 // m_ClipContentPreEndPosX = timeRuler.PixelOfTime(m_ClipContentPreEndTime);
                 /*使用double记录的更加精确的宽度来计算时间。*/
-                m_ClipContentPreEndTime = m_ClipContentPreciseWidth / _pixelsPerSecond;
+                // m_ClipContentPreEndTime = m_ClipContentPreciseWidth / _pixelsPerSecond;
+                UpdateClipContentPreEndTime(_pixelsPerSecond);
             };
             timeRuler.postRulerScaled += (a, b) =>
             {
@@ -225,6 +251,7 @@ namespace ARPGDemo.Test.Timeline
 
             /*Tip：在Timeline右视图生成结束标志线
             其实算是穷举，关键也就两种情况：时间尺移动和缩放
+            并非，这是早期测试的情况，加入片段之后，添加片段时可能影响contentContainer也就会影响标志线，等等情况
             */
             timeRuler.rulerMoved += OnAdjustEndFlag;
             //拖动分割线或者窗口边界，直接导致时间尺的宽度变化，这也会对标志线产生影响
@@ -235,6 +262,7 @@ namespace ARPGDemo.Test.Timeline
             //Tip：这一步非常重要，保证在对m_ClipContentContainer应用了布局之后再调整结束标记线
             m_ClipContentContainer.RegisterCallback<GeometryChangedEvent>(evt =>
             {
+                // Debug.Log("")
                 OnAdjustEndFlag(timeRuler.visibleStartTime, timeRuler.pixelsPerSecond);
             });
             // timeRuler.rulerScaled += OnAdjustEndFlag;
@@ -282,6 +310,39 @@ namespace ARPGDemo.Test.Timeline
 #endif
             };
 
+            /*TODO：为了设置一个背景，这一段直接改变了ScrollView原本的结构，不知道会不会出现意外的bug。*/
+            m_ClipContentBg = new VisualElement()
+            {
+                style =
+                {
+                    position = Position.Absolute, //绝对坐标、纯粹提供背景，以及响应上下文菜单
+                    left = 0,
+                    right = 0,
+                    top = 0,
+                    bottom = 0,
+                    flexDirection = FlexDirection.Column,
+                    // flexGrow = 1,
+                    // flexShrink = 1,
+                    // backgroundColor = new Color(1f,1f,1f,0.5f)
+                    // backgroundColor = new Color(0f, 0f, 0f, 0.2f)
+                    backgroundColor = new Color(0.4f, 0.4f, 0.4f)
+                }
+            };
+            m_ClipViewport.Insert(0, m_ClipContentBg);
+            m_ClipViewport.style.left = 0;
+            m_ClipViewport.style.right = 0;
+            m_ClipViewport.style.top = 0;
+            m_ClipViewport.style.bottom = 0;
+            m_ClipViewport.style.position = Position.Absolute;
+            m_ClipViewport.parent.style.flexDirection = FlexDirection.RowReverse;
+            // hScroller.RegisterCallback<GeometryChangedEvent>(evt =>
+            // {
+            //     m_ClipViewport.style.bottom = hScroller.resolvedStyle.height;
+            // });
+            vScroller.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                m_ClipViewport.style.right = vScroller.resolvedStyle.width;
+            });
         }
 
 
@@ -315,7 +376,7 @@ namespace ARPGDemo.Test.Timeline
         }
 
         //水平滚动是同步片段视图与时间尺
-        void OnSyncHorizontalScroll(WheelEvent evt)
+        private void OnSyncHorizontalScroll(WheelEvent evt)
         {
             // const bool isWheeling = false;
             if (rulerScaled == true)
@@ -349,8 +410,7 @@ namespace ARPGDemo.Test.Timeline
         }
 
         /*Tip：同步片段视图与时间尺的缩放，时间尺本身缩放的同时会触发事件rulerScaled，从而调用注册的该方法实现同步。*/
-        private void
-        OnSyncRulerScale(double _visibleStartTime, float _pixelsPerSecond)
+        private void OnSyncRulerScale(double _visibleStartTime, float _pixelsPerSecond)
         {
             // isRulerWheeling = true;
 
@@ -364,12 +424,17 @@ namespace ARPGDemo.Test.Timeline
 
             //之前记录下来的总时间乘以现在缩放之后的每秒像素数，得到当前应该的宽度即缩放后的宽度
             // m_ClipContentContainer.style.width = (float)(m_ClipContentPreEndTime * _pixelsPerSecond);
-            m_ClipContentPreciseWidth = m_ClipContentPreEndTime * _pixelsPerSecond;
-            m_ClipContentContainer.style.width = (float)(m_ClipContentPreciseWidth);
+            // m_ClipContentPreciseWidth = m_ClipContentPreEndTime * _pixelsPerSecond;
+            UpdateClipContentPreciseWidth(_pixelsPerSecond);
+            // m_ClipContentContainer.style.width = (float)(m_ClipContentPreciseWidth);
+            /*TODO：缩放要作用到各个片段，然后让contentContainer随其变化，不能直接设置conentContainer的width，这是之前测试时为了方便而写的。*/
+            ClipsScale(_visibleStartTime, _pixelsPerSecond);
+
             // Debug.Log("现在宽度 " + m_ClipContentContainer.style.width);
             // Debug.Log($"坐标：{m_ClipContentContainer.transform.position}");
 
-            /*Tip：因为滚轮偏移量的绝对值与内容区域的移动量相同*/
+            /*Tip：因为滚轮偏移量的绝对值与内容区域的移动量相同，所以在此计算缩放后的位置，直接应用。在位置方面就是子对象跟随父对象contentContainer变化，
+            而在尺寸方面则是父对象跟随子对象各个片段变化。*/
             // Vector3 pos = contentContainer.transform.position;
             Vector2 offset = rightScroll.scrollOffset;
             // pos.x = timeRuler.PixelOfTime(m_ClipContentPreEndTime) - m_ClipContentPreEndPosX;
@@ -414,17 +479,40 @@ namespace ARPGDemo.Test.Timeline
                 return track;
             };
 
+            ///<summary><see cref="OnRemoveTrack"></summary>///
+            /*BugFix: 由于ListView会复用元素，也就是通过重新绑定来复用，这就导致同一个UI元素有可能多次执行bindItem方法，如果是按照之前的直接用+=注册方法的话，
+            就会导致注册多个方法，然后带来意外结果，但由于clicked没有参数，如果使用有名方法的话、很难获取到当前元素的索引信息，而使用匿名方法的话就可以捕获局部变量，
+            就可以轻易实现想要的逻辑（作用于当前元素），但匿名方法只能+=无法-=，所以我想了很久怎么处理，结果发现只要在一开始清空clicked再注册就行了，但是Button的
+            clicked限制为了event即无法使用“=”直接赋值，所以查看了一下源码，发现Button是另外使用了一个类Clickable来管理事件和交互（就是个继承自PointerManipulator的操纵器，
+            而且是公开的，也可以用在自定义控件中），所以直接构造一个Clickable赋值给Button的clickable属性就行了。*/
             m_TrackContainer.bindItem = (e, i) =>
             {
                 // ((Label)e).text = m_TrackContainer.itemsSource[i] as string; //默认为VisualElement和C#的object类型
                 // e.Q<Button>("Track").text = m_TrackContainer.itemsSource[i] as string;
                 e.Q<Button>("Track").text = (m_TrackContainer.itemsSource[i] as Track).name;
                 var muteControl = e.Q<Button>("MuteControl");
-                muteControl.clicked += () =>
+                muteControl.clickable = new Clickable(() => muteControl.ToggleInClassList("muting"));
+                // muteControl.clicked += () =>
+                // {
+                //     muteControl.ToggleInClassList("muting");
+                // };
+                var removeControl = e.Q<Button>("RemoveControl");
+                removeControl.clickable = new Clickable(() => OnRemoveTrack(i));
+                m_ClipContentBg.Add(new VisualElement()
                 {
-                    muteControl.ToggleInClassList("muting");
-                };
-                e.Q<Button>("RemoveControl").clicked += () => OnRemoveTrack(i);
+                    style =
+                    {
+                        height = m_TrackContainer.fixedItemHeight,
+                        left = 0,
+                        right = 0,
+                        // backgroundColor = new Color(0f, 0f, 0f, 0.4f)
+                        backgroundColor = new Color(0.2f, 0.2f, 0.2f)
+                    }
+                });
+                // removeControl.clickable = null;
+                // removeControl.clicked += () => OnRemoveTrack(i);
+                // e.Q<Button>("RemoveControl").clicked -= OnRemoveTrack;
+                // e.Q<Button>("RemoveControl").clicked += OnRemoveTrack;
                 // e.Q<Button>("RemoveControl").clicked += () =>
                 // {
                 //     m_TrackContainer.viewController.RemoveItem(i);
@@ -449,17 +537,21 @@ namespace ARPGDemo.Test.Timeline
 
             // m_TrackContainer.itemsSource = new List<string> { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
             // m_TrackContainer.itemsSource = new List<string> { "动画轨道", "音效轨道", "粒子轨道", "Hitbox轨道", "相机轨道", "事件轨道" };
-            m_TrackContainer.itemsSource = tracks;
+            m_TrackContainer.itemsSource = m_Tracks;
 
             m_TrackContainer.reorderable = true;
             m_TrackContainer.reorderMode = ListViewReorderMode.Simple;
 
-            /*Tip：就是要直接设置contentContainer的尺寸来带动作为子对象的内容尺寸变化，而不是反过来。*/
-            m_ClipContentContainer.style.width = m_ClipContentContainer.style.height = 600f;
+            //Tip：注册一些ListView回调
+            // m_TrackContainer.selectionChanged += 
+
+            /*就是要直接设置contentContainer的尺寸来带动作为子对象的内容尺寸变化，而不是反过来。*/
+            // m_ClipContentContainer.style.width = m_ClipContentContainer.style.height = 600f;
             /*BugFix：随着多次缩放，内容区域的总时间越来越偏移（而且主要是往右即往大偏移？），大概是因为每次缩放都会转换为float、将额外的小数去除，就是这一点误差、多次缩放累积之后，
             就导致了明显的偏移。所以用这个double记录之后，作为中间量，就能避免这个问题了。但是要注意该值的初始化，因为样式值要经过计算之后才会确定，如果过早读取的话会得到NaN的结果，
             从而导致意外表现。*/
-            m_ClipContentPreciseWidth = 600;
+            // m_ClipContentPreciseWidth = 600;
+            // m_ClipContentPreciseWidth = 0;
             // Debug.Log($"m_ClipContentPreciseWidth: {m_ClipContentPreciseWidth}");
         }
 
@@ -516,6 +608,41 @@ namespace ARPGDemo.Test.Timeline
         //     finally { syncingScroll = false; }
         // }
 
+
+
+        // /*绘制结束时刻的标记线*/
+        // private void OnGenerateEndFlag(MeshGenerationContext mgc)
+        // {
+        //     var painter = mgc.painter2D;
+        //     painter.lineWidth = 1f;
+        //     painter.strokeColor = Color.blue;
+        // }
+
+        #endregion
+
+        private void UpdateClipContentPreEndTime(float _pixelsPerSecond)
+        {
+            m_ClipContentPreEndTime = m_ClipContentPreciseWidth / _pixelsPerSecond;
+        }
+        private void UpdateClipContentPreEndTime()
+        {
+            m_ClipContentPreEndTime = m_ClipContentPreciseWidth / timeRuler.pixelsPerSecond;
+        }
+        private void UpdateClipContentPreciseWidth(float _pixelsPerSecond)
+        {
+            m_ClipContentPreciseWidth = m_ClipContentPreEndTime * _pixelsPerSecond;
+        }
+        private void UpdateClipContentPreciseWidth()
+        {
+            m_ClipContentPreciseWidth = m_ClipContentPreEndTime * timeRuler.pixelsPerSecond;
+        }
+
+        private void ClipsScale(double _visibleStartTime, float _pixelsPerSecond)
+        {
+
+        }
+
+        #region 回调方法
         //Tip：调整结束标志线。
         private void OnAdjustEndFlag(double _visibleStartTime, float _pixelsPerSecond)
         {
@@ -531,9 +658,12 @@ namespace ARPGDemo.Test.Timeline
             // if (_visibleStartTime + rulerEffectiveWidth / _pixelsPerSecond >= clipContentRect.width / _pixelsPerSecond)
             /*Ques：之前没有加上0.001，导致在位于右边界时缩放的话就会出现标志线时有时无的情况，这就是典型的像素误差导致的，虽然说加上了0.001修正偏差就好了，
             但是我在想是否有更加根本的解决办法？能够通过某种方式让这些所有因偏差而导致的错误表现全部消失？*/
-            if (_visibleStartTime + rulerEffectiveWidth / _pixelsPerSecond + 0.001 >= clipContentRect.width / _pixelsPerSecond
-            && clipContentRect.width / _pixelsPerSecond > _visibleStartTime)
+            // if (_visibleStartTime + rulerEffectiveWidth / _pixelsPerSecond + 0.001 >= clipContentRect.width / _pixelsPerSecond
+            // && clipContentRect.width / _pixelsPerSecond > _visibleStartTime)
+            if (_visibleStartTime + rulerEffectiveWidth / _pixelsPerSecond + 0.001 >= m_ClipContentContainer.resolvedStyle.width / _pixelsPerSecond
+                && m_ClipContentContainer.resolvedStyle.width / _pixelsPerSecond > _visibleStartTime + 0.001)
             {
+                // Debug.Log("宽度  " + m_ClipContentContainer.resolvedStyle.width);
                 m_EndFlag.style.visibility = Visibility.Visible;
                 //前提是保持同步。那么通过时间与像素的映射就可以直接计算出各部分的宽度或各位置的时刻。
                 // m_EndFlag.style.left = (clipContentRect.width / _pixelsPerSecond - _visibleStartTime) * _pixelsPerSecond;
@@ -547,29 +677,54 @@ namespace ARPGDemo.Test.Timeline
             }
         }
 
-        // /*绘制结束时刻的标记线*/
-        // private void OnGenerateEndFlag(MeshGenerationContext mgc)
-        // {
-        //     var painter = mgc.painter2D;
-        //     painter.lineWidth = 1f;
-        //     painter.strokeColor = Color.blue;
-        // }
 
-        #endregion
-
-        #region 回调方法
         private void OnAddTrack(Track _track)
         {
-            tracks.Add(_track);
+            m_Tracks.Add(_track);
             m_TrackContainer.RefreshItems();
+            //添加对应的片段区域
+            //Tip：跟随contentContainer变化，而非反过来。
+            var clipRow = new VisualElement()
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    flexGrow = 1,
+                    flexShrink = 0,
+                    width = new StyleLength(StyleKeyword.Auto), //跟随内部片段变化
+                    height = m_TrackContainer.fixedItemHeight,
+                    borderBottomColor = new Color(0f, 0f, 0f, 30f / 255),
+                    borderBottomWidth = 2,
+                },
+                name = "ClipRow"
+            };
+            clipRow.style.width = 300;
+            clipRow.style.height = 800;
+            var clipRowBg = new VisualElement()
+            {
+                style =
+                {
+
+                }
+            };
+            // m_ClipViewport.Add
+
+            m_ClipContentContainer.Add(clipRow);
+
         }
 
         /*BUG：点击删除，会连同自己下面的元素一起删除*/
+        // private void OnRemoveTrack()
         private void OnRemoveTrack(int _index)
         {
-            m_TrackContainer.viewController.RemoveItem(_index);
-            // m_TrackContainer.RefreshItems();
-            m_TrackContainer.Rebuild();
+            Debug.Log("移除前itemsSource元素数量 " + m_TrackContainer.itemsSource.Count);
+            // m_TrackContainer.viewController.RemoveItem(0);
+            // m_TrackContainer.itemsSource.RemoveAt(_index);
+            m_Tracks.RemoveAt(_index);
+            /*Tip：经测试，Rebuild会完全重置所有元素，而RefreshItems则只是刷新、会保留未变化的原本元素状态。*/
+            // m_TrackContainer.Rebuild();
+            m_TrackContainer.RefreshItems();
+            Debug.Log("移除后itemsSource元素数量 " + m_TrackContainer.itemsSource.Count);
         }
         #endregion
 

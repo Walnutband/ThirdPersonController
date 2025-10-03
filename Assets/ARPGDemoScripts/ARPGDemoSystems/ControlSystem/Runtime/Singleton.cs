@@ -31,7 +31,8 @@ namespace ARPGDemo
 
             /*TODO：派生类重写时，就是在游戏开始时尝试获取已经存在的实例，因为这样的获取是基于具体类的，所以无法在该基类中编写相关逻辑。
             就是为了能够在编辑器中编辑这些单例的实例，而不是只能在进入运行模式后现场生成。
-            不过也可以在这里定义一个抽象方法，专门用于查找已经存在的实例，让派生类实现即可，这样才更具有逻辑性。*/
+            不过也可以在这里定义一个抽象方法，专门用于查找已经存在的实例，让派生类实现即可，这样才更具有逻辑性，说白了就是确定是在下面这段逻辑之前执行，如果像这样不定义方法的话，
+            就没有利用到这个隐含条件。*/
             if (m_Instance == null)
             {
                 GameObject go = new GameObject(typeof(T).Name); //直接以类名作为对象名
@@ -43,6 +44,22 @@ namespace ARPGDemo
                 DontDestroyOnLoad(m_Instance.gameObject);
             }
             Debug.Log($"游戏对象名：{m_Instance.gameObject.name}");
+        }
+    }
+
+    public class Singleton<T> where T : class, new()
+    {
+        protected static T m_Instance;
+        public static T Instance
+        {
+            get
+            {
+                if (m_Instance == null)
+                {
+                    m_Instance = new T();
+                }
+                return m_Instance;
+            }
         }
     }
 }

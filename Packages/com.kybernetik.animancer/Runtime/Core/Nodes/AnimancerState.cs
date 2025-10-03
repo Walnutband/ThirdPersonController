@@ -689,7 +689,7 @@ namespace Animancer
             {
                 Validate.AssertPlayable(this);
                 var time = value;
-                //Tip：连续设置两次Time是为了避免bug。
+                //Tip：连续设置两次Time是为了规避bug。
                 _Playable.SetTime(time);
                 _Playable.SetTime(time);
             }

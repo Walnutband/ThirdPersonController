@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/ARPGDemoScripts/Test/TimelineTest/ClipStyle.uss?fileID=7433441132597879392&amp;guid=6919a690ca49038489e4c18c4c223a53&amp;type=3#ClipStyle" />
+    <ui:VisualElement style="flex-grow: 1; background-color: rgb(154, 154, 154);">
+        <ui:VisualElement class="background-selected">
+            <ui:VisualElement style="height: 45px; width: 76px; left: 126px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

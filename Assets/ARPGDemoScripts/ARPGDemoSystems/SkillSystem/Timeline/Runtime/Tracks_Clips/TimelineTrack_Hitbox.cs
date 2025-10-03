@@ -4,15 +4,15 @@ using ARPGDemo.BattleSystem;
 
 namespace ARPGDemo.SkillSystemtest
 {
-    public class TimelineTrack_Hitbox : TimelineTrack
+    public class TimelineTrack_Hitbox : TimelineTrack<TimelineClip_Hitbox>
     {
-        private List<TimelineClip_Hitbox> m_Clips = new List<TimelineClip_Hitbox>();
-        protected override IEnumerable<TimelineClip> clips => m_Clips;
+        // private List<TimelineClip_Hitbox> m_Clips = new List<TimelineClip_Hitbox>();
+        // protected override IEnumerable<TimelineClip> clips => m_Clips;
         
         /*TODO：Hitbox类型待定。*/
         private CollisionDetector m_Hitbox;
         
-        public override void Initialize()
+        public override void Initialize(TimelineContext _ctx)
         {
             // clips.ForEach(clip =>
             // {
@@ -32,19 +32,19 @@ namespace ARPGDemo.SkillSystemtest
             m_Hitbox = _hitbox;
         }
         
-        protected override void OnStart(float _localTime)
+        protected override void OnBegin(double _localTime)
         {
-            m_Hitbox.EnableTrigger();
+            m_Hitbox.EnableDetector();
         }
 
-        public override void Running(float _localTime)
+        protected override void Running(double _localTime)
         {
             throw new System.NotImplementedException();
         }
 
         protected override void OnEnd()
         {
-            m_Hitbox.DisableTrigger();
+            m_Hitbox.DisableDetector();
         }
     }
 }

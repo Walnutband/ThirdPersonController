@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace ARPGDemo.SkillSystemtest
 {
-    public class TimelineTrack_Audio : TimelineTrack
+    public class TimelineTrack_Audio : TimelineTrack<TimelineClip_Audio>
     {
-        private List<TimelineClip_Audio> m_Clips = new List<TimelineClip_Audio>();
-        protected override IEnumerable<TimelineClip> clips => m_Clips;
+        // private List<TimelineClip_Audio> m_Clips = new List<TimelineClip_Audio>();
+        // protected override IEnumerable<TimelineClip> clips => m_Clips;
 
-        public override void Initialize()
+        public override void Initialize(TimelineContext _ctx)
         {
             throw new System.NotImplementedException();
         }
@@ -17,12 +17,12 @@ namespace ARPGDemo.SkillSystemtest
 
     public class TimelineClip_Audio : TimelineClip
     {
-        protected override void OnStart(float _localTime)
+        protected override void OnBegin(double _localTime)
         {
             throw new System.NotImplementedException();
         }
 
-        public override void Running(float _localTime)
+        protected override void Running(double _localTime)
         {
             throw new System.NotImplementedException();
         }

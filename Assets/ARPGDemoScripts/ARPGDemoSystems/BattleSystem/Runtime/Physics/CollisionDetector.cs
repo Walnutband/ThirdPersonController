@@ -37,12 +37,12 @@ namespace ARPGDemo.BattleSystem
             triggerExit?.Invoke(other);
         }
 
-        public void EnableTrigger()
+        public void EnableDetector()
         {
             m_Collider.enabled = true;
         }
 
-        public void DisableTrigger()
+        public void DisableDetector()
         {
             m_Collider.enabled = false;
         }
