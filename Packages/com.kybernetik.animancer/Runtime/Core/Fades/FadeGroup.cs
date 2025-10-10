@@ -192,7 +192,9 @@ namespace Animancer
             float targetWeight,
             float fadeSpeed)
         {
+            //初始化为0，这里的归一化时间指的是过渡的进度，也就是以过渡时间为总时间，由这个进度值对startWeight和targetWeight进行插值就能得到在过渡阶段的此刻的权重。
             NormalizedTime = 0;
+
             TargetWeight = targetWeight;
             FadeSpeed = fadeSpeed;
 
@@ -326,7 +328,7 @@ namespace Animancer
             {
                 //其实归一化时间本来就是“进度”的含义。
                 var progress = NormalizedTime;
-                //可以应用函数曲线，得到更加多样的过渡效果。
+                //可以应用函数曲线，得到更加多样的过渡效果，但是对于动画来说，绝大多数情况下都是线性过渡。
                 if (_Easing != null)
                     progress = _Easing(progress);
 

@@ -34,8 +34,8 @@ namespace ARPGDemo.BattleSystem
         public int maxAmount => m_Data.maxAmount;
 
         public ActorResource resource => m_Data.resource;
-        private List<Buff> m_Buffs; //到底用Buff还是BuffData呢？感觉用Buff更加体现层次性，Item与Buff是同层的，ItemData与BuffData是同层的、由于是在编辑时确定所以采用ID标识。
-        public List<Buff> buffs => m_Buffs;
+        private List<BuffObj> m_Buffs; //到底用Buff还是BuffData呢？感觉用Buff更加体现层次性，Item与Buff是同层的，ItemData与BuffData是同层的、由于是在编辑时确定所以采用ID标识。
+        public List<BuffObj> buffs => m_Buffs;
 
 
         public Item(ItemData _itemData, int _amount = 1)

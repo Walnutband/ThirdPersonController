@@ -383,10 +383,10 @@ namespace Animancer
         {
             _PlayableGraph = graph;
             Transitions = transitions;
-            Graph = this;
+            Graph = this; //因为继承自AnimancerNodeBase，而除了Graph以外的其他节点确实都是位于某个Graph中，所以将其作为一个基类字段，这里由于就是Graph本身，所以直接设置为this了。
             //创建Pre和Post的UpdatableListPlayable
             _PreUpdatePlayable = UpdatableListPlayable.Create(this, 2, _PreUpdatables);
-
+            /*使用自定义的PlayableBehaviour，实现过渡、事件等特殊功能*/
             var postUpdate = UpdatableListPlayable.Create(this, 0, _PostUpdatables);
             _PlayableGraph.Connect(postUpdate, 0, _PreUpdatePlayable, 1);
 

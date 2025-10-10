@@ -235,7 +235,8 @@ namespace Animancer
 
             if (_Capacity <= index)
             {
-                _Capacity *= 2; //动态扩容，其实库容器也是这样两倍扩容的。
+                //动态扩容，其实库容器也是这样两倍扩容的。只是Playable的端口没有提供自动扩容的功能，只能手动通过SetInputCount来改变端口数量。
+                _Capacity *= 2; 
                 _Playable.SetInputCount(_Capacity);
             }
 
@@ -907,7 +908,7 @@ namespace Animancer
             // Debug.Log($"{state.Clip.name}的index为{state.Index}");
 
             CurrentState = state; //正在播放的State
-            //停止该Layer下其他所有正在播放的State
+            //停止该Layer下其他所有正在播放的State，这里就显露出了互斥性（基础设计是这样的。）
             for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
             {
                 var otherState = ActiveStatesInternal[i];
@@ -1022,7 +1023,8 @@ namespace Animancer
                 state.IsPlaying = true;
                 //Tip：这里才是AnimancerLayer实现其子节点之间的过渡的核心逻辑。
                 var fade = GetFade();
-                fade.SetNodes(this, state, ActiveStatesInternal, Graph.KeepChildrenConnected); //传入要Play的节点作为fadeIn对象，传入当前Active的节点作为fadeOut对象
+                //传入要Play的节点作为fadeIn对象，传入当前Active的节点作为fadeOut对象。转出可以有很多个，但转入就是唯一目标，
+                fade.SetNodes(this, state, ActiveStatesInternal, Graph.KeepChildrenConnected); 
                 fade.StartFade(1, stateFadeSpeed);
             }
 

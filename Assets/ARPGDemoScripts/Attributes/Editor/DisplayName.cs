@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
-namespace ARPGDemo
+namespace ARPGDemo.Editor
 {
     [CustomPropertyDrawer(typeof(DisplayNameAttribute))]
     public class DisplayName : PropertyDrawer

@@ -149,7 +149,7 @@ namespace ARPGDemo.ControlSystem
 
 
         private void GetOrCreateAllStates()
-        {
+        {//Tip：各个状态类就应该
             if ((m_GroundedState = GetComponent<PlayerGroundedState>()) == null)
             {
                 m_GroundedState = gameObject.AddComponent<PlayerGroundedState>();

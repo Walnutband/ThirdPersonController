@@ -44,11 +44,12 @@ namespace ARPGDemo.BuffSystemSample
         {
             if (canMove == false || velocity == Vector3.zero) return;
 
-            Vector3 targetPos = new Vector3(
-                velocity.x * Time.fixedDeltaTime + transform.position.x,
-                velocity.y * Time.fixedDeltaTime + transform.position.y,
-                velocity.z * Time.fixedDeltaTime + transform.position.z
-            );
+            // Vector3 targetPos = new Vector3(
+            //     velocity.x * Time.fixedDeltaTime + transform.position.x,
+            //     velocity.y * Time.fixedDeltaTime + transform.position.y,
+            //     velocity.z * Time.fixedDeltaTime + transform.position.z
+            // );
+            Vector3 targetPos = transform.position + velocity * Time.fixedDeltaTime;
 
             MapTargetPosInfo mapTargetPosInfo = SceneVariants.map.FixTargetPosition(
                 transform.position, bodyRadius, targetPos, moveType, (this.ignoreBorder == true && moveType == MoveType.fly)

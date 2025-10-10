@@ -119,7 +119,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /*Tip：关于权重，其实不太应该理解为子节点的权重，而是当前节点的输入端口的输入值的权重，因为只是接收来自于子节点的输出数据进行相应处理而已，压根影响不到子元素。
-        所以这里的ApplyChildWeight从命名上真的不如Playable的SetInputWeight准确。*/
+        所以这里的ApplyChildWeight从命名上真的不如Playable的SetInputWeight准确，但是从使用上来看，似乎这样会更加直观，对于不懂程序的开发者来说的话。*/
         /// <summary>Applies the `child`'s current <see cref="AnimancerNode.Weight"/>.</summary>
         public static void ApplyChildWeight(this Playable parent, AnimancerNode child)
             => parent.SetInputWeight(child.Index, child.Weight);
@@ -195,7 +195,9 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        /// <summary>Returns the output connected to the `sourcePlayable` (if any).</summary>
+        /// <summary>Returns the output connected to the `sourcePlayable` (if any).
+        /// 获取连接到sourcePlayable的Output节点，
+        /// </summary>
         public static PlayableOutput FindOutput(this PlayableGraph graph, Playable sourcePlayable)
         {
             var handle = sourcePlayable.GetHandle();

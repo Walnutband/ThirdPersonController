@@ -6,7 +6,7 @@ namespace ARPGDemo.BattleSystem
 {
     [AddComponentMenu("ARPGDemo/BattleSystem/CollisionDetector")]
     public class CollisionDetector : MonoBehaviour
-    {
+    {//TODO：回调需要加参数，应该是该检测器所在的个体对象。
         private Collider m_Collider;
         public Action<Collider> triggerEnter;
         public Action<Collider> triggerStay;
