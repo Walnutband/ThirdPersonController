@@ -5,7 +5,7 @@ using UnityEngine;
 的生命期绑定在游戏对象上，所以存储组件对象的实例没有意义，而是应该存储其所在游戏对象的实例，而非组件对象没有游戏对象作为持续引用源，为了防止其在不用时因为没有任何引用而被
 垃圾回收，所以就应该用一个对象池容器来专门引用，从而保持其存在，以便随后就可以取用，不用重新分配内存而浪费性能。*/
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     public class InstancePool

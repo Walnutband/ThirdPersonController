@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     public class UIExitView : UIView

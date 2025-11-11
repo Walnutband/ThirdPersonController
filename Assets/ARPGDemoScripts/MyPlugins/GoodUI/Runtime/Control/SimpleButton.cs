@@ -12,7 +12,7 @@ namespace MyPlugins.GoodUI
         // [Serializable]
         // public class ButtonClickedEvent : UnityEvent { }
         // private ButtonClickedEvent m_OnClick = new ButtonClickedEvent();
-        private Action onClick;
+        private event Action onClick;
         // public Action onClick { get => m_OnClick; set => m_OnClick = value; }
 
         protected SimpleButton() { }

@@ -1,3 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement style="flex-grow: 1; background-color: rgb(26, 26, 26);" />
+    <ui:VisualElement style="flex-grow: 1; background-color: rgb(26, 26, 26);">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgb(128, 85, 85);" />
+        <ui:VisualElement name="VisualElement" style="flex-grow: 1; background-color: rgb(143, 52, 52); flex-shrink: 1; flex-direction: row; width: 364px;">
+            <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgb(234, 181, 181); flex-shrink: 0;" />
+            <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgb(255, 136, 136); flex-shrink: 1;" />
+            <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgb(255, 136, 136); flex-shrink: 1;" />
+            <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgb(255, 136, 136); flex-shrink: 1;" />
+            <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgb(255, 136, 136); flex-shrink: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

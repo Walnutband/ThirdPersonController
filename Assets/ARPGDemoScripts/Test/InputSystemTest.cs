@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace ARPGDemo.ControlSystem
+namespace ARPGDemo.ControlSystem_Old
 {
     public class InputSystemTest : MonoBehaviour
     {

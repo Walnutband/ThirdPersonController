@@ -11,7 +11,7 @@ namespace MyPlugins.AnimationPlayer
     public class Postprocessor : PlayableBehaviour
     {
         /*Tip；突然想到，如果只需要调用其中某些方法的话，除了定义接口来划分以外，还可以直接使用函数指针即这里的委托来调用*/
-        public Func<List<AnimationStateBase>> GetStates;
+        internal Func<List<AnimationStateBase>> GetStates;
         private List<AnimationClipState> m_States = new List<AnimationClipState>();
 
         /*Tip：其实实际情况最多就是每个层级有一个AnimationClipState可能触发事件而已，在设计上，处于过渡过程中的状态不会触发事件*/
@@ -31,8 +31,6 @@ namespace MyPlugins.AnimationPlayer
                     }
                 }
             }
-
-            // Debug.Log("PrepareFrame后处理器时间：" + playable.GetTime());
         }
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)

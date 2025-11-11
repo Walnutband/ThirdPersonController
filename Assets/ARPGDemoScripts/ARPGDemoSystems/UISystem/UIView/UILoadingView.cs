@@ -1,12 +1,13 @@
 
 using System.Collections;
 using DG.Tweening;
+using MyPlugins.GoodUI;
 using TMPro;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     /*Tip：加载界面，通常是在切换场景时才会出现，而一般的打开或切换全屏的UI界面只需要一个固定时间的淡出淡入的效果即可*/

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     public enum UIEvent
     {

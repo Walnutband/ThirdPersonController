@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -18,50 +17,48 @@ namespace MyPlugins.AnimationPlayer
         private List<AnimationLayer> m_Layers;
         // private AnimationLayer[] m_Layers;
         public int layerCount => m_Layers.Count; //就是提供给AnimationLayer的，避免让它直接访问到Layers列表。
-        // public int layerCapacity => m_Layers.Capacity;
 
-        public AnimationLayerMixer(AnimationGraph _graph, int _layerCount = 0)
-        // public AnimationLayerMixer(AnimationGraph _graph, int _layerCount = 4)
+        private FadeHandler m_FadeHandler;
+
+        /*Tip：初始必有一层，此即为底层Base Layer*/
+        public AnimationLayerMixer(AnimationGraph _graph)
         {
             //首要确定所在Graph以及创建Playable，才能开展后续。
             m_Graph = _graph;
-            m_Playable = AnimationLayerMixerPlayable.Create(_graph.graph, _layerCount);
-            SetLayers(_layerCount);
-            // m_Layers = new List<AnimationLayer>(_layerCount);
-            // AddLayer();
-            //默认有一个Layer
-            // m_Playable = AnimationLayerMixerPlayable.Create(_graph.graph, 1);
-            // for (int i = 0; i < _layerCount; i++)
-            // {
-            //     AddLayer();
-            // }
-
+            m_Playable = AnimationLayerMixerPlayable.Create(_graph.graph);
+            m_Layers = new List<AnimationLayer>();
         }
-
-        /*Ques：真的需要指定索引添加Layer的方法吗？我感觉完全用不上，就按照顺序Add就行了*/
-        // public void AddLayer(int _index)
-        // {
-        //     Debug.Log("添加层级， index：" + _index);
-        //     AnimationLayer layer = new AnimationLayer(m_Graph, this);
-        //     // m_Layers.Add(layer);
-        //     m_Layers[_index] = layer;
-        //     //将层级连接到该LayerMixer。
-        //     // m_Graph.graph.Connect(layer.playable, 0, m_Playable, _index);
-        //     m_Graph.Connect(layer, this, _index);
-        // }
 
         public void AddLayer(int _index)
         {
-            Debug.Log("layerCount : " + layerCount + "index: " + _index);
+            //在添加层级时要保证已经设置了足够的输入端口，同时容器m_Layers与其同步。
+            if (_index < 0 || _index >= m_Playable.GetInputCount())
+            {
+                Debug.LogError("在添加层级时传入的索引超出了当前的输入端口数量，请检查。");
+                return;
+            }
+            
+            //说明该位置已经有了层级，提示一下，不能重复添加，也默认不能覆盖。
+            if (m_Layers[_index] != null)
+            {
+                Debug.LogError($"尝试在索引{_index}添加层级时发现该位置已经有了层级，默认不能覆盖，请检查。");
+                return;
+            }
 
-            // AddLayer(layerCount);
             AnimationLayer layer = new AnimationLayer(m_Graph, this);
-            m_Layers.Add(layer); //一定要放在前面，因为layerCount返回的就是List的Count成员。
-            // m_Graph.graph.Connect(layer.playable, 0, m_Playable, layerCount);
-            //将层级连接到该LayerMixer。注意要放在添加容器之前，因为要使用List的Count成员。
-            /*Tip：其实一直觉得应该在AnimationLayer的构造函数中连接，但是又很别扭。*/
+            // m_Layers.Add(layer); //一定要放在前面，因为layerCount返回的就是List的Count成员。
+            m_Layers[_index] = layer;
             m_Graph.Connect(layer, this, _index);
-            // m_Playable.SetInputWeight(layer.playable, 1f);
+            if (_index == 0)
+            {//Base Layer直接权重设置为1
+                // SetLayerWeight(layer, 1f);
+                layer.weight = 1f;
+            }//TODO: 似乎按理来说，默认都应该直接设置为1，如果因为播放逻辑而调整权重的话，到时候调整就是了。
+            else
+            {
+                // SetLayerWeight(layer, 0f);
+                layer.weight = 0f;
+            }
         }
 
         public AnimationLayer this[int index]
@@ -70,26 +67,98 @@ namespace MyPlugins.AnimationPlayer
             {
                 if (index < 0)
                 {
-                    index = 0;
-                    // return null;
+                    // Debug.LogError("在访问层级时传入的索引小于0，已自动修正为0");
+                    // index = 0;
+                    Debug.LogError("在访问层级时传入的索引小于0，请检查");
+                    return null;
                 }
-                // else if (index >= layerCount) //超过当前层级数量（端口数量）
-                else if (index >= layerCount) 
+                else if (index >= layerCount)
                 {
-                    // Debug.Log("003访问层级，扩容");
-                    index = layerCount;
-                    //分配足够的输入端口
-                    // m_Playable.SetInputCount(index + 1);
-                    /*直接按顺序就行了，不管它有多大，因为毫无意义。CNMD*/
-                    m_Playable.SetInputCount(layerCount + 1);
-                    // AddLayer(index); //添加新的层级，注意这中途可能留下空端口，但实际上不会让这种情况发生。
-                    AddLayer(index);
-                    return m_Layers[index];
+                    Debug.LogError("在访问层级时传入的索引超出了当前的输入端口数量范围，请检查。");
+                    return null;
                 }
-                // Debug.Log("003访问层级");
+                //不用搞什么惰性增加，没啥意义，要用到什么层级本来就是在编辑时就确定好了的，初始化时直接赋值即可。
                 return m_Layers[index];
             }
-            // set => m_Layers[index] = value;
+        }
+
+        public void Play(int _layerIndex, AnimationStateBase _state)
+        {
+            AnimationLayer layer = this[_layerIndex];
+
+            //Tip：没有过渡，确实就没啥麻烦事了
+            layer.Play(_state);
+            layer.weight = 1f;
+        }
+
+        public void Play(int _layerIndex, AnimationStateBase _state, float _fadeDuration)
+        {
+            AnimationLayer layer = this[_layerIndex];
+
+            if (layer.isPlaying)
+            {
+                layer.Play(_state, _fadeDuration);
+                if (_layerIndex > 0)
+                {
+                    // m_FadeHandler?.Complete();
+                    m_FadeHandler?.Cancel();
+                    layer.weight = 1f;
+                }
+            }
+            //该层级没有正在播放的动画
+            else
+            {
+                //Base层直接播放，不进行过渡
+                if (_layerIndex == 0)
+                {
+                    layer.weight = 1f;
+                    layer.Play(_state);
+                }
+                //Tip: 非Base层，需要过渡，但注意是过渡层级权重而非状态权重。
+                else
+                {
+                    m_FadeHandler?.Complete();
+                    layer.weight = 0f;
+                    layer.Play(_state); //层级上直接播放，而层级之间进行过渡。
+                    m_FadeHandler = new FadeHandler(null, layer, _fadeDuration, () => { m_FadeHandler = null; });
+                    m_Graph.pre.AddUpdatable(m_FadeHandler);
+                }
+            }
+        }
+
+        public void Stop(int _layerIndex, AnimationStateBase _state)
+        {
+            AnimationLayer layer = this[_layerIndex];
+
+            //没有在播放的动画，就不可能存在传入的状态了
+            if (layer.isPlaying == false) return;
+
+            if (_layerIndex == 0)
+            {
+                layer.Stop(_state);
+            }
+            else //非Base层
+            {
+                //就是取出
+                float baseDuration = this[0].currentFadeDuration;
+                if (baseDuration <= 0.001f)
+                {
+                    layer.Stop(_state);
+                    layer.weight = 0f; //直接设置为0，否则的话就是按照下面进行一个过渡。
+                }
+                else
+                {
+                    Debug.Log("非Base层过渡到0");
+                    //放入容器中，注意使用初始化器简化。
+                    List<IFadeTarget> outs = new List<IFadeTarget>(1) { layer };
+                    m_FadeHandler = new FadeHandler(outs, null, baseDuration, () =>
+                    {
+                        m_FadeHandler = null;
+                        layer.Stop(_state);
+                    });
+                    m_Graph.pre.AddUpdatable(m_FadeHandler);
+                }
+            }
         }
 
         public List<AnimationStateBase> AllPlayingStates()
@@ -104,6 +173,26 @@ namespace MyPlugins.AnimationPlayer
             return result;
         }
 
+        public float GetLayerWeight(AnimationLayer _layer)
+        {
+            if (_layer == null || _layer.index < 0)
+            {
+                Debug.LogError("在获取层级权重时传入的Layer为空，或者是索引小于0");
+                return -1f;
+            }
+            return m_Playable.GetInputWeight(_layer.index);
+        }
+
+        public void SetLayerWeight(AnimationLayer _layer, float _weight)
+        {
+            if (_layer == null || _layer.index < 0)
+            {
+                Debug.LogError("在设置层级权重时传入的Layer为空，或者是索引小于0");
+                return;
+            }
+            m_Playable.SetInputWeight(_layer.index, _weight);
+        }
+
         public void SetSpeed(double _speed)
         {
             m_Playable.SetSpeed(_speed);
@@ -114,27 +203,61 @@ namespace MyPlugins.AnimationPlayer
         */
         public void SetLayers(int _count)
         {
+            if (_count <= 0)
+            {
+                Debug.LogError("设置层级数量时传入的数量小于等于0，请检查。");
+                return;
+            }
+
+            ClearLayers();
+
             m_Playable.SetInputCount(_count);
-            //注意这里的count实际对应的是List的Capacity容量。
-            m_Layers = new List<AnimationLayer>(_count);
-            // m_Layers.ForEach(x => AddLayer());
+            m_Layers.Capacity = _count; //直接分配容量，没必要直接new，但其实我也不确定性能有什么本质区别。
             for (int i = 0; i < _count; i++)
             {
-                // AddLayer(i);
+                /*BugFix：很尬，List访问索引比如保证其位置被显式添加过元素，尽管其实际上就是null，但如果没有添加过元素的话，也会无法访问、直接报错。*/
+                m_Layers.Add(null);
                 AddLayer(i);
             }
+        }
+
+        public void ClearLayers()
+        {
+            int count = m_Playable.GetInputCount();
+            if (count <= 0)
+            {
+                // Debug.Log("清空层级时此时输入端口数量实际为0");
+                return;
+            }
+            for (int i = 0; i < count; i++)
+            {//逐个取出，然后销毁
+                m_Graph.DestroySubgraph(m_Playable.GetInput(i));
+            }
+            //注意同步，清空Playable节点的同时清空对应的状态（GC自动清理内存，只要负责清除引用即可）。
+            m_Layers.Clear();
         }
 
         //设置层级遮罩
         public void SetLayerMask(uint _index, AvatarMask _mask)
         {
+            if (_index >= m_Playable.GetInputCount())
+            {
+                Debug.LogError("设置层级遮罩时传入的索引大于等于输入端口数量，请检查。");
+                return;
+            }
             m_Playable.SetLayerMaskFromAvatarMask(_index, _mask);
         }
 
         //要么Addtive要么Override（AnimatorController中的Layer也是同样的设置）
         public void SetLayerAdditive(uint _index, bool _additive)
         {
+            if (_index >= m_Playable.GetInputCount())
+            {
+                Debug.LogError("设置层级的混合模式时传入的索引大于等于输入端口数量，请检查。");
+                return;
+            }
             m_Playable.SetLayerAdditive(_index, _additive);
         }
+
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using MyPlugins.GoodUI;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     public enum AnchorPresets
@@ -246,7 +247,7 @@ namespace MyPlugins.GoodUI
             //锚点扩展到四个对角。
             rectTransform.anchorMin = Vector2.zero;
             rectTransform.anchorMax = Vector2.one;
-            canvasGo.layer = is3D ? Layer.Default : Layer.UI; //设置层级，用于相机剔除。
+            canvasGo.layer = is3D ? Layer.Default : Layer.UI; //设置层级，用于相机剔除。UI相机只显示UI层级的对象
             Canvas canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = is3D ? RenderMode.WorldSpace : RenderMode.ScreenSpaceCamera;
             canvas.overrideSorting = true;

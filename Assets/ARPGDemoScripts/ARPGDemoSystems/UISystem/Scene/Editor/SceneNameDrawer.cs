@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MyPlugins.GoodUI.Editor
+namespace ARPGDemo.UISystem_Old.EditorSection
 {
 
     using UnityEditor;

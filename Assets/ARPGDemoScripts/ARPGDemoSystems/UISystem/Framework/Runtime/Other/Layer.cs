@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     //这里应该要对应于Unity编辑器中定义的对象层级，这种应该是可以自动生成的。
     public static class Layer

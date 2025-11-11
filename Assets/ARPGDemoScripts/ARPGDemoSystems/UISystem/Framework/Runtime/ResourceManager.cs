@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 //Addressables是一个静态类，using static
 using static UnityEngine.AddressableAssets.Addressables;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     public class ResourceManager : Singleton<ResourceManager>
     {
@@ -18,7 +18,7 @@ namespace MyPlugins.GoodUI
         /// 已加载/正在加载中资源名对应的句柄
         /// 基本就是，记录预制体路径以及句柄，从AsyncOperationHandle的Result成员可以获取到加载得到的对象，只不过是object类型，但这里可以确定实际类型是GameObject，所以直接强制转换即可
         /// </summary>
-        private Dictionary<string, AsyncOperationHandle> _handleCaches = new Dictionary<string, AsyncOperationHandle>();
+        private Dictionary<string, AsyncOperationHandle> m_HandleCaches = new Dictionary<string, AsyncOperationHandle>();
         /// <summary>
         /// 正在进行加载状态中的资源的数量（因为加入了异步操作，也就是多线程编程，这类变量都是因为线程间交流而产生的）
         /// </summary>
@@ -91,7 +91,7 @@ namespace MyPlugins.GoodUI
         public AsyncOperationHandle InstantiateAsync(string path, Action<UnityEngine.GameObject> callback, bool active = true)
         {
             AsyncOperationHandle operationHandle = default;
-            if (!_handleCaches.ContainsKey(path))
+            if (!m_HandleCaches.ContainsKey(path))
             {
                 //未加载过此资源
                 operationHandle = LoadAssetAsync<GameObject>(path, (obj) =>
@@ -109,7 +109,7 @@ namespace MyPlugins.GoodUI
             }
             else
             {
-                operationHandle = _handleCaches[path];
+                operationHandle = m_HandleCaches[path];
                 //已加载此资源且加载完成
                 if (operationHandle.IsDone)
                 {
@@ -165,9 +165,9 @@ namespace MyPlugins.GoodUI
             if (result == null)
             {
                 //异步操作的结果对象,不过是object类型(C#类的共同基类),所以要转换为GameObject
-                if (_handleCaches[path].Result != null)
+                if (m_HandleCaches[path].Result != null)
                 {
-                    invokeResult = _handleCaches[path].Result as GameObject;
+                    invokeResult = m_HandleCaches[path].Result as GameObject;
                     //此处通过实例化之后才会真正地分配内存，以及出现在场景中，在此之前都只是记录了类的信息。
                     invokeResult = GameObject.Instantiate(invokeResult);
                 }
@@ -228,11 +228,11 @@ namespace MyPlugins.GoodUI
             }
             AsyncOperationHandle handle;
             //已加载或在加载中
-            if (_handleCaches.TryGetValue(path, out handle))
+            if (m_HandleCaches.TryGetValue(path, out handle))
             {
                 if (handle.IsDone)
                 {
-                    onComplete?.Invoke(_handleCaches[path].Result as T);
+                    onComplete?.Invoke(m_HandleCaches[path].Result as T);
                 }
                 else
                 {
@@ -278,7 +278,7 @@ namespace MyPlugins.GoodUI
                         onComplete?.Invoke(null);
                     }
                 };
-                _handleCaches.Add(path, handle);
+                m_HandleCaches.Add(path, handle);
                 return handle;
             }
         }

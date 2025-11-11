@@ -42,6 +42,7 @@ namespace Animancer.Samples.Layers
 
         protected virtual void Awake()
         {
+            //TODO：把层级类型直接取出来，似乎信息冗余了。
             _BaseLayer = _Animancer.Layers[0];
             _ActionLayer = _Animancer.Layers[1];// First access to a layer creates it.
 
@@ -88,6 +89,7 @@ namespace Animancer.Samples.Layers
 
         private void OnActionEnd()
         {
+            Debug.Log("动作层级权重过渡到0");
             _ActionLayer.StartFade(0, _ActionFadeOutDuration); //整个层级的权重过渡到0。
         }
 

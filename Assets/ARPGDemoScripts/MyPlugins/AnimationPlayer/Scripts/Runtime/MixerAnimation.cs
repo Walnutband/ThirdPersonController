@@ -27,6 +27,7 @@ namespace MyPlugins.AnimationPlayer
                 {
                     key += item.clip.GetInstanceID() / m_Motions.Count;
                 }
+                // Debug.Log($"MixerAnimation的Key：{key}");
                 return key;
             }    
         }

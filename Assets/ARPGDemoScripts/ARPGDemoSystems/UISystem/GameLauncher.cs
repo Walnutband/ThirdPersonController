@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using MyPlugins.GoodUI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     public class GameLauncher : MonoBehaviour

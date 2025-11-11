@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using MyPlugins.GoodUI;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     //UI视图控制器，将UI视图数据和UI视图行为集中在一个该类中，使得定义的方法可以在内部对操作的数据对象即UI视图直接进行处理，并且供外部调用，所以该类本身也属于被操作对象。
     //通过UIManager中的字典成员_viewControllers来实现UIType和UIViewController实例映射关系的记录，以便快捷获取对应视图的控制器而对视图执行某些行为。
     public class UIViewController
     {
         // 配置
-        public UIViewType uiType; //应该把该成员视作UIViewController的核心，标识了该控制器的独立性，而下面的UIView本质上是挂载在整个UI视图对象的根对象上的逻辑组件，在命名上确实有些迷惑
+        //应该把该成员视作UIViewController的核心，标识了该控制器的独立性，所以在UIManager的字典中才会使用UIViewType作为键。
+        public UIViewType uiViewType; 
         public string uiPath; //UI视图预制体路径
-        public Type uiViewType;
+        public Type uiViewLogic; //一个UI视图所需要的核心逻辑组件
         public UILayerLogic uiLayer; //就是该UI视图对象所在的UI层级，用UILayerLogic而不是UILayer，就像用UIViewController而不是UIView，都是将数据和行为封装起来的对象，便于直接调用提供的方法通知对其内部数据进行操作
-        public bool isPopWindow;
+        public bool isPopWindow; //是否为弹窗。
 
         public UIView uiView; //在实际加载预制体时添加该组件，并且在此引用。所以通过该组件的存在性就可以获取其UI视图对象的存在性。
         // public UIViewAnim uiViewAnim;
@@ -30,12 +32,13 @@ namespace MyPlugins.GoodUI
         public int topViewNum;
 
         /// <summary>
-        /// 加载UI视图对象，以及初始化。
+        /// 加载自己的UI视图对象，以及初始化。
         /// </summary>
         /// <param name="userData">额外的数据</param>
         public AsyncOperationHandle Load(object userData = null, Action callback = null)
         {
-            isLoading = true;
+            //Tip：用于锁
+            isLoading = true; 
 
             if (isOpen)
             {
@@ -54,7 +57,8 @@ namespace MyPlugins.GoodUI
 
                 isLoading = false; //该方法就是在加载结束后调用，所以在此设置标记
                 //添加用于控制UI视图的逻辑组件。这个非常关键，按理来说每个UI视图都应该有一个对应的逻辑组件挂载在其根对象上，起到管理和协调的作用。
-                uiView = (UIView)go.GetOrAddComponent(uiViewType);
+                //TODO：但其实这一步应该在编辑时就把组件挂载好，这里只需要直接获取引用即可。
+                uiView = (UIView)go.GetOrAddComponent(uiViewLogic);
                 // uiViewAnim = go.GetComponent<UIViewAnim>();
                 //从这里可以看到运行时实际处理的UI就是一个个直接位于层级画布下作为直接子对象的游戏对象，至于更深层级，都是在开发时确定好、制作成预制体的。
                 uiView.transform.SetParentEx(uiLayer.canvas.transform); //本质上和go.transform相同
@@ -86,7 +90,7 @@ namespace MyPlugins.GoodUI
 
                 //这是使用的UIContorlData插件
                 uiView.OnInit(go.GetComponent<UIControlData>(), this);
-                uiView.transform.SetAsLastSibling(); //设置为同层最后位置的对象，没有什么特殊含义，
+                uiView.transform.SetAsLastSibling(); //设置为同层最后位置的对象，没有什么特殊含义，就是先来后到，并且直接影响渲染顺序
 
                 //如果通过Open方法调用的话，那么会标记isOpen为true，这样在加载完成之后就会进入该分支调用Open方法了
                 if (isOpen)

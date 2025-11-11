@@ -9,7 +9,7 @@ namespace MyPlugins.AnimationPlayer
         private AnimationGraph m_Graph;
 
         private Dictionary<object, AnimationStateBase> m_StateDic;
-        
+
 
         public AnimationStateManager(AnimationGraph _graph)
         {
@@ -17,48 +17,87 @@ namespace MyPlugins.AnimationPlayer
             m_StateDic = new Dictionary<object, AnimationStateBase>();
         }
 
-        /*Tip：相当固定，根据Clip那就是创建播放单个片段的AnimationState，不需要设置为基类AnimationStateBase*/
-        public AnimationClipState GetOrCreateState(AnimationClip _clip)
+        public bool ExistState(AnimationStateBase _state)
         {
-            var stateID = StateID(_clip);
-            if (!m_StateDic.TryGetValue(stateID, out var state))
-            {
-                state = new AnimationClipState(m_Graph, _clip);
-                m_StateDic.Add(stateID, state);
-            }
-            return state as AnimationClipState;
-        }
 
-        /*TODO：这里的代码真的一坨。*/
-
-        //总之都会有，但是返回表示是否已存在（true）还是新创建（false）
-        public bool TryGetOrCreateState(AnimationClip _clip, out AnimationClipState _state)
-        {
-            var stateID = StateID(_clip);
-            if (!m_StateDic.TryGetValue(stateID, out AnimationStateBase state))
-            {
-                _state = new AnimationClipState(m_Graph, _clip);
-                m_StateDic.Add(stateID, _state);
-                return false;
-            }
-            _state = state as AnimationClipState;
+            if (!m_StateDic.ContainsKey(_state.key) || m_StateDic[_state.key] != _state) return false;
             return true;
         }
         
-        public bool TryGetOrCreateState(MixerAnimation _mixer, out AnimationMixerState _state)
+        //Ques：其实可以将判定是否存在也塞在这里面，但是我感觉应该分开，逻辑意义更明确，
+        public bool RemoveState(AnimationStateBase _state)
         {
-            var stateID = StateID(_mixer);
-            if (!m_StateDic.TryGetValue(stateID, out AnimationStateBase state))
+            if (ExistState(_state) == true)
             {
-                _state = new AnimationMixerState(m_Graph, _mixer);
-                m_StateDic.Add(stateID, _state);
-                return false;
+                m_StateDic.Remove(_state.key);
+                return true;
             }
-            _state = state as AnimationMixerState;
-            return true;
+            return false;
         }
 
-        // public
+
+        public AnimationClipState GetOrCreateState(AnimationClip _clip)
+        {
+            if (m_StateDic.TryGetValue(StateID(_clip), out var _state))
+            {
+                return _state as AnimationClipState;
+            }
+            //没有就新建
+            AnimationClipState state = new AnimationClipState(m_Graph, _clip);
+            state.key = StateID(_clip);
+            m_StateDic.Add(state.key, state);
+            return state;
+
+        }
+
+        //对于FadeAnimation，默认是必须播放，而如果存在同片段的状态，就看是否游离，游离的话就直接复用即可
+        public AnimationClipState GetOrCreateState(FadeAnimation _anim)
+        {
+            int id = StateID(_anim.clip);
+            //存在且处于游离状态才能复用。
+            if (m_StateDic.TryGetValue(id, out var _state) && _state.index < 0)
+            {
+                _state.fadeDuration = _anim.fadeDuration;
+                return _state as AnimationClipState;
+            }
+            AnimationClipState state = new AnimationClipState(m_Graph, _anim);
+            state.key = id;
+            if (m_StateDic.ContainsKey(id))
+            {
+                m_StateDic[id] = state; //直接覆盖，而其所在Layer还存储着对其的引用。
+            }
+            else //Add添加的键如果已存在的话，那么就会抛出异常，所以要先检查一下。
+            {
+                m_StateDic.Add(state.key, state);
+            }
+
+            state.fadeDuration = _anim.fadeDuration;
+            return state;
+        }
+
+        public AnimationMixerState GetOrCreateState(MixerAnimation _mixer)
+        {
+            int id = StateID(_mixer);
+            //存在且处于游离状态才能复用。
+            if (m_StateDic.TryGetValue(id, out var _state) && _state.index < 0)
+            {
+                _state.fadeDuration = _mixer.fadeDuration;
+                return _state as AnimationMixerState;
+            }
+            AnimationMixerState state = new AnimationMixerState(m_Graph, _mixer);
+            state.key = id;
+            if (m_StateDic.ContainsKey(id))
+            {
+                m_StateDic[id] = state; //直接覆盖，而其所在Layer还存储着对其的引用。
+            }
+            else //Add添加的键如果已存在的话，那么就会抛出异常，所以要先检查一下。
+            {
+                m_StateDic.Add(state.key, state);
+            }
+
+            state.fadeDuration = _mixer.fadeDuration;
+            return state;
+        }
 
         /*Tip：不同类型的ID，由于Key是object类型，所以能够引用这些不同类型的ID。*/
         public static int StateID(AnimationClip _clip) => _clip.GetInstanceID();

@@ -6,12 +6,12 @@ using Newtonsoft.Json.Serialization;
 using UnityEditor;
 using UnityEngine;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     [System.Serializable]
     public struct UIConfigItem
-    {
+    {//预制体路径和所属的UILayer都是一个UI视图的基本属性。s
         //这就是注册在配置文件中的每个UI预制体的标识符，并且会使用该标识符来获取到UI视图的逻辑组件即UIView的相应派生类的Type信息，所以必须保证逻辑组件的类名与枚举类型UIViewType中相同
         public UIViewType UIViewType; 
         public string path; //资源路径
@@ -19,7 +19,7 @@ namespace MyPlugins.GoodUI
         public UILayer UILayer;
     }
 
-    //Ques:到底是直接使用SO资产，还是专门转换为Json文件呢？
+    //Ques:到底是直接使用SO资产，还是专门转换为Json文件呢
     [CreateAssetMenu(fileName = "UIConfigData", menuName = "GoodUI/UIConfigData")]
     public class UIConfigData : ScriptableObject //使用UIConfigData可以方便地在检视器中编辑。
     {

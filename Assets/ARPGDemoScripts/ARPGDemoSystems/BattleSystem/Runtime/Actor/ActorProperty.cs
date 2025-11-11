@@ -89,13 +89,18 @@ namespace ARPGDemo.BattleSystem
         //HP、MP和SP都属于具有资源性的属性，也就是在游戏中可以通过多种途径实现增减（值变化）
         // [SerializeField] private float m_HP; //血量（Health Points）
         // 感觉直接使用int计算也没啥问题，完全不影响游戏性。
+        //这里的HP、MP、SP都是指的上限值。
         [SerializeField] private int m_HP; //血量（Health Points） 
         public int hp { get => m_HP; set => m_HP = value; }
         [SerializeField] private int m_MP; //蓝量（Mana Points，其实是资源量，蓝量只是其中一种表现形式）
         public int mp { get => m_MP; set => m_MP = value; }
         [SerializeField] private int m_SP; //体力（Stamina Points）
         public int sp { get => m_SP; set => m_SP = value; }
-        //这里的HP、MP、SP都是指的上限值。
+
+        [SerializeField] private int m_Poison;
+        public int poison { get => m_Poison; set => m_Poison = value; }
+        [SerializeField] private int m_Bleed;
+        public int bleed { get => m_Bleed; set => m_Bleed = value; }
 
         //（软属性？）
         // [SerializeField] private int m_EquipLoad; //装备重量，Weight确实是重量，但是Load表示载重，可能更加贴切。
@@ -104,17 +109,27 @@ namespace ARPGDemo.BattleSystem
         // public int toughness { get => m_Toughness; set { m_Toughness = value; } }
 
         //这是失衡条，在法环中就是怪物特有的属性，也是通常被认为的“韧性”，但玩家角色并没有失衡条，不过确实有会弹反的怪物可以在玩家攻击时触发弹反、然后处决玩家
-        [SerializeField] private int m_Poise;
-        public int poise { get => m_Poise; set { m_Poise = value; } }
+        // [SerializeField] private int m_Poise;
+        // public int poise { get => m_Poise; set { m_Poise = value; } }
         // [SerializeField] private int m_Discovery; //观察力，幸运值（就是掉落物品的概率，不过还可以尝试加入其他作用）
         // public int discovery { get => m_Discovery; set { m_Discovery = value; } }
 
-        [Header("攻击力")]
+        [Header("攻防属性")]
         /*TODO：暂定二分为物理和魔法，其实应该有更多类型的属性伤害。*/
-        [SerializeField] private int m_PhysicalAttack; //物理攻击力
-        public int physicalAttack { get => m_PhysicalAttack; set { m_PhysicalAttack = value; } }
-        [SerializeField] private int m_MagicAttack; //魔法攻击力
-        public int magicAttack { get => m_MagicAttack; set { m_MagicAttack = value; } }
+        [SerializeField] private float m_PhysicsAttack; //物理攻击力
+        public float physicsAttack { get => m_PhysicsAttack; set { m_PhysicsAttack = value; } }
+        [SerializeField] private float m_PoisonEffect; //中毒效果
+        public float poisonEffect { get => m_PoisonEffect; set { m_PoisonEffect = value; } }
+        [SerializeField] private float m_BleedEffect; //流血效果
+        public float bleedEffect { get => m_BleedEffect; set { m_BleedEffect = value; } }
+        [SerializeField] private float m_PhysicsResist; //物抗
+        public float physicsResist { get => m_PhysicsResist; set { m_PhysicsResist = value; } }
+        [SerializeField] private float m_PoisonResist; //毒抗
+        public float poisonResist { get => m_PoisonResist; set { m_PoisonResist = value; } }
+        [SerializeField] private float m_BleedResist; //流血抗
+        public float bleedResist { get => m_BleedResist; set { m_BleedResist = value; } }
+        // [SerializeField] private int m_MagicAttack; //魔法攻击力
+        // public int magicAttack { get => m_MagicAttack; set { m_MagicAttack = value; } }
 
         // //能力值
         // /*成长属性，其实在游戏中叫做能力值，作为成长系统的核心，这里就将其专门封装为一个类来集中处理，并非必须，只是增强结构性，不过具体的好坏程度，还需要后面再看。
@@ -132,28 +147,69 @@ namespace ARPGDemo.BattleSystem
         // }
         // #endregion
 
+        public static ActorProperty operator +(ActorProperty self, ActorProperty incre)
+        {
+            ActorProperty result = new ActorProperty();
+            result.hp = self.hp + incre.hp;
+            result.mp = self.mp + incre.mp;
+            result.sp = self.sp + incre.sp;
+            result.poison = self.poison + incre.poison;
+            result.bleed = self.bleed + incre.bleed;
+            result.physicsAttack = self.physicsAttack + incre.physicsAttack;
+            result.poisonEffect = self.poisonEffect + incre.poisonEffect;
+            result.bleedEffect = self.bleedEffect + incre.bleedEffect;
+            result.physicsResist = self.physicsResist + incre.physicsResist;
+            result.poisonResist = self.poisonResist + incre.poisonResist;
+            result.bleedResist = self.bleedResist + incre.bleedResist;
+            return result;
+        }
+
     }
 
     /*Tip：一定要分清楚资源Resource和属性Property，这两者所涉及到的逻辑都不一样。
     Resource本身可以当做是Property的子集，也就是Resource来自于Property。*/
+    /*TODO：ActorResource不仅代表个体自身当前的资源量，还承担资源转移的职责。*/
     [Serializable]
     public class ActorResource
     {
-        [SerializeField] private int m_HP;
-        public int hp { get => m_HP; set => m_HP = value; }
-        [SerializeField] private int m_MaxHP;
+        private int m_HP;
+        public int hp { get => m_HP; private set => m_HP = value; }
+        private int m_MaxHP;
+        public event Action HPMinEvent;
+        public event Action HPMaxEvent;
 
-        [SerializeField] private int m_MP;
-        public int mp { get => m_MP; set => m_MP = value; }
-        [SerializeField] private int m_MaxMP;
+        //这些资源也可以照样设置事件，只是没有HP那么常见。
+        private int m_MP;
+        public int mp { get => m_MP; private set => m_MP = value; }
+        private int m_MaxMP;
 
-        [SerializeField] private int m_SP;
-        public int sp { get => m_SP; set => m_SP = value; }
-        [SerializeField] private int m_MaxSP;
+        private int m_SP;
+        public int sp { get => m_SP; private set => m_SP = value; }
+        private int m_MaxSP;
 
-        [SerializeField] private int m_Poise;
-        public int poise { get => m_Poise; set => m_Poise = value; }
-        [SerializeField] private int m_MaxPoise;
+        /*异常值计算，就是读条，从0到临界点，触发效果，持续效果如中毒就是从临界点再逐渐降到0，如果是即时效果如出血那就是直接变为0*/
+        private int m_Poison;
+        public int poison { get => m_Poison; private set => m_Poison = value; }
+        private int m_PoisonThreshold;
+        public event Action PoisonMinEvent;
+        public event Action PoisonMaxEvent;
+        // private ResInt m_Poison;
+        // public ResInt poison { get => m_Poison; }
+
+        //出血异常值。
+        private int m_Bleed;
+        public int bleed { get => m_Bleed; private set => m_Bleed = value; }
+        private int m_BleedThreshold;
+        public event Action BleedMinEvent;
+        public event Action BleedMaxEvent;
+        // private ResInt m_Bleed;
+        // public ResInt bleed {get => m_Bleed; }
+
+        // [SerializeField] private int m_Poise;
+        // public int poise { get => m_Poise; set => m_Poise = value; }
+        // [SerializeField] private int m_MaxPoise;
+
+
 
 
         //构造时当然就初始化为最大值了。
@@ -163,17 +219,162 @@ namespace ARPGDemo.BattleSystem
             m_HP = m_MaxHP = _property.hp;
             m_MP = m_MaxMP = _property.mp;
             m_SP = m_MaxSP = _property.sp;
-            m_Poise = m_MaxPoise = _property.poise;
+            m_Poison = 0;
+            m_PoisonThreshold = _property.poison;
+            m_Bleed = 0;
+            m_BleedThreshold = _property.bleed;
+            // m_Poison = new ResInt(0, _property.poison);
+            // m_Bleed = new ResInt(0, _property.bleed);
         }
 
+        public ActorResource(int hp = 0, int mp = 0, int sp = 0)
+        {
+            m_HP = hp;
+            m_MP = mp;
+            m_SP = sp;
+        }
+
+        public static ActorResource EffectResource(int _poison, int _bleed)
+        {
+            ActorResource res = new ActorResource();
+            res.m_Poison = _poison;
+            res.m_Bleed = _bleed;
+            return res;
+        }
+
+        public static ActorResource PhysicsResource(int _physics)
+        {
+            ActorResource res = new ActorResource();
+            res.hp = -1 * _physics;
+            return res;
+        }
+
+        public static ActorResource DamageResource(Damage _damage)
+        {
+            ActorResource res = new ActorResource();
+            res.hp = (int)(-1 * _damage.physics);
+            res.poison = (int)_damage.poison;
+            res.bleed = (int)_damage.bleed;
+            return res;
+        }
+
+        //TODO：有一说一，重载运算符的逻辑含义可能不如直接编写显式方法来得准确。
         public static ActorResource operator +(ActorResource self, ActorResource resource)
         {
             ActorResource result = new ActorResource(null);
             result.hp = self.hp + resource.hp;
             result.mp = self.mp + resource.mp;
             result.sp = self.sp + resource.sp;
-            result.poise = self.poise + resource.poise;
+            // result.poise = self.poise + resource.poise;
+            result.m_Poison = self.m_Poison + resource.m_Poison;
+            result.m_Bleed = self.m_Bleed + resource.m_Bleed;
+            //这是静态方法，必须指明调用的哪个对象。
+            result.CheckResourceThreshold();
             return result;
         }
+
+        private void CheckResourceThreshold()
+        {
+            if (m_HP >= m_MaxHP)
+            {
+                m_HP = m_MaxHP;
+                HPMaxEvent?.Invoke();
+            }
+            if (m_HP <= 0)
+            {
+                m_HP = 0;
+                HPMinEvent?.Invoke();
+            }
+
+            if (m_Poison >= m_PoisonThreshold)
+            {
+                m_Poison = m_PoisonThreshold;
+                PoisonMaxEvent?.Invoke();
+            }
+            if (m_Poison <= 0)
+            {
+                m_Poison = 0;
+                PoisonMinEvent?.Invoke();
+            }
+            if (m_Bleed >= m_BleedThreshold)
+            {
+                m_Bleed = m_BleedThreshold;
+                BleedMaxEvent?.Invoke();
+            }
+            if (m_Bleed <= 0)
+            {
+                m_Bleed = 0;
+                BleedMinEvent?.Invoke();
+            }
+        }
+
+        /*TODO：暂时不用，估计也没啥用*/
+
+        public class Resource<TValue>
+        {
+            protected TValue m_Value;
+            protected TValue m_MinValue;
+            protected TValue m_MaxValue;
+            /*Tip：event关键字限制只能在本类中触发，就算是派生类也不行。所以需要定义方法来让子类能够间接触发这里基类中的事件。*/
+            public event Action MinEvent;
+            public event Action MaxEvent;
+
+            //只是封装基本数据类型，所以应当与原本的数据类型实现无缝的互相转换
+            public static implicit operator TValue(Resource<TValue> self) => self.m_Value;
+            // public static explicit operator TValue(Resource<TValue> self) => self.m_Value;
+            // public static implicit operator Resource<TValue>(TValue value) => new Resource<TValue>() { m_Value = value };
+            /*Tip: 似乎无法从比如int转为ResInt，因为没有最大值的信息，最小值可以默认为0，但是最大值不能默认。*/
+            public static implicit operator Resource<TValue>(TValue value) => new Resource<TValue>() { m_Value = value };
+            // public static TValue operator =(Resource<TValue> self, TValue value) => self.m_Value = value;
+
+            protected void InvokeMinEvent() => MinEvent?.Invoke();
+            protected void InvokeMaxEvent() => MaxEvent?.Invoke();
+
+            // public static Resource<TValue> operator +(Resource<TValue> self, Resource<TValue> value)
+            // {
+            //     self.m_Value += value;
+            //     if (self.m_Value > self.m_MaxValue)
+            //     return self;
+            // }
+
+            // public Resource<>
+        }
+
+        public class ResInt : Resource<int>
+        {
+            public ResInt(int _value, int _minValue, int _maxValue) : base()
+            {
+                m_Value = _value;
+                m_MinValue = _minValue;
+                m_MaxValue = _maxValue;
+            }
+            //通常默认最小值就是0
+            public ResInt(int _value, int _maxValue) : this(_value, 0, _maxValue)
+            {
+                
+            }
+
+            public static ResInt operator +(ResInt self, ResInt value)
+            {
+                self.m_Value += value;
+                if (self.m_Value >= self.m_MaxValue)
+                {
+                    self.m_Value = self.m_MaxValue;
+                    // self.MaxEvent?.Invoke(); 
+                    self.InvokeMaxEvent();
+                }
+                if (self.m_Value <= self.m_MinValue)
+                {
+                    self.m_Value = self.m_MinValue;
+                    // self.MinEvent?.Invoke();
+                    self.InvokeMinEvent();
+                }
+                return self;
+            }
+        }
+
+
+
     }
+
 }

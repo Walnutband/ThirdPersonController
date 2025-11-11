@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace MyPlugins.GoodUI
 {
-    [AddComponentMenu("GoodUI/Layout/Good Content Size Fitter")] //这里设置的组件名会决定组件检视面板的标题名，与类名其实没有绑定关系
+    [AddComponentMenu("ARPGDemo/MyPlugins/GoodUI/Layout/Good Content Size Fitter")] //这里设置的组件名会决定组件检视面板的标题名，与类名其实没有绑定关系
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
     /// <summary>
@@ -61,7 +61,8 @@ namespace MyPlugins.GoodUI
 
         [SerializeField]
         private RectTransform m_ContentRect;
-        public RectTransform contentRect { get { if (m_ContentRect == null) m_ContentRect = transform.GetChild(0) as RectTransform; return m_ContentRect; }}
+        public RectTransform contentRect { get { if (m_ContentRect == null) m_ContentRect = transform.GetChild(0) as RectTransform; return m_ContentRect; } }
+        [SerializeField] private Vector2 extraSize = Vector2.zero;
 
         // field is never assigned warning
 #pragma warning disable 649
@@ -103,9 +104,13 @@ namespace MyPlugins.GoodUI
 
             // Set size to min or preferred size
             if (fitting == FitMode.MinSize)
+            {
                 rectTransform.SetSizeWithCurrentAnchors((RectTransform.Axis)axis, LayoutUtility.GetMinSize(m_ContentRect, axis));
+            }
             else
-                rectTransform.SetSizeWithCurrentAnchors((RectTransform.Axis)axis, LayoutUtility.GetPreferredSize(m_ContentRect, axis));
+            {
+                rectTransform.SetSizeWithCurrentAnchors((RectTransform.Axis)axis, LayoutUtility.GetPreferredSize(m_ContentRect, axis) + extraSize[axis]);
+            }
         }
 
         /// <summary>
@@ -134,6 +139,7 @@ namespace MyPlugins.GoodUI
         }
 
 #if UNITY_EDITOR
+        /*Tip: 通过该验证方法可以非常偷懒地实现对于检视器成员值改变的监测。*/
         protected override void OnValidate()
         {
             SetDirty();

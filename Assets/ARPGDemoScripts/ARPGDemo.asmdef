@@ -7,7 +7,9 @@
         "GoodUI",
         "Unity.Cinemachine",
         "Unity.Addressables",
-        "DOTween"
+        "DOTween",
+        "MyPlugins.AnimationPlayer",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

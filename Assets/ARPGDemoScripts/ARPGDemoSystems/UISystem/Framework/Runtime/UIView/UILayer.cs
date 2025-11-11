@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     public enum UILayer
     {//这里的数值会直接作为Canvas的sortingOrder渲染顺序（在检视面板中是Order In Layer）。这个系统中的各个Canvas的Sorting Layer都是Default，就是根据Order In Layer来设置渲染顺序的。
@@ -18,7 +18,7 @@ namespace MyPlugins.GoodUI
     public class UILayerLogic
     {
         public UILayer layer; //对应层级，只是一个标识符，不过其int值也提供了顺序值的信息。
-        public Canvas canvas; //所属幕布
+        public Canvas canvas; //所属画布
         //在UILayer中，管理层中视图的渲染顺序，是一个核心环节。
         private int maxOrder; // 最大排序号。排序号就是渲染顺序，这里就是当前层级中最大的
         private HashSet<int> orders; // 已分配的排序号
@@ -93,10 +93,10 @@ namespace MyPlugins.GoodUI
                     && viewController.order < openedUI.order
                     && viewController.HasUIView())
                 {
-                    Debug.Log($"{viewController.uiViewType}");
+                    Debug.Log($"{viewController.uiViewLogic}");
                     if (!viewController.isPause)
                     {
-                        Debug.Log($"{viewController.uiViewType}暂停，OnPause");
+                        Debug.Log($"{viewController.uiViewLogic}暂停，OnPause");
 
                         viewController.isPause = true;
                         /*TODO:这里感觉UILayerLogic越级了,不应该直接访问UIView然后调用其方法,大概应该在UIViewController中封装好对应UIView的OnPause方法的调用,然后这里就是
@@ -128,6 +128,7 @@ namespace MyPlugins.GoodUI
 
                 // 移除界面，list用于保存在closedUI上面的UI视图，在弹出了closedUI之后再按照正确顺序推入回栈。
                 // 因为栈的特性，无法直接遍历查找，不过其实本质也一样。
+                //TODO: 那这样还不如直接使用列表存储？？使用栈也没带来什么好处。
                 // 虽然这里从算法上确实支持了关闭UI层中间的UI，但其实实际应用中应当确定限制只能关闭最顶层UI（不过似乎有时难以完全保证？），按顺序从外到内，或者是一键关闭当前UI层的所有UI视图，基本不会设置可以关闭中间本来就被覆盖了的UI的操作。
                 List<UIViewController> list = ListPool<UIViewController>.Get();
                 while (openedViews.Count > 0)

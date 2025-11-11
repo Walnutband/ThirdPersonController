@@ -93,7 +93,7 @@ namespace Animancer
                         layer.DestroyStates();
                     }
                     //将数组中的元素删除，上面是将元素本身的内容销毁，注意区别。
-                    Array.Clear(_Layers, value, _Count - value);
+                    Array.Clear(_Layers, value, _Count - value); //指定开始位置和长度
 
                     _Count = value;
                     //更新输入端口数量。

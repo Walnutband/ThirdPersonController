@@ -78,7 +78,7 @@ namespace ARPGDemo.Test
             {
                 Debug.Log("Move");
                 isMoving = true;
-                m_MoveState = m_AnimatorAgent.Play(m_MoveAnimations);
+                m_MoveState = m_AnimatorAgent.Play(0, m_MoveAnimations);
                 // targetSpeed = runSpeed;
                 // m_MoveState.SetParameter(runSpeed);
             };
@@ -167,39 +167,64 @@ namespace ARPGDemo.Test
             // Debug.Log($"实际速度：{currentSpeed}");
         }
 
-        // private void Move
-
         private void Attack(InputAction.CallbackContext _ctx)
         {
             if (m_AttackState == null)
             {
+                // Debug.Log("攻击1");
+                // m_AttackState = m_AnimatorAgent.Play(1, m_Attack1);
                 m_AttackState = m_AnimatorAgent.Play(m_Attack1);
+                m_AttackState.EndedEvent += () =>
+                {
+                    m_AttackState.Stop(); 
+                };
             }
             else
             {
                 if (m_AttackState.clip == m_Attack1.clip)
                 {
+                    // Debug.Log("攻击2");
+                    // m_AttackState = m_AnimatorAgent.Play(1, m_Attack2);
                     m_AttackState = m_AnimatorAgent.Play(m_Attack2);
+                    m_AttackState.EndedEvent += () =>
+                    {
+                        m_AttackState.Stop(); 
+                    };
                 }
                 else if (m_AttackState.clip == m_Attack2.clip)
                 {
+                    // Debug.Log("攻击3");
+                    // m_AttackState = m_AnimatorAgent.Play(1, m_Attack3);
                     m_AttackState = m_AnimatorAgent.Play(m_Attack3);
                     m_AttackState.EndedEvent += () =>
                     {
-                        isEnded = true;
-                        Debug.Log("第三段结束");
+                        m_AttackState.Stop(); 
+                        // isEnded = true;
+                        // Debug.Log("第三段结束");
                     };
                 }
                 else if (m_AttackState.clip == m_Attack3.clip)
                 {
-                    Debug.Log("尝试播放从第三段到播放第一段");
-                    if (isEnded == true)
+                    // Debug.Log("从攻击3到攻击1");
+                    // m_AttackState = m_AnimatorAgent.Play(1, m_Attack1);
+                    m_AttackState = m_AnimatorAgent.Play(m_Attack1);
+                    m_AttackState.EndedEvent += () =>
                     {
-                        isEnded = false;
-                        m_AttackState = m_AnimatorAgent.Play(m_Attack1);
-                    }
+                        m_AttackState.Stop();
+                    };
+                    // Debug.Log("尝试播放从第三段到播放第一段");
+                    // if (isEnded == true)
+                    // {
+                    //     isEnded = false;
+                    //     m_AttackState = m_AnimatorAgent.Play(1, m_Attack1);
+                    //     m_AttackState.EndedEvent += () =>
+                    //     {
+                    //         m_AttackState.Stop(); 
+                    //     };
+                    // }
                 }
             }
         }
+
     }   
 }

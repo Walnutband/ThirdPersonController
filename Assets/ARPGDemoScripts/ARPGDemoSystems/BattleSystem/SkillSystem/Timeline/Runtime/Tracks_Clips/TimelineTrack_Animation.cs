@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Animancer;
+using MyPlugins.AnimationPlayer;
 using UnityEngine;
 
 namespace ARPGDemo.SkillSystemtest
@@ -16,7 +16,7 @@ namespace ARPGDemo.SkillSystemtest
         // [SerializeField] private Animator m_Animator;
         private Animator m_Animator;
 
-        private AnimancerComponent m_AnimPlayer;
+        private AnimatorAgent m_AnimPlayer;
         // [SerializeField] private List<TimelineClip_Animation> m_Clips = new List<TimelineClip_Animation>();
 
         public override void Initialize(TimelineContext _ctx)
@@ -44,11 +44,11 @@ namespace ARPGDemo.SkillSystemtest
     [Serializable]
     public class TimelineClip_Animation : TimelineClip
     {
-        private AnimancerComponent m_AnimPlayer;
+        private AnimatorAgent m_AnimPlayer;
         [SerializeField] private AnimationClip m_Clip;
-        private AnimancerState m_State;
+        private AnimationClipState m_State;
 
-        public void Init(AnimancerComponent _animPlayer)
+        public void Init(AnimatorAgent _animPlayer)
         {
             m_AnimPlayer = _animPlayer;
         }
@@ -60,8 +60,8 @@ namespace ARPGDemo.SkillSystemtest
         protected override void OnBegin(double _localTime)
         {
             Debug.Log("OnBegin, localTime: " + _localTime);
-            m_State = m_AnimPlayer.Play(m_Clip, 0f, FadeMode.FromStart);
-            m_State.TimeD = _localTime;
+            m_State = m_AnimPlayer.Play(m_Clip);
+            m_State.time = _localTime; 
         }
 
         /*Tip：对于动画播放来说，其实就是开头开始播放、末尾结束播放，中间过程完全由动画系统自行更新即可。
@@ -75,7 +75,7 @@ namespace ARPGDemo.SkillSystemtest
         {
             Debug.Log("OnEnd");
             // m_AnimPlayer.Stop(m_State);
-            // m_State?.Stop(); //中途停止
+            m_State?.Stop(); //中途停止
             // m_State = null;
         }
 

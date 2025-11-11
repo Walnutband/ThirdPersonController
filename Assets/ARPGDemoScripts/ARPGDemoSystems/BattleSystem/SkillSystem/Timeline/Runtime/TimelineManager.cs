@@ -10,10 +10,15 @@ namespace ARPGDemo.SkillSystemtest
         //TODO：正式情况不应该这样专门划分字段存储，而是应该在初始化方法中直接通过路径或标识符加载资源、使用局部变量存储、读取数据之后直接销毁资产类即可。
         [SerializeField] private List<TimelineModel_SO> m_Timelines = new List<TimelineModel_SO>();
 
-        protected override void Awake()
+        // protected override void Awake()
+        // {
+        //     m_Instance = GameObject.Find("TimelineManager").GetComponent<TimelineManager>();
+        //     base.Awake();
+        // }
+
+        protected override void RetrieveExistingInstance()
         {
             m_Instance = GameObject.Find("TimelineManager").GetComponent<TimelineManager>();
-            base.Awake();
         }
 
         private void Start()

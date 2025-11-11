@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     // public class SceneNameAttribute : PropertyAttribute
     // {//Property参数，代表inspector窗口中那每一行的变量

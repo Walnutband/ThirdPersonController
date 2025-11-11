@@ -28,7 +28,7 @@ namespace ARPGDemo.SkillSystemtest
         }
         //不仅是Model本身要实例化克隆，自身所含的Track资产也要实例化克隆
         public TimelineModel_SO Clone()
-        {
+        {//Instantiate就是克隆作用，
             TimelineModel_SO clone = Instantiate(this);
             List<TimelineTrack_SO> tracks = new List<TimelineTrack_SO>(Tracks.Count); //已知数量，直接分配足够内存
             Tracks.ForEach(track =>

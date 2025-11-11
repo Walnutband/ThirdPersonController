@@ -536,6 +536,7 @@ namespace Animancer
 
             /************************************************************************************************************************/
 
+            //Tip：这里才是将节点断连的地方
             /// <inheritdoc/>
             public readonly void ClearIndex(AnimancerState state)
             {

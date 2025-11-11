@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 // using UnityEditor.SearchService;
 using UnityEngine.SceneManagement;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     /// <summary>
     /// UI黑边类型，还是自适应的问题
@@ -37,9 +37,9 @@ namespace MyPlugins.GoodUI
         public bool InMainView = false;
         public UnityEngine.InputSystem.PlayerInput playerInput;
 
-        private Transform _root;
+        private Transform m_Root;
         private Camera _worldCamera;
-        private Camera _uiCamera;
+        private Camera m_UICamera;
         /// <summary>
         /// 屏幕渐变遮罩
         /// </summary>
@@ -52,9 +52,9 @@ namespace MyPlugins.GoodUI
         private RectTransform[] _blacks = new RectTransform[2];
 
         //字典和哈希集合都是提供查询UIType和UILayer的标识符集合，应该说枚举类型本身就是用作标识符的。查询操作是O(1)，非常快
-        private Dictionary<UIViewType, UIViewController> _viewControllers; //在InitUIConfig方法中填充
+        private Dictionary<UIViewType, UIViewController> m_ViewControllers; //在InitUIConfig方法中填充
         private Dictionary<UILayer, UILayerLogic> _layers; //在Initialize方法中填充
-        private HashSet<UIViewType> _openViews;
+        private HashSet<UIViewType> m_OpenViews;
         private HashSet<UIViewType> _residentViews;
 
         public EventSystem EventSystem { get; private set; }
@@ -77,8 +77,8 @@ namespace MyPlugins.GoodUI
 
             ///为数据成员分配内存///
             _layers = new Dictionary<UILayer, UILayerLogic>();
-            _viewControllers = new Dictionary<UIViewType, UIViewController>(); //注意UIType的成员就是根据当前有哪些存在的可用的UI视图来确定的，命名为UIType确实不够准确
-            _openViews = new HashSet<UIViewType>();
+            m_ViewControllers = new Dictionary<UIViewType, UIViewController>(); //注意UIType的成员就是根据当前有哪些存在的可用的UI视图来确定的，命名为UIType确实不够准确
+            m_OpenViews = new HashSet<UIViewType>();
             _residentViews = new HashSet<UIViewType>();
             Event = new EventController<UIEvent>();
 
@@ -98,18 +98,19 @@ namespace MyPlugins.GoodUI
             }
             root.layer = Layer.UI; //设置对象层级
             GameObject.DontDestroyOnLoad(root);
-            _root = root.transform;
+            m_Root = root.transform;
 
             var camera = GameObject.Find("UICamera");
             if (camera == null)
             {
                 camera = new GameObject("UICamera");
             }
-            _uiCamera = camera.GetOrAddComponent<Camera>(); //常见的扩展方法，没有就添加，并且返回添加的组件引用
-            _uiCamera.cullingMask = 1 << Layer.UI; //只渲染UI层级对象
-            _uiCamera.transform.SetParent(_root); //作为UIRoot子对象
-            _uiCamera.orthographic = true; //正交投影
-            _uiCamera.clearFlags = CameraClearFlags.Depth; //只清除深度缓冲区，会保留之前的颜色。
+            m_UICamera = camera.GetOrAddComponent<Camera>(); //常见的扩展方法，没有就添加，并且返回添加的组件引用
+            m_UICamera.cullingMask = 1 << Layer.UI; //只渲染UI层级对象
+            m_UICamera.transform.SetParent(m_Root); //作为UIRoot子对象
+            /*TODO：投影其实不一定，还是看设计，可能透视投影会更好，因为不需要透视效果的UI只要正对相机就行了，需要透视的就调整角度。*/
+            m_UICamera.orthographic = true; //正交投影
+            m_UICamera.clearFlags = CameraClearFlags.Depth; //只清除深度缓冲区，会保留之前的颜色。
             //Tip:在URP下，Unity相机被扩展了，需要进行以下处理，才能让UI相机的渲染内容附加在主相机上，而不是完全覆盖掉主相机的内容
             // var cameraData = _uiCamera.GetUniversalAdditionalCameraData();
             // cameraData.renderType = CameraRenderType.Overlay;
@@ -128,7 +129,7 @@ namespace MyPlugins.GoodUI
                 //这里意思是3DUI就用世界相机，否则就用UI相机。但是在上面世界相机不是剔除掉了UI层级吗？看了该方法后发现，如果是3D的话就会把Canvas层级设置为Default，否则就是UI。
                 /*Tip：这里还有个细节，就是3DUI就应该使用透视相机来渲染，虽然正交相机也可以渲染，但是会出现很多奇怪的现象，总之就是用正交相机来渲染2DUI，使用透视相机来渲染3DUI。*/
                 //这里是创建各个UILayer的游戏对象，而在框架设定上，每个UILayer都是一个Canvas，以及每个UI视图也都是一个Canvas，其实本质上是为了使用Canvas来控制渲染顺序，但可能还有通过分层来优化性能的考虑。
-                Canvas layerCanvas = UIExtension.CreateLayerCanvas(layer, is3d, _root, is3d ? _worldCamera : _uiCamera, width, height);
+                Canvas layerCanvas = UIExtension.CreateLayerCanvas(layer, is3d, m_Root, is3d ? _worldCamera : m_UICamera, width, height);
                 //有了Canvas之后就可以创建逻辑类了，将UILayer使用UILayerLogic封装起来，以便执行特殊操作。
                 UILayerLogic uILayerLogic = new UILayerLogic(layer, layerCanvas); 
                 _layers.Add(layer, uILayerLogic);
@@ -142,11 +143,11 @@ namespace MyPlugins.GoodUI
         public void UpdateCameraStack()
         {
             //Tip:在URP下，Unity相机被扩展了，需要进行以下处理，才能让UI相机的渲染内容附加在主相机上，而不是完全覆盖掉主相机的内容
-            var cameraData = _uiCamera.GetUniversalAdditionalCameraData();
+            var cameraData = m_UICamera.GetUniversalAdditionalCameraData();
             cameraData.renderType = CameraRenderType.Overlay;
             var mainCameraData = Camera.main.GetUniversalAdditionalCameraData();
-            if (!mainCameraData.cameraStack.Exists((cam) => cam == _uiCamera))
-                mainCameraData.cameraStack.Add(_uiCamera);
+            if (!mainCameraData.cameraStack.Exists((cam) => cam == m_UICamera))
+                mainCameraData.cameraStack.Add(m_UICamera);
         }
 
         private void Update()
@@ -288,22 +289,22 @@ namespace MyPlugins.GoodUI
             Debug.Log("InitUIConfig");
             // 初始化需要加载所有UI的配置
             // 本质是
-            return UIConfig.GetAllConfigs((list) =>
+            return UIConfig.GetAllConfigs((list) => //传入的回调就是在加载完成之后，可以使用加载得到的配置内容来执行一些逻辑
             {
                 foreach (var cfg in list) //遍历UIConfig列表
                 {
-                    if (_viewControllers.ContainsKey(cfg.uiType))
+                    if (m_ViewControllers.ContainsKey(cfg.uiViewType))
                     {
-                        Debug.LogErrorFormat("存在相同的uiType:{0}， 请检查UIConfig是否重复！", cfg.uiType.ToString());
+                        Debug.LogErrorFormat("存在相同的uiType:{0}， 请检查UIConfig是否重复！", cfg.uiViewType.ToString());
                         continue;
                     }
                     //填充字典，就是为了复用UIViewController实例以及方便且快速地通过UIType来获取到对应的UIViewController实例。
-                    _viewControllers.Add(cfg.uiType, new UIViewController
+                    m_ViewControllers.Add(cfg.uiViewType, new UIViewController
                     {
                         uiPath = cfg.path, //预制体路径
-                        uiType = cfg.uiType,
+                        uiViewType = cfg.uiViewType,
                         uiLayer = _layers[cfg.uiLayer],
-                        uiViewType = cfg.viewType, 
+                        uiViewLogic = cfg.viewLogicType, 
                         isPopWindow = cfg.isWindow,
                     });
                 }
@@ -324,14 +325,16 @@ namespace MyPlugins.GoodUI
         /// </summary>
         public void Open(UIViewType type, object userData = null, Action callback = null)
         {
-            if (!_viewControllers.ContainsKey(type))
+            if (!m_ViewControllers.ContainsKey(type))
             {//这里打印未配置是因为从流程上讲，_viewControllers在InitUIConfig方法中就已经通过读取配置文件而填充完毕，也就代表这就是之后的所有存在的能用的UI视图对象了。
                 Debug.LogErrorFormat("未配置uiType:{0}， 请检查UIConfig.cs！", type.ToString());
                 return;
             }
 
-            _openViews.Add(type); //记录存在性，
-            _viewControllers[type].Open(userData, callback);
+            //记录存在性，
+            /*TODO：记录UIViewType，按理来说，同一个UI视图可以同时出现多个，因为能够复用，这里显然需要改变。*/
+            m_OpenViews.Add(type); 
+            m_ViewControllers[type].Open(userData, callback);
         }
 
         /// <summary>
@@ -342,7 +345,7 @@ namespace MyPlugins.GoodUI
         {
             Debug.Log($"Preload : {type}");
             //只需要传入UIType，通过加载配置文件填充的_viewControllers可以得到对应的UIViewController，在其中就含有相关数据（比如预制体路径）以及操作方法。
-            if (!_viewControllers.TryGetValue(type, out var controller))
+            if (!m_ViewControllers.TryGetValue(type, out var controller))
             {
                 Debug.LogErrorFormat("未配置uiType:{0}， 请检查UIConfig.cs！", type.ToString());
                 return default;
@@ -355,7 +358,7 @@ namespace MyPlugins.GoodUI
         /// </summary>
         public void PreloadAll()
         {
-            foreach (var controller in _viewControllers.Values)
+            foreach (var controller in m_ViewControllers.Values)
             {
                 ResourceManager.Instance.LoadAssetAsync<GameObject>(controller.uiPath, null);
             }
@@ -363,19 +366,19 @@ namespace MyPlugins.GoodUI
 
         public bool IsOpen(UIViewType type)
         {
-            return _openViews.Contains(type);
+            return m_OpenViews.Contains(type);
         }
 
         public void Close(UIViewType type, Action callback = null)
         {
-            if (!_viewControllers.ContainsKey(type))
+            if (!m_ViewControllers.ContainsKey(type))
             {
                 Debug.LogErrorFormat("未配置uiType:{0}， 请检查UIConfig.cs！", type.ToString());
                 return;
             }
 
-            _openViews.Remove(type);
-            _viewControllers[type].Close(callback);
+            m_OpenViews.Remove(type);
+            m_ViewControllers[type].Close(callback);
         }
 
         public UnityEngine.InputSystem.PlayerInput GetPlayerInput()
@@ -396,43 +399,43 @@ namespace MyPlugins.GoodUI
         /// </summary>
         public T GetView<T>(UIViewType type) where T : UIView
         {
-            if (!_viewControllers.ContainsKey(type))
+            if (!m_ViewControllers.ContainsKey(type))
             {
                 Debug.LogErrorFormat("未配置uiType:{0}， 请检查UIConfig.cs！", type.ToString());
                 return null;
             }
 
-            return _viewControllers[type].uiView as T;
+            return m_ViewControllers[type].uiView as T;
         }
 
         public void CloseAll(UIViewType ignoreType = UIViewType.Max, bool closeResidentView = false)
         {
             var list = ListPool<UIViewType>.Get();
 
-            foreach (var uiType in _openViews)
+            foreach (var uiType in m_OpenViews)
             {
                 if (ignoreType == uiType) continue;
 
                 if (closeResidentView || !_residentViews.Contains(uiType))
                 {
-                    _viewControllers[uiType].Close();
+                    m_ViewControllers[uiType].Close();
                     list.Add(uiType);
                 }
             }
             foreach (var uiType in list)
             {
-                _openViews.Remove(uiType);
+                m_OpenViews.Remove(uiType);
             }
             ListPool<UIViewType>.Release(list);
         }
 
         public void ReleaseAll()
         {
-            foreach (var controller in _viewControllers.Values)
+            foreach (var controller in m_ViewControllers.Values)
             {
-                if (!_residentViews.Contains(controller.uiType))
+                if (!_residentViews.Contains(controller.uiViewType))
                 {
-                    _openViews.Remove(controller.uiType);
+                    m_OpenViews.Remove(controller.uiViewType);
                     controller.Release();
                 }
             }

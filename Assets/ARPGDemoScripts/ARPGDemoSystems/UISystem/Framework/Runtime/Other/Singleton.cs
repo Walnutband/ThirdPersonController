@@ -3,7 +3,7 @@ using UnityEngine;
 /*单例类往往都是一个独立类，不会搞什么继承之类的关系，所以在此专门定义实现单例的类，这样的话就可以把实现单例的逻辑从实际的单例类中移除了，使得单例类内部逻辑更加集中，显然
 并不具有必要性，不过通过让单例类显式继承Singleton，具有一个提示性，表明其为单例类。*/
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     //非Mono单例
     public abstract class Singleton<T> where T : new() //泛型参数必须具有无参构造函数

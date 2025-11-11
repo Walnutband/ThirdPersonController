@@ -46,8 +46,6 @@ namespace ARPGDemo.SkillSystemtest
             /*TODO：如何实现时间静止？按照现在的逻辑，就算m_TimeScale为0都还是会照样执行，只是与上一帧的时刻相同而已，但这应该还是要看具体的Clip逻辑，如何符合时间静止时的表现。*/
             _deltaTime *= m_TimeScale; //受到时间流速影响，通常都是1。
             m_TimeElapsed += _deltaTime; //此时所处时刻。
-            // Debug.Log("Tick当前时刻： " + m_TimeElapsed);
-
             // if (m_TimeElapsed >= m_Model.duration) //时间流逝到了或超过时间轴长度。
             // if (m_TimeElapsed >= endTime) //时间流逝到了或超过时间轴长度。
             // {

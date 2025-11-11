@@ -919,7 +919,7 @@ namespace Animancer
 
             // Similar to state.Play but more optimized.
             state.SetIsPlaying(true); //播放State，其实就是AnimationClipPlayable
-            state._Weight = 1;
+            state._Weight = 1;  //直接设置权重为1，然后SetInputWeight
             //如果为false，大概说明调用Play方法时对应状态还没有处于播放状态。
             if (!state.IsActive) //添加到容器中，记录（特殊状态下的）引用。
                 ActiveStatesInternal.Add(state);
@@ -959,7 +959,7 @@ namespace Animancer
             return Play(state, fadeDuration, mode);
         }
 
-        //过渡进入动画的主要逻辑
+        //Tip：过渡进入动画的主要逻辑
         /// <summary>
         /// Starts fading in the `state` over the course of the `fadeDuration` while fading out all others in this
         /// layer. Returns the `state`.

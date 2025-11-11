@@ -1,6 +1,7 @@
 using System;
 using Animancer;
 using ARPGDemo.BattleSystem;
+using MyPlugins.AnimationPlayer;
 using UnityEngine;
 
 namespace ARPGDemo.SkillSystemtest
@@ -15,17 +16,17 @@ namespace ARPGDemo.SkillSystemtest
         public Transform transform => m_Transform;
         [SerializeField] private Animator m_Animator;
         public Animator animator => m_Animator;
-        [SerializeField] private AnimancerComponent m_AnimPlayer;
-        public AnimancerComponent animPlayer => m_AnimPlayer;
+        [SerializeField] private AnimatorAgent m_AnimPlayer;
+        public AnimatorAgent animPlayer => m_AnimPlayer;
 
         [SerializeField] private AudioSource m_AudioSource;
         public AudioSource audioSource => m_AudioSource;
 
         [SerializeField] private CollisionDetector m_Hitbox;
         public CollisionDetector hitbox => m_Hitbox;
-        public Action<Collider> hitCallbacks; //命中时的回调。（triggerEnter）
-
-        
+        // public Action<Collider> hitCallback; //命中时的回调。（triggerEnter）
+        [SerializeField] private ActorObject m_Actor;
+        public IAttacker attacker => m_Actor;
 
     }
 }

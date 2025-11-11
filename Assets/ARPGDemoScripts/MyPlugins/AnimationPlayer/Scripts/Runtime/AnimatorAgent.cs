@@ -94,28 +94,30 @@ namespace MyPlugins.AnimationPlayer
             }
         }
 
-        /*TODO：如何实现在指定的层级上播放动画呢？*/
-        //最基础最默认的版本。意思是在第一层级播放指定片段，同时会将该层级中当前存在的其他片段全部停止。不过应该最大的作用范围就是一个层级，不会影响到其他层，这方面没有实际需求。
-        public AnimationClipState Play(AnimationClip _clip)
+        public AnimationClipState Play(AnimationClip _clip, PlayOption option = PlayOption.FromStart)
         {
-            // Debug.Log("001Play"); 
-            return graph.Play(0, _clip); //默认在第一层播放
+            return Play(0, _clip, option);
         }
 
         /*Tip：参数默认值有一些限制，比如必须放在非默认参数之后，必须是编译时常量等等，这个时候就应该改为使用重载了。*/
-        public AnimationClipState Play(int _layerIndex, AnimationClip _clip)
+        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, PlayOption option = PlayOption.FromStart)
         {
-            return graph.Play(_layerIndex, _clip);
+            if (_layerIndex < 0)
+            {
+                Debug.LogError("指定播放的层级索引应当大于等于0，在此修正索引为0");
+                _layerIndex = 0; 
+            }
+            return graph.Play(_layerIndex, _clip, option); 
         }
 
         public AnimationClipState Play(FadeAnimation _fade)
         {
-            return graph.Play(0, _fade.clip, _fade.fadeDuration);
+            return Play(0, _fade);
         }
 
         public AnimationClipState Play(int _layerIndex, FadeAnimation _fade)
         {
-            return graph.Play(_layerIndex, _fade.clip, _fade.fadeDuration);
+            return graph.Play(_layerIndex, _fade);
         }
 
         public AnimationMixerState Play(MixerAnimation _mixer)

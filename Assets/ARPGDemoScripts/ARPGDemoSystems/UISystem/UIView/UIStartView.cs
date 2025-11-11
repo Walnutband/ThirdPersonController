@@ -1,12 +1,13 @@
 
 using System.Collections;
 using DG.Tweening;
+using MyPlugins.GoodUI;
 using TMPro;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
 
     public class UIStartView : UIView

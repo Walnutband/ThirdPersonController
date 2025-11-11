@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using MyPlugins.GoodUI;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
-namespace MyPlugins.GoodUI
+namespace ARPGDemo.UISystem_Old
 {
     /// <summary>
     /// 这是所有UI视图的逻辑组件的基类，
@@ -167,7 +168,7 @@ namespace MyPlugins.GoodUI
         /// </summary>
         public virtual void OnCancel()
         {
-            UIManager.Instance.Close(_controller.uiType);
+            UIManager.Instance.Close(_controller.uiViewType);
         }
 
         /// <summary>

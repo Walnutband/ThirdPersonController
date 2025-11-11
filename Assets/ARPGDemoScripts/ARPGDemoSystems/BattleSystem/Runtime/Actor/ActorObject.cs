@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using ARPGDemo.SkillSystemtest;
 using UnityEngine;
 
 namespace ARPGDemo.BattleSystem
@@ -8,47 +10,25 @@ namespace ARPGDemo.BattleSystem
     // public class ActorProfile : MonoBehaviour
     //Tip：开发之后，感觉还是Object更加符合运行时代表的概念，Profile、Model这样的更像编辑时、持久化的对象。
     [AddComponentMenu("ARPGDemo/BattleSystem/ActorObject")]
-    public class ActorObject : MonoBehaviour 
+    public class ActorObject : MonoBehaviour, IActor
     {
-        /*Ques：原本是将Level放在ActorProperty中，因为想着这也属于一个属性，但是考虑到复用的目的，比如玩家角色要使用等级、但怪物就不会使用等级（倒也不一定），但怪物和玩家都
-        共用ActorProperty这个类，那就不适合在ActorProperty中放入。——当然这完全要看游戏设计，但其实前面说到的原因可能并非主要，其实Level和ActorProperty类中定义的那些代表属性值的变量
-        在使用逻辑上就有很大不同，即Level只是相当于一个标签，它本身不会对其他属性值产生任何影响，真正产生影响的是能力值，而Level会在提高能力值时同步增加数值，只是一个记录作用，
-        并没有参与实际的数值运算，而那些属性值却要参与各种逻辑，比如作为资源消耗和获取、计算伤害、受到各种Buff的影响以及其他种种逻辑（装备重量，韧性，观察力都会参与各自的逻辑），
-        所以这样的差异也将Level与那些属性值相区别开来。*/
-        [Header("角色等级")]
-        [SerializeField] private int m_Level;
-        public int level { get => m_Level; }
-
-        [SerializeField] private int m_Currency;
-        public int currency { get => m_Currency; }
-
-        [Header("能力值")]
-        /*TODO：能力值会直接影响到BaseProperty，但是除此之外，关于武器的能力要求、能力补正等设定，都会让能力值间接影响到EquipmentProperty甚至BuffProperty。总之
-        能力值是一个角色最基本的属性，当然也是角色成长的核心，可以影响到角色的方方面面，绝不只是也不应该只是对于某些基础属性值的数值影响。*/
-        [SerializeField] private ActorAbility m_Ability;
-        public ActorAbility ability { get => m_Ability; }
-
-        // [Header("装备")]
-        // //武器、防具、护符，非常标准的RPG装备三类型
-        // private Weapon m_Weapon;
-        // public Weapon weapon { get => m_Weapon; }
-        // private Armor m_Armor;
-        // public Armor armor { get => m_Armor; }
-        // private Amulet m_Amulet;
-        // public Amulet amulet { get => m_Amulet; }
+        private int m_Level;
+        private ActorAbility m_Ability;
 
         [Header("属性值")]
-        private ActorProperty m_Property;
+        [SerializeField] private ActorProperty m_Property;
         public ActorProperty property { get => m_Property; }
-        private ActorProperty m_BaseProperty; //主要来源于能力值，算法自由决定
+        [SerializeField] private ActorProperty m_BaseProperty;
         public ActorProperty baseProperty { get => m_BaseProperty; }
-        private ActorProperty m_BuffProperty;
+        [SerializeField] private ActorProperty m_BuffProperty;
         public ActorProperty buffProperty { get => m_BuffProperty; }
-        // private ActorProperty m_EquipmentProperty;
-        // public ActorProperty equipmentProperty { get => m_EquipmentProperty; }
-        [Header("资源")]
+        /*TODO：这才是真正参与战斗系统的数据。*/
+        // [Header("资源")]
+        [DisplayName("资源量")]
         [SerializeField] private ActorResource m_Resource;
         public ActorResource resource { get => m_Resource; }
+
+        public event Action<ActorResource> resourceChangedEvent;
 
         /*Ques：总感觉Buff应该用一个专门的特殊容器来存储，方便触发一些回调、Buff叠层、Buff更新和替换，等等功能，这些都是应该复用的，但在容器之外似乎又不太好复用。
         Buff本身倒是直接存储数据就行了，但是一旦要作用到个体身上的话，就要处理很多情况、而这些情况往往联系着Buff相关的游戏设计。*/
@@ -56,6 +36,10 @@ namespace ARPGDemo.BattleSystem
         public List<BuffObj> buffs { get => m_Buffs; }
         // private Dictionary<uint, Buff> m_Buffs;
         // public Dictionary<uint, Buff> buffs { get => m_Buffs; }
+
+        /*Tip：一些特殊变量*/
+        private bool m_IsDead;
+        public bool isDead { get => m_IsDead; }
 
 
         [Header("背包")]
@@ -107,7 +91,7 @@ namespace ARPGDemo.BattleSystem
                 if (_object == null) return;
 
                 //更新。
-                if (_object.priority < m_TopPriority)
+                if (_object.priority <= m_TopPriority)
                 {
                     m_TopPriority = _object.priority;
                     m_TopPriorityIndex = m_Interactables.Count; //因为是连续往后添加。
@@ -118,8 +102,17 @@ namespace ARPGDemo.BattleSystem
 
         private void Awake()
         {
-            m_InteractableDetector = transform.Find("_Colliders").Find("Interaction").GetComponent<CollisionDetector>();
+            m_InteractableDetector = transform.Find("___Colliders").Find("Interaction").GetComponent<CollisionDetector>();
         }
+
+        // [ContextMenu("找找")]
+        // private void Find()
+        // {
+        //     if (transform.Find("___Colliders").Find("Interaction").GetComponent<CollisionDetector>())
+        //         Debug.Log("找到了");
+        //     else
+        //         Debug.Log("没找到");
+        // }
 
         private void Start()
         {
@@ -153,6 +146,11 @@ namespace ARPGDemo.BattleSystem
             m_InteractableRecord.Reset();
         }
 
+        private void Update()
+        {
+
+        }
+
         public void Initialize(ActorCareerData _careerData)
         {
             if (_careerData == null) return;
@@ -165,12 +163,23 @@ namespace ARPGDemo.BattleSystem
         private void UpdateBaseProperty()
         {
             m_BaseProperty.hp = m_Ability.vigor * 30;
-            m_BaseProperty.mp = m_Ability.mind * 20;
+            m_BaseProperty.mp = m_Ability.mind * 15;
             m_BaseProperty.sp = m_Ability.endurance * 10;
-
+            m_BaseProperty.physicsAttack = m_Ability.strength * 10;
+            m_BaseProperty.poison = m_Ability.arcane * 10;
+            m_BaseProperty.bleed = m_Ability.arcane * 10;
+            m_BaseProperty.poisonEffect = m_Ability.arcane * 2;
+            m_BaseProperty.bleedEffect = m_Ability.arcane * 2;
+            m_BaseProperty.physicsResist = m_Ability.vigor * 1;
+            // m_BaseProperty.poisonResist = m_Ability.arcane * 2;
+            // m_BaseProperty.bleedResist = m_Ability.arcane * 2;
+            UpdateTotalProperty();
         }
 
-        /*Tip：*/
+        private void UpdateTotalProperty()
+        {
+            m_Property = m_BaseProperty + m_BuffProperty;
+        }
 
         /*Tip：使用消耗品，设计是--有一个按键可以使用在当前的消耗品背包（随身包即装备包）中选中的消耗品（没有），或者是打开背包UI、选中指定消耗品点击使用，这是两种最常见做法、通常
         也只有这两种做法，*/
@@ -239,29 +248,62 @@ namespace ARPGDemo.BattleSystem
             Debug.Log($"物品ID：{_item.id}，名称：{_item.name}，数量：{_item.amount}");
         }
 
-        // private void TalkWithNPC(NPC _npc)
-        // private void TalkWithActor(ActorObject _actor)
+        public void AddBuff(BuffInfo buffInfo)
+        {
+            throw new System.NotImplementedException();
+        }
 
-        // public void Equip(EquipmentBase equipment)
-        // {
-        //     /*TODO：其实也可以避免if-else，使用switch-case稍微好一点，也可以将给装备字段赋值的逻辑放到各个类型装备的Equip方法中，不过这样的话就需要公开set了，而在逻辑上应该是
-        //     Actor自己穿上装备，而不是装备自己穿上去。*/
-        //     if (equipment is Weapon)
-        //     {
-        //         m_Weapon = (Weapon)equipment;
-        //     }
-        //     else if (equipment is Armor)
-        //     {
-        //         m_Armor = (Armor)equipment;
-        //     }
-        //     else if (equipment is Amulet)
-        //     {
-        //         m_Amulet = (Amulet)equipment;
-        //     }
+        public void RemoveBuff(BuffInfo buffInfo)
+        {
+            throw new System.NotImplementedException();
+        }
 
-        //     equipment.Equip();
-        // }
+        public void ModResource(ActorResource value)
+        {
+            m_Resource += value;
+            resourceChangedEvent?.Invoke(m_Resource);
+        }
 
+        public Damage damage => new Damage(m_Property.physicsAttack, m_Property.poisonEffect, m_Property.bleed); 
 
+        public Defense defense => throw new System.NotImplementedException();
+
+        public bool CanBeAttack()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /*死亡时调用的方法，处理自身的死亡逻辑*/
+        public void Die()
+        {
+            m_IsDead = true;
+
+            
+        }
+
+        /*复活*/
+        // public void Revive()
+        public void ReCover()
+        {
+            m_IsDead = false;
+
+            
+        }
+
+        public bool BeKilled()
+        {
+            return m_IsDead;
+        }
+
+        public void OnHit(IDefender defender, DamageInfo _damage)
+        {
+            
+        }
+
+        public void OnBeHurt(IAttacker attacker, DamageInfo _damage)
+        {
+            ActorResource resource = _damage.FinalDamage();
+            ModResource(resource);
+        }
     }
 }

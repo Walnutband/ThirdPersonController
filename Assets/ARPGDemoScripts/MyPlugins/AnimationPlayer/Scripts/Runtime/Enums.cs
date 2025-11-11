@@ -1,10 +1,10 @@
 
 namespace MyPlugins.AnimationPlayer
 {
-    public enum PlayOptions
+    public enum PlayOption
     {
         None, //默认就是已经存在就不动
-        FromStart,
+        FromStart, //已经存在的话，就从头开始播放
         
     }
 }
