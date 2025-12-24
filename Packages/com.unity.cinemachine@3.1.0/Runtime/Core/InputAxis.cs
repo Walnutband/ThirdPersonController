@@ -101,7 +101,7 @@ namespace Unity.Cinemachine
         /// <summary>The valid range for the axis value.  Value will be clamped to this range.</summary>
         [Tooltip("The valid range for the axis value.  Value will be clamped to this range.")]
         [Vector2AsRange]
-        public Vector2 Range;
+        public Vector2 Range; //使用Vector2来存储最小值和最大值
 
         /// <summary>If set, then the axis will wrap around at the min/max values, forming a loop</summary>
         [Tooltip("If set, then the axis will wrap around at the min/max values, forming a loop")]
@@ -251,26 +251,32 @@ namespace Unity.Cinemachine
         /// <param name="forceCancel">If true, cancel any re-centering currently in progress and reset the timer.</param>
         public void UpdateRecentering(float deltaTime, bool forceCancel)
         {
+            //限制功能：禁止归中或瞬时限制
             if ((Restrictions & (RestrictionFlags.NoRecentering | RestrictionFlags.Momentary)) != 0)
                 return;
 
+            //取消归中
             if (forceCancel)
             {
                 CancelRecentering();
                 return;
             }
+
+            //直接设置为中心值
             if (m_RecenteringState.m_ForceRecenter || (Recentering.Enabled && deltaTime < 0))
             {
                 Value = Center;
                 CancelRecentering();
             }
+            //距离上一次值改变时间已经超过了等待时间，也就是自动归中。
             else if (m_RecenteringState.m_ForceRecenter 
                 || (Recentering.Enabled && RecenteringState.CurrentTime 
                     - m_RecenteringState.m_LastValueChangeTime >= Recentering.Wait))
             {
                 var v = ClampValue(Value);
-                var c = Center;
+                var c = Center; //中心值，也就是目标值。
                 var distance = Mathf.Abs(c - v);
+                //实际值差距过小，或设定的归中时间过短，就直接归中。
                 if (distance < RecenteringState.k_Epsilon || Recentering.Time < RecenteringState.k_Epsilon)
                 {
                     v = c;
@@ -280,6 +286,7 @@ namespace Unity.Cinemachine
                 {
                     // Determine the direction
                     float r = Range.y - Range.x;
+                    //Tip：用向量结合数轴就很好理解这里的回环算法了。
                     if (Wrap && distance > r * 0.5f)
                         v += Mathf.Sign(c - v) * r;
 
@@ -291,6 +298,7 @@ namespace Unity.Cinemachine
                 Value = m_RecenteringState.m_LastValue = ClampValue(v);
 
                 // Are we there yet?
+                //归中结束。
                 if (Mathf.Abs(Value - c) < RecenteringState.k_Epsilon)
                     m_RecenteringState.m_ForceRecenter = false;
             }

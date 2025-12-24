@@ -130,6 +130,7 @@ namespace Unity.Cinemachine
             RawPosition = Vector3.zero,
             RawOrientation = Quaternion.identity,
             ShotQuality = 1,
+            //修正值就是用于实现一些特殊的镜头效果。
             PositionCorrection = Vector3.zero,
             OrientationCorrection = Quaternion.identity,
             RotationDampingBypass = Quaternion.identity,
@@ -221,9 +222,11 @@ namespace Unity.Cinemachine
             t = Mathf.Clamp01(t);
             float adjustedT = t;
 
+            //存储插值结果值。
             CameraState state = new ();
 
             // Combine the blend hints intelligently
+            //默认BlendHint为None，在此处只要是两个状态同时拥有的Hint，就将其添加到state的BlendHint中。
             if (((stateA.BlendHint & stateB.BlendHint) & BlendHints.NoPosition) != 0)
                 state.BlendHint |= BlendHints.NoPosition;
             if (((stateA.BlendHint & stateB.BlendHint) & BlendHints.NoOrientation) != 0)
@@ -237,8 +240,11 @@ namespace Unity.Cinemachine
             if (((stateA.BlendHint | stateB.BlendHint) & BlendHints.FreezeWhenBlendingOut) != 0)
                 state.BlendHint |= BlendHints.FreezeWhenBlendingOut;
 
+            /*Tip：这里就是简单的与非并的逻辑问题，“都没有”的反面就是“至少有一个”，而第二个分支判断并没有同时有，所以才进入分支看哪个没有NoLens标记就使用哪个的Lens。*/
+            //两者都没有NoLens的时候就对Lens插值。
             if (((stateA.BlendHint | stateB.BlendHint) & BlendHints.NoLens) == 0)
                 state.Lens = LensSettings.Lerp(stateA.Lens, stateB.Lens, t);
+            //两者只有一个有NoLens，那么谁没有NoLens就使用谁的Lens。
             else if (((stateA.BlendHint & stateB.BlendHint) & BlendHints.NoLens) == 0)
             {
                 if ((stateA.BlendHint & BlendHints.NoLens) != 0)
@@ -246,8 +252,11 @@ namespace Unity.Cinemachine
                 else
                     state.Lens = stateA.Lens;
             }
+
+            //上方向以及镜头质量的插值，上方向就是两个三维向量的插值，镜头质量各自会有计算的方式，不过在此处只是对于float结果值插值，所以简单Lerp即可。
             state.ReferenceUp = Vector3.Slerp(stateA.ReferenceUp, stateB.ReferenceUp, t);
             state.ShotQuality = Mathf.Lerp(stateA.ShotQuality, stateB.ShotQuality, t);
+
 
             state.PositionCorrection = ApplyPosBlendHint(
                 stateA.PositionCorrection, stateA.BlendHint,
@@ -261,7 +270,9 @@ namespace Unity.Cinemachine
                 state.OrientationCorrection, 
                 Quaternion.Slerp(stateA.OrientationCorrection, stateB.OrientationCorrection, t));
 
+
             // LookAt target
+            //只有有一方没有LookAt目标，就直接视为没有目标。
             if (!stateA.HasLookAt() || !stateB.HasLookAt())
                 state.ReferenceLookAt = kNoPoint;
             else
@@ -280,6 +291,7 @@ namespace Unity.Cinemachine
                     state.Lens = lens;
 
                     // Make sure we preserve the screen composition through FOV changes
+                    //确保在视场角变化时保持屏幕构图不变
                     adjustedT = Mathf.Abs((lens.FieldOfView - fovA) / (fovB - fovA));
                 }
                 // Linear interpolation of lookAt target point
@@ -350,6 +362,7 @@ namespace Unity.Cinemachine
                 state.RawOrientation, newOrient);
 
             // Accumulate the custom blendables and apply the weights
+            //
             for (int i = 0; i < stateA.CustomBlendables.NumItems; ++i)
             {
                 var b = stateA.GetCustomBlendable(i);
@@ -385,12 +398,15 @@ namespace Unity.Cinemachine
             Vector3 posB, BlendHints hintB, 
             Vector3 original, Vector3 blended)
         {
+            //都没有NoPosition，所以返回混合值。
             if (((hintA | hintB) & BlendHints.NoPosition) == 0)
                 return blended;
+            //都有NoPosition，即都不影响Position，所以返回原始值
             if (((hintA & hintB) & BlendHints.NoPosition) != 0)
                 return original;
             if ((hintA & BlendHints.NoPosition) != 0)
                 return posB;
+            //情况闭合，只剩下最后这种情况，所以不需要条件判断，直接返回即可。
             return posA;
         }
 
@@ -421,6 +437,7 @@ namespace Unity.Cinemachine
                 if ((blendHint & BlendHints.CylindricalPositionBlend) != 0)
                 {
                     // Cylindrical interpolation about pivot
+                    //投影到同一平面，然后插值，再通过向量相加，得到的向量就是在同一平面上
                     var a = Vector3.ProjectOnPlane(posA - pivotA, up);
                     var b = Vector3.ProjectOnPlane(posB - pivotB, up);
                     var c = Vector3.Slerp(a, b, t);
@@ -464,7 +481,7 @@ namespace Unity.Cinemachine
 
         /// <summary>Position with correction applied.  This is what the final camera gets.</summary>
         /// <param name="s">State to check.</param>
-        /// <returns>Position with correction applied.</returns>
+        /// <returns>Position with correction applied.原始位置加上修正位置的结果值</returns>
         public static Vector3 GetFinalPosition(this CameraState s) => s.RawPosition + s.PositionCorrection;
 
         /// <summary>Orientation with correction and dutch applied.  This is what the final camera gets.</summary>

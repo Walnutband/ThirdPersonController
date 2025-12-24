@@ -404,6 +404,7 @@ namespace Unity.Cinemachine
                 return true;
 
             // Walk up the parents
+            
             var parent = cam.ParentCamera;
             if (parent != null && parent.IsLiveChild(cam, dominantChildOnly))
                 return IsLiveChild(parent, dominantChildOnly);
@@ -608,6 +609,7 @@ namespace Unity.Cinemachine
             CameraUpdateManager.UpdateAllActiveVirtualCameras((uint)ChannelMask, DefaultWorldUp, deltaTime);
 
             // Make sure all live cameras get updated, in case some of them are deactivated
+            //SoloCamera是用于编辑模式下将一个相机设置为激活状态，并且直接在编辑模式下运行。所以运行时不用管这个。
             if (CinemachineCore.SoloCamera != null)
                 CinemachineCore.SoloCamera.UpdateCameraState(DefaultWorldUp, deltaTime);
             m_BlendManager.RefreshCurrentCameraState(DefaultWorldUp, deltaTime);
@@ -687,6 +689,7 @@ namespace Unity.Cinemachine
                 rot = state.GetFinalOrientation();
             /*Tip：可以看到，改变Unity相机所在对象的位置和旋转，只是应用虚拟相机状态的第一步，还有后续诸多逻辑，这一切都是与镜头相关的游戏设计的根本。*/
             target.ConservativeSetPositionAndRotation(pos, rot);
+            //Tip：上面是以前的认知，其实下面的逻辑就是专用于Lens的，即FOV以及裁切面，除此之外的信息都只是帮助计算而非计算目标。
 
             if ((state.BlendHint & CameraState.BlendHints.NoLens) == 0)
             {

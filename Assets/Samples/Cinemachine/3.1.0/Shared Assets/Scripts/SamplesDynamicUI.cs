@@ -42,6 +42,8 @@ namespace Unity.Cinemachine.Samples
         public List<Item> Buttons = new();
 
         VisualElement m_Root;
+
+        //用于保持对于动态创建的Button或Toggle的引用，以便在被禁用时指定m_Root将这些元素移除。
         readonly List<VisualElement> m_DynamicElements = new ();
 
         void OnEnable()

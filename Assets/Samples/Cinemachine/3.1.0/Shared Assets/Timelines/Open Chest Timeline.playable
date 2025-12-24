@@ -1105,6 +1105,7 @@ MonoBehaviour:
     m_DisplayName: CM Chest Opened
   m_Markers:
     m_Objects: []
+  TrackPriority: 0
 --- !u!114 &-4716938675341428968
 MonoBehaviour:
   m_ObjectHideFlags: 1

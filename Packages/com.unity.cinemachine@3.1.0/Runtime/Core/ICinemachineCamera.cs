@@ -12,6 +12,7 @@ namespace Unity.Cinemachine
         /// <summary>
         /// Gets the name of this virtual camera. For use when deciding how to blend
         /// to or from this camera
+        /// 用于指定特定相机之间的混合，该名称就能够作为相机的标识符。
         /// </summary>
         string Name { get; }
 

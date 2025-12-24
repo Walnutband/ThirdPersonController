@@ -15,12 +15,14 @@ namespace Unity.Cinemachine.Samples
     [ExecuteAlways]
     public class AimCameraRig : CinemachineCameraManagerBase, IInputAxisOwner
     {
+        //按下就进入瞄准模式。
         public InputAxis AimMode = InputAxis.DefaultMomentary;
 
         SimplePlayerAimController AimController;
         CinemachineVirtualCameraBase AimCamera;
         CinemachineVirtualCameraBase FreeCamera;
 
+        //对于Button来说就是是否按下。
         bool IsAiming => AimMode.Value > 0.5f;
 
         /// Report the available input axes to the input axis controller.
@@ -39,10 +41,16 @@ namespace Unity.Cinemachine.Samples
             // Find the player and the aiming camera.
             // We expect to have one camera with a CinemachineThirdPersonAim component
             // whose Follow target is a player with a SimplePlayerAimController child.
+
+            /*Tip：从子相机中遍历进行判断，找出符合要求的瞄准状态下的Aim相机和非瞄准状态下的Free相机。*/
+            /*Ques：这种写法我还真没见过，可能就只是测试用吧，但要是测试的话也没必要在运行时进行这些判断，因为可以直接在检视器中拖拽赋值即可。
+            那大概确实是用于正式运行的逻辑，可能就是减少信息负担，因为在这里没有获取到的话，就会打印日志提示开发者，而不需要开发者提前知道
+            需要哪些组件。当然我还是感觉，多此一举了。
+            */
             for (int i = 0; i < ChildCameras.Count; ++i)
             {
                 var cam = ChildCameras[i];
-                if (!cam.isActiveAndEnabled)
+                if (!cam.isActiveAndEnabled) //跳过未启用的子相机
                     continue;
                 if (AimCamera == null
                     && cam.TryGetComponent<CinemachineThirdPersonAim>(out var aim) 
@@ -75,8 +83,10 @@ namespace Unity.Cinemachine.Samples
                 AimController.PlayerRotation = IsAiming
                     ? SimplePlayerAimController.CouplingMode.Coupled 
                     : SimplePlayerAimController.CouplingMode.Decoupled;
+                //将角色重定向到瞄准方向，这是非常重要的一步。
                 AimController.RecenterPlayer();
             }
+            //返回所要选择的子相机。
             return newCam;
         }
     }

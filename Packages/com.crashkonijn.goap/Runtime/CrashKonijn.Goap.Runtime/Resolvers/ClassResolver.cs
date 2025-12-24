@@ -1,0 +1,46 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CrashKonijn.Goap.Core;
+
+namespace CrashKonijn.Goap.Runtime
+{
+    public class ClassResolver
+    {
+        //Tip：这里的解析过程，就是根据传入的配置对象中记录的字符串，获取其对应的Type元数据信息，然后创建实例
+        public List<TType> Load<TType, TConfig>(IEnumerable<TConfig> list)
+            where TType : class, IHasConfig<TConfig>
+            where TConfig : IClassConfig
+        {
+            TType action;
+
+            if (list == null)
+                return new List<TType>();
+
+            return list.Where(x => !string.IsNullOrEmpty(x?.ClassType) && x.ClassType != "UNDEFINED").Select(x =>
+            {
+                //根据字符串获取Type元数据，创建实例，然后类型转换。
+                action = Activator.CreateInstance(Type.GetType(x.ClassType)) as TType;
+                action?.SetConfig(x);
+                return action;
+            }).ToList();
+        }
+
+        public TType Load<TType>(string type)
+            where TType : class
+        {
+            if (string.IsNullOrEmpty(type))
+                return null;
+
+            return Activator.CreateInstance(Type.GetType(type)) as TType;
+        }
+
+        public HashSet<T> LoadTypes<T>(IEnumerable<string> list)
+        {
+            var types = list.Select(Type.GetType);
+            var classes = types.Select(Activator.CreateInstance);
+
+            return classes.Cast<T>().ToHashSet();
+        }
+    }
+}

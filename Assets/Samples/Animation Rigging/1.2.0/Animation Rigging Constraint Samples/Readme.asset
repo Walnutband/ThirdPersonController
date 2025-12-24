@@ -28,7 +28,7 @@ MonoBehaviour:
       \u201Crig\u201D weight is set to \u201C1\u201D (one), then activate Preview
       in the Animation window or hit the Editor Play button for a runtime preview."
     linkText: Documentation
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/index.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/index.html
   - heading: 2BoneIK scene
     text: "This scene contains an example of a TwoBoneIK constraint setup. The TwoBoneIK
       constraint is used to animate two bones using IK. The rig in this sample uses
@@ -38,7 +38,7 @@ MonoBehaviour:
       but this is a user choice and can be done differently, depending on the animator\u2019s
       needs."
     linkText: twoBoneIK constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/TwoBoneIKConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/TwoBoneIKConstraint.html
   - heading: Aim scene
     text: "This scene contains an example of the Aim constraint. The aim constraint
       is used to orient one GameObject to look-at or aim another GameObject/target.
@@ -55,7 +55,7 @@ MonoBehaviour:
       Hit the Editor Play button for a runtime preview of the entire sequence with
       the animated aim target."
     linkText: aim constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/MultiAimConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/MultiAimConstraint.html
   - heading: Blend scene
     text: "This scene contains a very simple example of the Blend constraint. The
       blend constraint can be used in manny ways, but basically blends two transforms
@@ -65,7 +65,7 @@ MonoBehaviour:
       cube B\u2019s rotation. Cube \u201CAB\u201D therefore moves & rotates to half
       of the two source animations."
     linkText: blend constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/BlendConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/BlendConstraint.html
   - heading: ChainIK scene
     text: "This scene contains an example of the ChainIK constraint. The chainIK
       constraint is used to animate an IK chain with more than two bones. In this
@@ -77,7 +77,7 @@ MonoBehaviour:
       animation (static target). Hit the Editor Play button for a runtime preview
       of both animations (scorpion & target GameObject)."
     linkText: chainIK constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/ChainIKConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/ChainIKConstraint.html
   - heading: Damp scene
     text: "This scene contains an example of the Damp constraint. The damp constraint
       is used to create a lag or delayed effect of one GameObject\u2019s position
@@ -88,7 +88,7 @@ MonoBehaviour:
       GameObject is the only animated GameObject in this scene. All other cubes are
       animated through the damp constraints."
     linkText: damp constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/DampedTransform.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/DampedTransform.html
   - heading: mParent scene
     text: "This scene contains an example of a Multi-Parent constraint. The mParent
       constraint simulates a hierarchal parent, without affecting the actually hierarchy.
@@ -106,7 +106,7 @@ MonoBehaviour:
       Animation Window to select the desired clip. Hit the Editor Play button for
       a runtime preview of the animation sequence with the animated mParent constraint."
     linkText: mParent constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/MultiParentConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/MultiParentConstraint.html
   - heading: mPosition scene
     text: "This scene contains an example of the Multi-Position constraint. The mPosition
       constraint allows you to constrain the position of one GameObject to another
@@ -121,7 +121,7 @@ MonoBehaviour:
       is evaluated before the twoBoneIK constraints (ik) in order to obtain the desired
       result."
     linkText: mPosition constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/MultiPositionConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/MultiPositionConstraint.html
   - heading: mRef scene
     text: "This scene contains an example of the Multi-Referential constraint. The
       mReferential constraint allows you to create multiple pivots or anchor points
@@ -137,7 +137,7 @@ MonoBehaviour:
       will cause the GameObject to move. Offsets are updated as expected (GameObject
       does not move) when changing the Driving GameObject at runtime."
     linkText: mReferential constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/MultiReferentialConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/MultiReferentialConstraint.html
   - heading: mRotation scene
     text: "This scene contains an example of the Multi-Rotation constraint. The mRotation
       constraint allows you to constrain the rotation of one GameObject to another
@@ -150,7 +150,7 @@ MonoBehaviour:
       giving him a more natural twist. Make sure to select the \u201CAnim_LookAround\u201D
       clip in the Animation window in order to preview this animation."
     linkText: mRotation constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/MultiRotationConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/MultiRotationConstraint.html
   - heading: Override scene
     text: "This scene contains an example of the Override constraint. The override
       constraint is very special and can be used in many different ways. It can set
@@ -163,7 +163,7 @@ MonoBehaviour:
       in the \u201CAnim_Offsets\u201D clip. The result is a mix of the walk animation,
       and the upper body offset animation (Anim_Offsets clip)."
     linkText: override constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/OverrideTransform.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/OverrideTransform.html
   - heading: TwistChain scene
     text: "This scene contains an example of the TwistChain constraint. The TwistChain
       constraint allows you to constrain the rotation of chain of GameObjects using
@@ -176,7 +176,7 @@ MonoBehaviour:
       TwistChain GameObject, click the Curve property of the TwistChain constraint,
       and select another curve preset (ex: ease-in)."
     linkText: twist chain constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/TwistChainConstraint.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/TwistChainConstraint.html
   - heading: TwistCorrection scene
     text: This scene contains a simplified example of the Twist Correction constraint.
       The twist correction constraint is used to distribute the roll of a rotation
@@ -188,5 +188,5 @@ MonoBehaviour:
       rotates, the twist bones roll to a defined percentage of the hand rotation
       (in this case 0.8 & 0.65).
     linkText: twist correction constraint
-    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.2?preview=1&subfolder=/manual/constraints/TwistCorrection.html
+    url: https://docs.unity3d.com/Packages/com.unity.animation.rigging@1.3?preview=1&subfolder=/manual/constraints/TwistCorrection.html
   loadedLayout: 1

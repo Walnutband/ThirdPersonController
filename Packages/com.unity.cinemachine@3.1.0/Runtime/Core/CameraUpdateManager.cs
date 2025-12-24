@@ -96,6 +96,10 @@ namespace Unity.Cinemachine
 
             // Update the leaf-most cameras first
             var allCameras = s_CameraRegistry.AllCamerasSortedByNestingLevel;
+            /*Tip：该容器应该是按照同层级连续排、然后到达下一层级继续排，所以倒序遍历就是从嵌套层级最深的虚拟相机开始。
+            看起来这里是一个嵌套循环，但其实主要的逻辑量在于UpdateVirtualCamera方法，而满足调用条件的vcam通常同一时间只有一两个，通常情况下就是一个CinemachineCamera加上一些组件或扩展，
+            而另外可能就是处于混合过程中，则会存在两个CinemachineCamera处于Live状态。
+            */
             for (int i = allCameras.Count-1; i >= 0; --i)
             {
                 var sublist = allCameras[i];

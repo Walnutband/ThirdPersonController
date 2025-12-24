@@ -18,6 +18,7 @@ namespace Unity.Cinemachine.Samples
 
         // We add a CameraUpdatedEvent listener so that we are guaranteed to update after the
         // Brain has positioned the camera
+        //在将虚拟相机的属性应用到Unity相机之后，执行该回调。
         void OnEnable() => CinemachineCore.CameraUpdatedEvent.AddListener(SetAimTarget);
         void OnDisable() => CinemachineCore.CameraUpdatedEvent.RemoveListener(SetAimTarget);
 
@@ -47,6 +48,7 @@ namespace Unity.Cinemachine.Samples
                         transform.position = aim.AimTarget;
 
                         // Set the screen-space hit target indicator position
+                        //
                         if (AimTargetIndicator != null)
                             AimTargetIndicator.position = brain.OutputCamera.WorldToScreenPoint(transform.position);
                     }

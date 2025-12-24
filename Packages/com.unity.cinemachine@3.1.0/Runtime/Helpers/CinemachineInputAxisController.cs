@@ -157,18 +157,18 @@ namespace Unity.Cinemachine
                     {
                         float r = ResolveAndReadInputAction(c, hint);
                         // inputValue = ResolveAndReadInputAction(c, hint) * Gain;
-                        inputValue = r * Gain;
+                        inputValue = r * Gain; //乘以缩放因子
                         if (hint == IInputAxisOwner.AxisDescriptor.Hints.Default)
                             Debug.Log($"原始值: {r}, Gain: {Gain}, inputValue: {inputValue}");
                     }
                 }
 #endif
-//注意，如果同时启用了旧输入系统和新输入系统的后端的话，会导致这里旧输入系统的值覆盖前面新输入系统的值。
+//BUG：注意，如果同时启用了旧输入系统和新输入系统的后端的话，会导致这里旧输入系统的值覆盖前面新输入系统的值。
 #if ENABLE_LEGACY_INPUT_MANAGER
                 if (inputValue == 0 && !string.IsNullOrEmpty(LegacyInput))
                 {
                     try { inputValue = CinemachineCore.GetInputAxis(LegacyInput) * LegacyGain; }
-                    catch (ArgumentException) { }
+                    catch (ArgumentException) { } 
                     //catch (ArgumentException e) { Debug.LogError(e.ToString()); }
                 }
 #endif
@@ -247,6 +247,7 @@ namespace Unity.Cinemachine
                         if (control.valueType == typeof(Vector2) || action.expectedControlType == "Vector2")
                         {//能够处理Vector2类型数据就是在于此处，使用枚举类型hint标记是X轴还是Y轴，也就是两次读取分别取X轴和Y轴的值，从而将该Vector2的值进行了处理。
                             var value = action.ReadValue<Vector2>();
+                            //可以看到默认就是x，显式指定Y才是y值。
                             return hint == IInputAxisOwner.AxisDescriptor.Hints.Y ? value.y : value.x;
                         }
                         // Default: assume type is float

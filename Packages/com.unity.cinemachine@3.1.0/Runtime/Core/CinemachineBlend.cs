@@ -147,15 +147,18 @@ namespace Unity.Cinemachine
         {
             get
             {
+                //要是两个都不能用，那就直接返回默认值了。
                 if (CamA == null || !CamA.IsValid)
                 {
                     if (CamB == null || !CamB.IsValid)
                         return CameraState.Default;
                     return CamB.State;
                 }
+                //A能用而B不能用。
                 if (CamB == null || !CamB.IsValid)
                     return CamA.State;
 
+                //有自定义则使用，否则就是CameraState.Lerp
                 if (CustomBlender != null)
                     return CustomBlender.GetIntermediateState(CamA, CamB, BlendWeight);
                 return CameraState.Lerp(CamA.State, CamB.State, BlendWeight);

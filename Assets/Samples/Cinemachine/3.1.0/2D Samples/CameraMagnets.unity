@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12811698, g: 0.15874435, b: 0.21011212, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -189,15 +188,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetOffset: {x: 0, y: 0, z: 0}
-  Lookahead:
-    Enabled: 0
-    Time: 0.479
-    Smoothing: 9.8
-    IgnoreY: 1
   CameraDistance: 10
   DeadZoneDepth: 0
-  Damping: {x: 1, y: 2, z: 1}
   Composition:
     ScreenPosition: {x: 0, y: 0}
     DeadZone:
@@ -208,6 +200,13 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
+  TargetOffset: {x: 0, y: 0, z: 0}
+  Damping: {x: 1, y: 2, z: 1}
+  Lookahead:
+    Enabled: 0
+    Time: 0.479
+    Smoothing: 9.8
+    IgnoreY: 1
 --- !u!114 &129940159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -877,8 +876,41 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 910066370878209049, guid: bfd45ae7994b04d538dc1317bc34bd62,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 601246773}
   m_SourcePrefab: {fileID: 100100000, guid: bfd45ae7994b04d538dc1317bc34bd62, type: 3}
+--- !u!1 &601246772 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 910066370878209049, guid: bfd45ae7994b04d538dc1317bc34bd62,
+    type: 3}
+  m_PrefabInstance: {fileID: 601246771}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &601246773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 601246772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1001 &608513646
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1403,7 +1435,7 @@ Transform:
   m_GameObject: {fileID: 7726835707821803386}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.433966, y: 3.249998, z: -10}
+  m_LocalPosition: {x: 4.6527257, y: 7.103212, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1512,7 +1544,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 3
+  orthographic size: 10.927904
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2

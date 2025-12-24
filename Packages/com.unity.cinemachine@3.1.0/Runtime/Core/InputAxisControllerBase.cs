@@ -201,6 +201,7 @@ namespace Unity.Cinemachine
                         Debug.Log($"Default, InputValue为{c.InputValue}");
                 }
                 //将DrivenAxis返回的InputAxis传入，也就是要应用输入值的对象。
+                //这里的一个隐含条件是，m_Axes中存储的顺序和Controllers中存储的顺序是一致的。
                 c.Driver.ProcessInput(ref m_Axes[i].DrivenAxis(), c.InputValue, deltaTime);
             }
         }

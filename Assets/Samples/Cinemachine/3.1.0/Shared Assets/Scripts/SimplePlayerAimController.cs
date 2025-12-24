@@ -51,6 +51,7 @@ namespace Unity.Cinemachine.Samples
         /// want it to work everywhere.
         void IInputAxisOwner.GetInputAxes(List<IInputAxisOwner.AxisDescriptor> axes)
         {
+            //Tip：实际控制这里的控制器就应当在其检视器中设置Mouse Delta的X和Y值作为这里的输入值，那么该对象就可以与相机一样直接受到鼠标控制旋转了。
             axes.Add(new () { DrivenAxis = () => ref HorizontalLook, Name = "Horizontal Look", Hint = IInputAxisOwner.AxisDescriptor.Hints.X });
             axes.Add(new () { DrivenAxis = () => ref VerticalLook, Name = "Vertical Look", Hint = IInputAxisOwner.AxisDescriptor.Hints.Y });
         }
@@ -70,6 +71,9 @@ namespace Unity.Cinemachine.Samples
                 Debug.LogError("SimplePlayerController not found on parent object");
             else
             {
+                /*Tip：这里的执行顺序很关键，只有这样才能达到目的。*/
+
+                //先减再加，避免重复注册，代码水平的体现。
                 m_Controller.PreUpdate -= UpdatePlayerRotation;
                 m_Controller.PreUpdate += UpdatePlayerRotation;
                 m_Controller.PostUpdate -= PostUpdate;
@@ -88,6 +92,7 @@ namespace Unity.Cinemachine.Samples
             }
         }
 
+        //重定向角色。
         /// <summary>Recenters the player to match my rotation</summary>
         /// <param name="damping">How long the recentering should take</param>
         public void RecenterPlayer(float damping = 0)
@@ -106,6 +111,7 @@ namespace Unity.Cinemachine.Samples
                 delta, m_ControllerTransform.up) * m_ControllerTransform.rotation;
 
             // Rotate me in the opposite direction
+            //Tip：因为父对象会带动子对象旋转，这里只是还原，以便子对象即该对象的世界旋转值不变，而父对象的世界旋转值变成与该对象相同。
             HorizontalLook.Value -= delta;
             rot.y -= delta;
             transform.localRotation = Quaternion.Euler(rot);
@@ -125,13 +131,16 @@ namespace Unity.Cinemachine.Samples
             HorizontalLook.Value = HorizontalLook.ClampValue(rot.y);
             VerticalLook.Value = VerticalLook.ClampValue(NormalizeAngle(rot.x));
         }
+        
 
         // This is called by the player controller before it updates its own rotation.
         void UpdatePlayerRotation()
         {
             var t = transform;
+            //与相机旋转输入同步
             t.localRotation = Quaternion.Euler(VerticalLook.Value, HorizontalLook.Value, 0);
-            m_DesiredWorldRotation = t.rotation;
+            //世界坐标就是站在同一参考系上来记录和比较。在这里
+            m_DesiredWorldRotation = t.rotation; 
             switch (PlayerRotation)
             {
                 case CouplingMode.Coupled: 
@@ -140,6 +149,7 @@ namespace Unity.Cinemachine.Samples
                     RecenterPlayer();
                     break;
                 }
+                //Tip：在角色不动的时候旋转镜头时不会带动角色旋转，这应该是更舒服的手感。
                 case CouplingMode.CoupledWhenMoving:
                 {
                     // If the player is moving, rotate its yaw to match the camera direction,
@@ -162,17 +172,26 @@ namespace Unity.Cinemachine.Samples
         // Callback for player controller to update our rotation after it has updated its own.
         void PostUpdate(Vector3 vel, float speed)
         {
+            /*Tip：父对象会带动子对象，也就是说原本就应该是Coupled模式，而为了实现Decoupled模式，就有了这里的逻辑，就是在作为父对象的角色运动之后，在此处
+            就是将在当前帧角色运动之前的旋转值记录下来，然后在运动之后在此处恢复回来，也就是在鼠标不动、只有角色运动的时候，该对象的世界旋转值是保持不变的。
+            而这里的重点是，父对象的旋转变了，但是要保持子对象的世界旋转不变，所以就就必须改变子对象的局部旋转，也就是这里所做的事，求出子对象应该的局部旋转值，
+            记录到InputAxis的Value上，然后在下一帧调用UpdatePlayerRotation时，两个Look的值加上相机旋转的输入值就是当前帧的局部旋转值，同时也将此时的世界旋转值存储起来，再次循环逻辑。
+            由此一来，就实现了，在鼠标不动、只有角色运动的时候，该对象的世界旋转值是保持不变的，或者更准确地说，这样处理之后，该对象的旋转是独立于父对象旋转的，也就是Decoupled模式。
+            */
             if (PlayerRotation == CouplingMode.Decoupled)
             {
                 // After player has been rotated, we subtract any rotation change 
                 // from our own transform, to maintain our world rotation
                 transform.rotation = m_DesiredWorldRotation;
+                //因为该组件所在对象是m_ControllerTransform所在对象的子对象，会被带动，在此处将该对象的世界值反向旋转父对象的世界值，就得到了相对于父对象的局部旋转值。
                 var delta = (Quaternion.Inverse(m_ControllerTransform.rotation) * m_DesiredWorldRotation).eulerAngles;
+                //这里对应的就是局部旋转值。
                 VerticalLook.Value = NormalizeAngle(delta.x);
                 HorizontalLook.Value = NormalizeAngle(delta.y);
             }
         }
 
+        //将角度转换到[-180,180]，因为这个范围内就能够表示所有角度了。
         float NormalizeAngle(float angle)
         {
             while (angle > 180)

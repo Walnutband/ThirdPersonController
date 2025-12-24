@@ -107,12 +107,16 @@ namespace Unity.Cinemachine
             int closestHit = -1;
             int numPenetrations = 0;
             float penetrationDistanceSum = 0;
+            //提前定义了容器，所以在此处将其传入，把结果放入其中，就不需要额外动态分配内存了。
             int numHits = Physics.SphereCastNonAlloc(
                 rayStart, radius, dir, s_HitBuffer, rayLength, layerMask, 
                 QueryTriggerInteraction.Ignore);
+            
+            //遍历所检测到的碰撞体（已经经过遮罩过滤）
             for (int i = 0; i < numHits; ++i)
             {
                 var h = s_HitBuffer[i];
+                //就是Tag过滤，因为射线检测只能也只需要通过层级过滤，这里只是提供额外的功能。
                 if (ignoreTag.Length > 0 && h.collider.CompareTag(ignoreTag))
                     continue;
 

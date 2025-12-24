@@ -229,7 +229,7 @@ namespace Unity.Cinemachine
             var up = curState.ReferenceUp;
             var targetPos = FollowTargetPosition;
             var targetRot = FollowTargetRotation;
-            var targetForward = targetRot * Vector3.forward;
+            var targetForward = targetRot * Vector3.forward; //四元数旋转就是好用啊
             var heading = GetHeading(targetRot, up);
 
             if (deltaTime < 0)
@@ -269,6 +269,7 @@ namespace Unity.Cinemachine
 #endif
             // Set state
             curState.RawPosition = camPos;
+            //Tip：这一行代码，让该相机始终与目标的朝向保持一致，也就是可以通过控制目标的朝向来控制相机的朝向。
             curState.RawOrientation = targetRot; // not necessary, but left in to avoid breaking scenes that depend on this
         }
         
@@ -282,7 +283,7 @@ namespace Unity.Cinemachine
         {
             var up = VirtualCamera.State.ReferenceUp;
             var targetRot = FollowTargetRotation;
-            var heading = GetHeading(targetRot, up);
+            var heading = GetHeading(targetRot, up); //获取Heading坐标系。
             root = m_PreviousFollowTargetPosition;
             GetRawRigPositions(root, targetRot, heading, out shoulder, out hand);
 #if CINEMACHINE_PHYSICS
@@ -294,10 +295,14 @@ namespace Unity.Cinemachine
 #endif
         }
 
+        /*Tip：该方法所求得的Quaternion是以up为上方向，targetForward在up垂直平面上的投影为前方向，由于Unity是左手坐标系，所以就可以直接使用左手定则得到右方向了，
+        
+        。*/
         internal static Quaternion GetHeading(Quaternion targetRot, Vector3 up)
         {
             var targetForward = targetRot * Vector3.forward;
             var planeForward = Vector3.Cross(up, Vector3.Cross(targetForward.ProjectOntoPlane(up), up));
+            //TODO：理解向量叉积。这里构成的平行四边形面积接近于0。
             if (planeForward.AlmostZero())
                 planeForward = Vector3.Cross(targetRot * Vector3.right, up);
             return Quaternion.LookRotation(planeForward, up);
@@ -308,26 +313,32 @@ namespace Unity.Cinemachine
             out Vector3 shoulder, out Vector3 hand)
         {
             var shoulderOffset = ShoulderOffset;
+            //基础值（原始值），然后再加上修正值。
             shoulderOffset.x = Mathf.Lerp(-shoulderOffset.x, shoulderOffset.x, CameraSide);
             shoulderOffset.x += m_DampingCorrection.x;
             shoulderOffset.y += m_DampingCorrection.y;
+            //旋转本身代表的是局部坐标系的变化，而向量旋转就是代表向量的参考系的变化。
             shoulder = root + heading * shoulderOffset;
             hand = shoulder + targetRot * new Vector3(0, VerticalArmLength, 0);   
         }
 
 #if CINEMACHINE_PHYSICS
+
+        /*root就是目标的位置，tip就是相机的期望位置*/
         Vector3 ResolveCollisions(
             Vector3 root, Vector3 tip, float deltaTime, 
             float cameraRadius, ref float collisionCorrection)
         {
+            //即不与任何层级发生碰撞，那么就直接返回了。
             if (AvoidObstacles.CollisionFilter.value == 0)
                 return tip;
             
             var dir = tip - root;
             var len = dir.magnitude;
+            //期望位置与目标位置过于接近（其实与Epsilon比较就是接近0），就不需要搞什么碰撞检测了。
             if (len < Epsilon)
                 return tip;
-            dir /= len;
+            dir /= len; //从期望位置指向目标的单位向量
 
             var result = tip;
             float desiredCorrection = 0;

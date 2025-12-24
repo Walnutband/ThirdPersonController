@@ -50,6 +50,10 @@ namespace Unity.Cinemachine.Samples
             axes.Add(new () { DrivenAxis = () => ref Sprint, Name = "Sprint" });
         }
 
+        /// <summary>
+        /// 设置角色在向两边移动时是否要转向移动方向，如果为false则转向，如果为true则不转即始终面向前方，并且执行相应的侧身移动的动画。
+        /// </summary>
+        /// <param name="b"></param>
         public virtual void SetStrafeMode(bool b) {}
         public abstract bool IsMoving { get; }
     }
@@ -265,12 +269,13 @@ namespace Unity.Cinemachine.Samples
             if (!m_IsJumping)
             {
                 // Process jump command
-                if (grounded && Jump.Value > 0.01f)
+                if (grounded && Jump.Value > 0.01f) //代表按下了按钮
                 {
                     m_IsJumping = true;
                     m_CurrentVelocityY = m_IsSprinting ? SprintJumpSpeed : JumpSpeed;
                 }
                 // If we are falling, assume the jump pose
+                //此时没有处于跳跃状态，却没有着地，说明发生了掉落，而计算掉落了多少时间，如果超过了kDelayBeforeInferringJump，就认为发生了跳跃
                 if (!grounded && now - m_TimeLastGrounded > kDelayBeforeInferringJump)
                     m_IsJumping = true;
  
@@ -287,6 +292,7 @@ namespace Unity.Cinemachine.Samples
                 m_CurrentVelocityY = 0;
 
                 // If we were jumping, complete the jump
+                //之前处于跳跃状态（准确来说是滞空状态），而现在着地了。
                 if (m_IsJumping)
                 {
                     EndJump?.Invoke();
@@ -309,11 +315,14 @@ namespace Unity.Cinemachine.Samples
                 // Don't fall below ground
                 var up = UpDirection;
                 var altitude = GetDistanceFromGround(pos, up, 10);
+                /*Tip：这里的计算就是在不依赖碰撞检测的情况下保证对象正常下落到地面，不会超出地面。*/
+                //此时在地面下，计算出距离之后，就减去这段距离，从而设置到地面的位置。
                 if (altitude < 0 && m_CurrentVelocityY <= 0)
                 {
                     pos -= altitude * up;
                     m_CurrentVelocityY = 0;
                 }
+                //说明在地面之上还有一些距离，同时正在下降，所以计算要下降的距离，如果超过了地面的话，就直接设置到地面的位置，并且把速度改为0，因为分支之后会用来计算。
                 else if (m_CurrentVelocityY < 0)
                 {
                     var dy = -m_CurrentVelocityY * Time.deltaTime;

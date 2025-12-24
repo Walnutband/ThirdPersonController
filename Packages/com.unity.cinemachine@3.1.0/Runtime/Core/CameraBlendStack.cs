@@ -231,6 +231,7 @@ namespace Unity.Cinemachine
             // Update the root frame (frame 0)
             var frame = m_FrameStack[0];
             var outgoingCamera = frame.Source.CamB;
+            //不同，则说明发生了相机切换，需要创建新的混合了。
             if (activeCamera != outgoingCamera)
             {
                 bool backingOutOfBlend = false;
@@ -245,6 +246,7 @@ namespace Unity.Cinemachine
                     if (blendDef.BlendCurve != null && blendDef.BlendTime > kEpsilon)
                     {
                         // Are we backing out of a blend-in-progress?
+                        //Tip：与上次混合逆向的此次混合。
                         backingOutOfBlend = frame.Source.CamA == activeCamera && frame.Source.CamB == outgoingCamera;
 
                         frame.Source.CamA = outgoingCamera;
@@ -255,9 +257,11 @@ namespace Unity.Cinemachine
                     frame.Source.TimeInBlend = 0;
                     frame.Source.CustomBlender = null;
                 }
+                //当前激活的相机作为过渡的目标。
                 frame.Source.CamB = activeCamera;
 
                 // Get custom blender, if any
+                //可以指定两个特定的虚拟相机之间的混合。
                 if (duration > 0)
                     frame.Source.CustomBlender = CinemachineCore.GetCustomBlender?.Invoke(outgoingCamera, activeCamera);
 

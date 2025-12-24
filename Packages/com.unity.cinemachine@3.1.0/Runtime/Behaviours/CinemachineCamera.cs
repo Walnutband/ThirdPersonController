@@ -222,6 +222,10 @@ namespace Unity.Cinemachine
 
             // Push the raw position back to the game object's transform, so it
             // moves along with the camera.
+            /*Tip：从这里想到了一个逻辑点：将所有可能发生变化的也就是所有相关的数据取出来，然后经过作用，最后再赋值回去，而在作用过程中是否真正发生了改变其实并不重要，
+            因为这与逻辑链条无关，只是流水线上的一环，自行决定在这里要做什么即可，而且不管做什么，都能够保证流水线是正常运行的，如果没有得到想要的结果，那么就可以直接在
+            自己所处理的环节中快速锁定问题。
+            */
             var pos = transform.position;
             var rot = transform.rotation;
             if (Follow != null)
@@ -244,6 +248,7 @@ namespace Unity.Cinemachine
             for (int i = 0; i < m_Pipeline.Length; ++i)
             {
                 var c = m_Pipeline[i];
+                //是否有效就看各个具体组件的重写逻辑了，总之组件可以自行决定在什么时候发挥作用影响结果。
                 if (c != null && c.IsValid)
                     c.PrePipelineMutateCameraState(ref state, deltaTime);
             }
@@ -262,6 +267,7 @@ namespace Unity.Cinemachine
                     c.MutateCameraState(ref state, deltaTime);
                 }
                 InvokePostPipelineStageCallback(this, stage, ref state, deltaTime);
+                //Tip：这里如果是Aim的话，说明上面已经执行了Aim的逻辑，所以在此处就可以补上Body的逻辑了。
                 if (stage == CinemachineCore.Stage.Aim)
                 {
                     // If we have saved a Body for after Aim, do it now
@@ -294,10 +300,12 @@ namespace Unity.Cinemachine
             
             if (m_Pipeline == null || m_Pipeline.Length != pipelineLength)
             {
+                //新建数组，也就是新建管线。
                 m_Pipeline = new CinemachineComponentBase[pipelineLength];
                 var components = GetComponents<CinemachineComponentBase>();
                 for (int i = 0; i < components.Length; ++i)
                 {//因为Stage作为枚举类型，直接与这里的下标对应，也就是直接将CinemachineComponentBase的Stage属性作为下标来将组件本身存储到m_Pipeline中，这样能够保证在遍历时遵循正确的阶段顺序。
+                    //这应该算是一个重要技巧，利用数值关系来将某些值作为容器的下标。
                     if (m_Pipeline[(int)components[i].Stage] == null)
                         m_Pipeline[(int)components[i].Stage] = components[i];
                     //#if UNITY_EDITOR

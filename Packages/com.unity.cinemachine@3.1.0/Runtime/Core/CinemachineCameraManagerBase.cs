@@ -112,6 +112,7 @@ namespace Unity.Cinemachine
             {
                 base.PreviousStateIsValid = value;
                 // Only propagate to the children when we're invalidating the state
+                //设置为false，即让CameraState失效，同时将其传递到所管理的子相机
                 if (value == false)
                     for (int i = 0; m_ChildCameras != null && i < m_ChildCameras.Count; ++i)
                         m_ChildCameras[i].PreviousStateIsValid = value;
@@ -182,6 +183,7 @@ namespace Unity.Cinemachine
         public override void InternalUpdateCameraState(Vector3 worldUp, float deltaTime)
         {
             UpdateCameraCache();
+            //状态无效的话，则重置，即没有当前激活相机、没有混合。理解“Root Frame”概念。
             if (!PreviousStateIsValid)
                 ResetLiveChild();
 

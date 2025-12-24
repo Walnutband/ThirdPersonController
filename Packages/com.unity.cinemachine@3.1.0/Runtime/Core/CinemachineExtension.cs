@@ -70,6 +70,7 @@ namespace Unity.Cinemachine
         /// <param name="connect">True if connecting, false if disconnecting</param>
         protected virtual void ConnectToVcam(bool connect)
         {
+            //获取同对象上的CinemachineVirtualCameraBase组件。
             if (ComponentOwner != null)
             {
                 if (connect)

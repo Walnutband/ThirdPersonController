@@ -366,7 +366,7 @@ namespace Unity.Cinemachine
                     {
                         // Object was deleted (possibly because of Undo in the editor)
                         Extensions.RemoveAt(i);
-                        --i;
+                        --i; //抵消此次循环结束时的++i
                     }
                     else if (e.enabled)
                         e.PrePipelineMutateCameraStateCallback(vcam, ref newState, deltaTime);
@@ -610,6 +610,7 @@ namespace Unity.Cinemachine
         public Transform ResolveLookAt(Transform localLookAt)
         {
             Transform lookAt = localLookAt;
+            //自己没有指定那么就取父相机的LookAt，正是因为这个机制，则使用混合相机的时候，就可以只在作为管理器的父相机上指定目标，即可应用到所有子相机，而子相机如果自己指定了的话那么就使用其自己指定的。
             if (lookAt == null && ParentCamera is CinemachineVirtualCameraBase vcamParent)
                 lookAt = vcamParent.LookAt; // Parent provides default
             return lookAt;
@@ -700,10 +701,11 @@ namespace Unity.Cinemachine
         protected CameraState PullStateFromVirtualCamera(Vector3 worldUp, ref LensSettings lens)
         {
             CameraState state = CameraState.Default;
+            //就是直接取transform的position和rotation，只是要走一个缓存流程。
             state.RawPosition = TargetPositionCache.GetTargetPosition(transform);
             state.RawOrientation = TargetPositionCache.GetTargetRotation(transform);
             state.ReferenceUp = worldUp;
-
+            //找到所在的Brain
             CinemachineBrain brain = CinemachineCore.FindPotentialTargetBrain(this);
             if (brain != null && brain.OutputCamera != null)
                 lens.PullInheritedPropertiesFromCamera(brain.OutputCamera);

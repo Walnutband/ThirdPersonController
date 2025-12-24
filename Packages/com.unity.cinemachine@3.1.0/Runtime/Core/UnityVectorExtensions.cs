@@ -69,7 +69,7 @@ namespace Unity.Cinemachine
         /// <param name="planeNormal">The normal that defines the plane.  Must have a length of 1.</param>
         /// <returns>The component of the vector that lies in the plane</returns>
         public static Vector3 ProjectOntoPlane(this Vector3 vector, Vector3 planeNormal)
-        {
+        {//因为给的是平面的法向量，而要求的是在平面上的投影，所以利用向量减法求出直角边的另一边。
             return vector - Vector3.Dot(vector, planeNormal) * planeNormal;
         }
         
