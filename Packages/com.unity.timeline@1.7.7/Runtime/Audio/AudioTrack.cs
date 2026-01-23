@@ -10,7 +10,7 @@ namespace UnityEngine.Timeline
     /// </summary>
     [Serializable]
     [TrackClipType(typeof(AudioPlayableAsset), false)]
-    [TrackBindingType(typeof(AudioSource))]
+    [TrackBindingType(typeof(AudioSource))] //绑定到AudioSource，将音频内容（AudioClip，还须了解内部细节）输出到AudioSource。
     [ExcludeFromPreset]
     [TimelineHelpURL(typeof(AudioTrack))]
     public class AudioTrack : TrackAsset

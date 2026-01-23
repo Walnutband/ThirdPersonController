@@ -42,7 +42,7 @@ namespace UnityEngine.Timeline
         /// <param name="ps"></param>
         /// <param name="randomSeed"></param>
         public void Initialize(ParticleSystem ps, uint randomSeed)
-        {
+        {//Tip：方法就是通道，外部调用该方法传入ParticleSystem，然后这里拿到数据之后立刻进行处理。
             m_RandomSeed = Math.Max(1, randomSeed);
             particleSystem = ps;
             SetRandomSeed(particleSystem, m_RandomSeed);
@@ -110,7 +110,7 @@ namespace UnityEngine.Timeline
 
             // if particle system time has changed externally, a re-sync is needed
             if (m_LastPlayableTime > time || !Mathf.Approximately(particleTime, m_LastParticleTime))
-                Simulate(time, true);
+                Simulate(time, true); //true就是要先restart重置时刻为0，然后推进time，因为传入的值是作为相对值来处理的。
             else if (m_LastPlayableTime < time)
                 Simulate(time - m_LastPlayableTime, false);
 
@@ -138,6 +138,7 @@ namespace UnityEngine.Timeline
             m_LastPlayableTime = kUnsetTime;
         }
 
+        //Tip：手动推进ParticleSystem运行。
         private void Simulate(float time, bool restart)
         {
             const bool withChildren = false;

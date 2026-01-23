@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ARPGDemo.ControlSystem_Old
 {
-    [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerGroundedState", 10)]
+    // [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerGroundedState", 10)]
     public class PlayerGroundedState : PlayerStateBehaviour
     {
         public override bool isEnd => false;

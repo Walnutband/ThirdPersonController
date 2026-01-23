@@ -2,7 +2,7 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 namespace UnityEditor.Timeline
-{//Ques：既然派生类只有一个TimelineWindow，那么为何要单独分出来这一个抽象类作为基类呢？
+{//Ques：既然派生类只有一个TimelineWindow，那么为何要单独分出来这一个抽象类作为基类呢？相对于扩展性，我更倾向于增强结构性，把编辑窗口的
     /// <summary>
     /// Base class of the TimelineWindow.
     /// </summary>

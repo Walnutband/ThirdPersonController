@@ -4,6 +4,7 @@ using CrashKonijn.Goap.Core;
 
 namespace CrashKonijn.Goap.Runtime
 {
+    //Local的特点在于需要指定一个GlobalWorldData作为Parent，而当获取Value或State时，首先检查Local有无，没有的话就从Global中获取。非常自然的逻辑。
     public class LocalWorldData : WorldDataBase, ILocalWorldData
     {
         protected override bool IsLocal => true;

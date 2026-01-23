@@ -9,12 +9,17 @@ namespace Timeline.Samples
     public sealed class VideoSchedulerPlayableBehaviour : PlayableBehaviour
     {
         // Called every frame that the timeline is evaluated. This is called prior to
-        // PrepareFrame on any of its input playables.
+        // PrepareFrame on any of its input playables.这是PlayableGraph正常运行机制。
         //Tip：处理的就是视频内容的预加载，
         public override void PrepareFrame(Playable playable, FrameData info)
         {
             // Searches for clips that are in the 'preload' area and prepares them for playback
+            //获取当前Timeline的所在时刻（已经运行的时间）
             var timelineTime = playable.GetGraph().GetRootPlayable(0).GetTime();
+            
+            /*TODO：很显然，如果更实际来看，同一时刻应该最多只可能有一个片段会需要预加载，因为都是按顺序播放的（其实也可能会有其他极端情况，但至少我从设计合理性的角度来思考，无法想象
+            这种情况如何才能合理？），所以这里大概可以改成，只要检查到一个在此时需要预加载的片段，那么就可以直接break退出遍历了。*/
+            //就是遍历该轨道上的各个片段的Playable
             for (int i = 0; i < playable.GetInputCount(); i++)
             {
                 if (playable.GetInput(i).GetPlayableType() != typeof(VideoPlayableBehaviour))

@@ -22,21 +22,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 171358a0c0eb29b49bdb1fe8b38c5f2d
-    m_Address: Assets/AssetsPackage/TestModel.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e38d77a83b5c3fe4a83538656a1886f7
-    m_Address: Textures
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: eb85910fd7527bf45a02be06618737c0
-    m_Address: Assets/AssetsPackage/GoodUI
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f98c3ef50f7c7d949a27c03d70d70572, type: 2}
   m_SchemaSet:

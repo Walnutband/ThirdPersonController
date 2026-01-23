@@ -67,6 +67,8 @@ namespace UnityEditor.Timeline
         SerializedProperty m_MatchFieldsProperty;
         SerializedProperty m_TrackPositionProperty;
         SerializedProperty m_TrackRotationProperty;
+        //插入
+        SerializedProperty m_ApplyRootMotionProperty;
         SerializedProperty m_AvatarMaskProperty;
         SerializedProperty m_ApplyAvatarMaskProperty;
         SerializedProperty m_TrackOffsetProperty;
@@ -105,6 +107,7 @@ namespace UnityEditor.Timeline
 
                 EditorGUI.BeginChangeCheck();
                 DrawRecordedProperties();
+                DrawRootMotionProperties();
                 DrawAvatarProperties();
                 if (EditorGUI.EndChangeCheck())
                     RebuildGraph();
@@ -116,7 +119,7 @@ namespace UnityEditor.Timeline
         }
 
         bool AnimatesRootTransform()
-        {
+        {//因为可以同时选中多个AnimationTrack。
             return targets.OfType<AnimationTrack>().All(t => t.AnimatesRootTransform());
         }
 
@@ -151,8 +154,8 @@ namespace UnityEditor.Timeline
 
         void DrawRootTransformOffset()
         {
-            if (!AnimatesRootTransform())
-                return;
+            // if (!AnimatesRootTransform())
+            //     return;
 
             bool showWarning = SetupOffsetTooltip();
             DrawRootTransformDropDown();
@@ -250,8 +253,8 @@ namespace UnityEditor.Timeline
 
         void DrawMatchFieldsGUI()
         {
-            if (!AnimatesRootTransform())
-                return;
+            // if (!AnimatesRootTransform())
+            //     return;
 
             m_MatchFieldsProperty.isExpanded = EditorGUILayout.Foldout(m_MatchFieldsProperty.isExpanded, Styles.MatchTargetFieldsTitle, true);
             if (m_MatchFieldsProperty.isExpanded)
@@ -314,6 +317,11 @@ namespace UnityEditor.Timeline
             Evaluate();
         }
 
+        void DrawRootMotionProperties()
+        {
+            EditorGUILayout.PropertyField(m_ApplyRootMotionProperty);
+        }
+
         void DrawAvatarProperties()
         {
             EditorGUILayout.PropertyField(m_ApplyAvatarMaskProperty);
@@ -360,6 +368,8 @@ namespace UnityEditor.Timeline
             m_TrackPositionProperty = serializedObject.FindProperty("m_Position");
             m_TrackRotationProperty = serializedObject.FindProperty("m_EulerAngles");
             m_TrackOffsetProperty = serializedObject.FindProperty("m_TrackOffset");
+            //插入
+            m_ApplyRootMotionProperty = serializedObject.FindProperty("m_ApplyRootMotion");
             m_AvatarMaskProperty = serializedObject.FindProperty("m_AvatarMask");
             m_ApplyAvatarMaskProperty = serializedObject.FindProperty("m_ApplyAvatarMask");
             m_RecordedOffsetPositionProperty = serializedObject.FindProperty("m_InfiniteClipOffsetPosition");

@@ -131,6 +131,7 @@ namespace UnityEngine.Timeline
                 playables.Add(controlPlayable);
             }
 
+            //默认正无穷的时长。
             m_Duration = PlayableBinding.DefaultDuration;
             m_SupportLoop = false;
 
@@ -139,16 +140,18 @@ namespace UnityEngine.Timeline
 
             if (sourceObject != null)
             {
+                //获取sourceObject自身（如果勾选searchInHierarchy，则包含所有下层对象）的PlayableDirector和ParticleSystem组件。
                 var directors = updateDirector ? GetComponent<PlayableDirector>(sourceObject) : k_EmptyDirectorsList;
                 var particleSystems = updateParticle ? GetControllableParticleSystems(sourceObject) : k_EmptyParticlesList;
 
+                //更新m_Duration和supportsLoop
                 // update the duration and loop values (used for UI purposes) here
                 // so they are tied to the latest gameObject bound
                 UpdateDurationAndLoopFlag(directors, particleSystems);
 
                 var director = go.GetComponent<PlayableDirector>();
                 if (director != null)
-                    m_ControlDirectorAsset = director.playableAsset;
+                    m_ControlDirectorAsset = director.playableAsset; //控制者的PlayableAsset。
 
                 if (go == sourceObject && prefabGameObject == null)
                 {
@@ -177,6 +180,7 @@ namespace UnityEngine.Timeline
             if (prefabGameObject != null)
                 s_CreatedPrefabs.Remove(prefabGameObject);
 
+            //正常情况下此处的root是必然有效的。就是从下面的ConnectPlayablesToMixer方法生成的。
             if (!root.IsValid())
                 root = Playable.Create(graph);
 
@@ -192,6 +196,10 @@ namespace UnityEngine.Timeline
                 ConnectMixerAndPlayable(graph, mixer, playables[i], i);
             }
 
+            /*Tip：这一步很重要，使得各个功能的节点与片段节点的进度保持同步。
+            特别注意：当一个节点暂停时，其所有下层节点都会同时暂停，播放同理，所以像连接在该片段节点上的TimeControlPlayable节点就会在该片段开始播放时触发OnBehaviourPlay，
+            片段结束时触发OnBehaviourPause，尽管这些功能节点的PlayState始终都是Playing。
+            */
             mixer.SetPropagateSetTime(true);
 
             return mixer;
@@ -247,6 +255,7 @@ namespace UnityEngine.Timeline
             }
         }
 
+        //将片段的功能节点连接到片段节点上。
         static void ConnectMixerAndPlayable(PlayableGraph graph, Playable mixer, Playable playable,
             int portIndex)
         {
@@ -276,6 +285,7 @@ namespace UnityEngine.Timeline
             if (root == null)
                 yield break;
 
+            //利用yield return便捷语法，将该游戏对象本身及其所有下层对象的实现了ITimeControl接口的MonoBehaviour组件添加到迭代器中返回。
             foreach (var script in root.GetComponentsInChildren<MonoBehaviour>())
             {
                 if (script is ITimeControl)

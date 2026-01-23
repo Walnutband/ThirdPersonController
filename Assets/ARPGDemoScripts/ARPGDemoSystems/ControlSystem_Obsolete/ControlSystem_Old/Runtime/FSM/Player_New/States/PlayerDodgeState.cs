@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ARPGDemo.ControlSystem_Old
 {
     /*Tip：注意各个状态使用的AnimancerComponent都是所在个体的那个，所以可以使用过TransitionLibrary来指定特定片段到特定片段的过渡时间，不用担心某些片段到某些片段的过渡过程会难以控制。*/
-    [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerDodgeState", 30)]
+    // [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerDodgeState", 30)]
     public class PlayerDodgeState : PlayerStateBehaviour
     {
         protected bool m_IsEnd;

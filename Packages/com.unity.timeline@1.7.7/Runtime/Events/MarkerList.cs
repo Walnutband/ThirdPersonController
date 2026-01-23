@@ -154,7 +154,7 @@ namespace UnityEngine.Timeline
                     if (o != null)
                     {
                         m_Cache.Add(o as IMarker);
-                        if (o is INotification)
+                        if (o is INotification) //这是Playables系统自带的接口，因为PlayableOutput具有发送通知的功能。
                         {
                             m_HasNotifications = true;
                         }

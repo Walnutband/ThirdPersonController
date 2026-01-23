@@ -2,8 +2,10 @@ using System;
 
 namespace UnityEngine.Timeline
 {
+    /*Tip：这是一种在音视频、动画等需要高精度时间管理的系统中常见的“离散化”技术*/
     struct DiscreteTime : IComparable
     {
+        //定义了最小时间刻度为1皮秒（万亿分之一秒）。这是整个转换的精度基础，决定了每个整数“1”代表0.000000000001秒。
         const double k_Tick = 1e-12;
         public static readonly DiscreteTime kMaxTime = new DiscreteTime(Int64.MaxValue);
 
@@ -82,7 +84,9 @@ namespace UnityEngine.Timeline
 
         static Int64 DoubleToDiscreteTime(double time)
         {
+            //+ 0.5 是为了在后续转换为整数时实现标准的四舍五入，而不是C#默认的“向零取整”，这能保证转换结果是最接近的整数刻度。
             double number = (time / k_Tick) + 0.5;
+            //检查结果是否在 Int64 范围内，然后安全地转换为整数
             if (number < Int64.MaxValue && number > Int64.MinValue)
                 return (Int64)number;
             throw new ArgumentOutOfRangeException("Time is over the discrete range.");

@@ -9,7 +9,7 @@ namespace UnityEngine.Timeline
     /// </summary>
     [Serializable]
     [TrackBindingType(typeof(GameObject))]
-    [HideInMenu]
+    [HideInMenu] //Tip：在菜单中隐藏，是因为该Track是作为事件轨道的基类，而内置的是SignalTrack直接继承自MarkerTrack，开发者也可以自行扩展其他事件轨道。
     [ExcludeFromPreset]
     [TimelineHelpURL(typeof(MarkerTrack))]
     public class MarkerTrack : TrackAsset

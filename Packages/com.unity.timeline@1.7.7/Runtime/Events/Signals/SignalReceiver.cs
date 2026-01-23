@@ -27,6 +27,7 @@ namespace UnityEngine.Timeline
         /// <param name="context">User defined data that depends on the type of notification. Uses this to pass necessary information that can change with each invocation.</param>
         public void OnNotify(Playable origin, INotification notification, object context)
         {
+            //意思就是要求接收器为SignalEmitter。
             var signal = notification as SignalEmitter;
             if (signal != null && signal.asset != null)
             {
@@ -194,6 +195,7 @@ namespace UnityEngine.Timeline
         [Serializable]
         class EventKeyValue
         {
+            //只处理这些信号的通知。
             [SerializeField]
             List<SignalAsset> m_Signals = new List<SignalAsset>();
 
@@ -202,7 +204,8 @@ namespace UnityEngine.Timeline
 
             public bool TryGetValue(SignalAsset key, out UnityEvent value)
             {
-                //存在就说明接收该信号（SignalAsset）
+                //存在就说明接收该信号（SignalAsset）。
+                //注意这里其实没有结构的约束，也就是没有使用字典，而是通过以下方法限制通道，保证在添加SignalAsset（Key）的同时必然会添加与之对应的UnityEvent（响应逻辑）
                 var index = m_Signals.IndexOf(key);
                 if (index != -1)
                 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace UnityEngine.Timeline
 {
+    //一个区间，就是一个起始时间和一个结束时间
     interface IInterval
     {
         Int64 intervalStart { get; }
@@ -147,7 +148,7 @@ namespace UnityEngine.Timeline
             if (intervalTreeNode.right != kInvalidNode && value > intervalTreeNode.center)
                 Query(m_Nodes[intervalTreeNode.right], value, results);
         }
-
+ 
         private void QueryRange(IntervalTreeNode intervalTreeNode, Int64 start, Int64 end, List<T> results)
         {
             for (int i = intervalTreeNode.first; i <= intervalTreeNode.last; i++)
@@ -171,9 +172,11 @@ namespace UnityEngine.Timeline
         {
             m_Nodes.Clear();
             m_Nodes.Capacity = m_Entries.Capacity;
-            Rebuild(0, m_Entries.Count - 1);
+            Rebuild(0, m_Entries.Count - 1); //传入的是下标。
         }
 
+
+        //构建区间树的过程。
         private int Rebuild(int start, int end)
         {
             IntervalTreeNode intervalTreeNode = new IntervalTreeNode();
@@ -190,6 +193,7 @@ namespace UnityEngine.Timeline
             var min = Int64.MaxValue;
             var max = Int64.MinValue;
 
+            //首先找出最小的intervalStart和最大的intervalEnd
             for (int i = start; i <= end; i++)
             {
                 var o = m_Entries[i];
@@ -197,12 +201,14 @@ namespace UnityEngine.Timeline
                 max = Math.Max(max, o.intervalEnd);
             }
 
+            //取中间时刻作为center
             var center = (max + min) / 2;
             intervalTreeNode.center = center;
 
             // first pass, put every thing left of center, left
             int x = start;
             int y = end;
+            //二分法，
             while (true)
             {
                 while (x <= end && m_Entries[x].intervalEnd < center)
@@ -214,6 +220,7 @@ namespace UnityEngine.Timeline
                 if (x > y)
                     break;
 
+                //双方交换，结果上述逻辑可知，就是保证intervalEnd小于center的元素放在左边，intervalEnd大于center的元素放在右边。
                 var nodeX = m_Entries[x];
                 var nodeY = m_Entries[y];
 
@@ -227,15 +234,18 @@ namespace UnityEngine.Timeline
             y = end;
             while (true)
             {
+                //这里就是与center相交的区间
                 while (x <= end && m_Entries[x].intervalStart <= center)
                     x++;
 
+                //这里就是与center不相交的区间
                 while (y >= start && m_Entries[y].intervalStart > center)
                     y--;
 
                 if (x > y)
                     break;
 
+                //交换之后，不相交的在右边，相交的在左边
                 var nodeX = m_Entries[x];
                 var nodeY = m_Entries[y];
 

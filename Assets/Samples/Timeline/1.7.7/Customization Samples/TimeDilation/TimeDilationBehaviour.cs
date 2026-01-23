@@ -18,11 +18,11 @@ namespace Timeline.Samples
     [Serializable]
     public class Test
     {
-        [HideInInspector]
+        // [HideInInspector]
         public int testint;
-        [HideInInspector]
+        // [HideInInspector]
         public string teststring;
-        [HideInInspector]
+        // [HideInInspector]
         public bool testbool;
     }
 }

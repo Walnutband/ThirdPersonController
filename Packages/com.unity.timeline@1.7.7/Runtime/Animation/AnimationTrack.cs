@@ -159,6 +159,8 @@ namespace UnityEngine.Timeline
         Vector3 m_EulerAngles = Vector3.zero;
 
 
+        [SerializeField] bool m_ApplyRootMotion;
+
         [SerializeField] AvatarMask m_AvatarMask;
         [SerializeField] bool m_ApplyAvatarMask = true;
 
@@ -205,7 +207,7 @@ namespace UnityEngine.Timeline
         public Vector3 eulerAngles
         {
             get { return m_EulerAngles; }
-            set { m_EulerAngles = value; }
+            set { m_EulerAngles = value; } 
         }
 
         /// <summary>
@@ -298,8 +300,9 @@ namespace UnityEngine.Timeline
 
         /// <summary>
         /// Specifies whether the Animation Track has clips, or is in infinite mode.
+        /// 只要有clip就返回true即处于ClipMode
         /// </summary>
-        public bool inClipMode
+        public bool inClipMode 
         {
             get { return clips != null && clips.Length != 0; }
         }
@@ -521,8 +524,11 @@ namespace UnityEngine.Timeline
 #endif
         }
 
+        //Tip：该方法的作用类似于TrackAsset的CompileClips，都是创建轨道节点以及轨道上的各个片段节点，并且连接，然后返回轨道节点。
+        //创建轨道的AnimationMixerPlayable节点，遍历调用轨道上的各个片段的CreatePlayable方法，并将返回的节点与Mixer节点相连，之后返回Mixer节点或在Mixer和LayerMixer之间的偏移节点。
         Playable CompileTrackPlayable(PlayableGraph graph, AnimationTrack track, GameObject go, IntervalTree<RuntimeElement> tree, AppliedOffsetMode mode)
         {
+            //每条轨道都有一个AnimationMixerPlayable节点，并且输入端口数就是该轨道中的片段个数。
             var mixer = AnimationMixerPlayable.Create(graph, track.clips.Length);
             for (int i = 0; i < track.clips.Length; i++)
             {
@@ -531,13 +537,14 @@ namespace UnityEngine.Timeline
                 if (asset == null)
                     continue;
 
+                //这里就是因为有一个appliedOffsetMode属性需要赋值，所以进行转换。
                 var animationAsset = asset as AnimationPlayableAsset;
                 if (animationAsset != null)
                     animationAsset.appliedOffsetMode = mode;
 
                 var source = asset.CreatePlayable(graph, go);
                 if (source.IsValid())
-                {
+                {//Tip：这里可以肯定，RuntimeClip中的Mixer节点就是AnimationMixerPlayable节点。
                     var clip = new RuntimeClip(c, source, mixer);
                     tree.Add(clip);
                     graph.Connect(source, 0, mixer, i);
@@ -545,6 +552,9 @@ namespace UnityEngine.Timeline
                 }
             }
 
+            /*Tip：如果AnimatesRootTransform为true的话，也就是进入后续ApplyTrackOffset，则会发现在轨道的AnimationMixerPlayable节点和AnimationLayerMixerPlayable节点之间连接了一个
+            AnimationOffsetPlayable偏移节点，而没有连接该节点的轨道就没有RootMotion。
+            */
             if (!track.AnimatesRootTransform())
                 return mixer;
 
@@ -558,16 +568,19 @@ namespace UnityEngine.Timeline
             return Playable.Null;
         }
 
+        //返回AnimationLayerMixerPlayable或AnimationMotionXToDeltaPlayable节点，直接连接到TimelinePlayable。
         internal override Playable CreateMixerPlayableGraph(PlayableGraph graph, GameObject go, IntervalTree<RuntimeElement> tree)
         {
             if (isSubTrack)
                 throw new InvalidOperationException("Nested animation tracks should never be asked to create a graph directly");
 
+            //准备好容器，存储所有子轨道（包括自己，因为本质上对于AnimationTrack来说，父轨道与Override Track没有本质区别，如果父轨道没有任何片段的话，那么它就不会生成节点）
             List<AnimationTrack> flattenTracks = new List<AnimationTrack>();
             if (CanCompileClips())
                 flattenTracks.Add(this);
 
-            var genericRoot = GetGenericRootNode(go);
+            //Tip：就是这里，我之前一直疑惑为何自动给我开启RootMotion，原来是因为只要判断AnimationClip可以进行RootMotion（含有相关曲线）那么就自动开启RootMotion模式。
+            var genericRoot = GetGenericRootNode(go); //获取Generic（通用）根节点（Transform）
             var animatesRootTransformNoMask = AnimatesRootTransform();
             var animatesRootTransform = animatesRootTransformNoMask && !IsRootTransformDisabledByMask(go, genericRoot);
             foreach (var subTrack in GetChildTracks())
@@ -585,6 +598,7 @@ namespace UnityEngine.Timeline
             // figure out which mode to apply
             AppliedOffsetMode mode = GetOffsetMode(go, animatesRootTransform);
             int defaultBlendCount = GetDefaultBlendCount();
+            //创建AnimationLayerMixerPlayable节点。
             var layerMixer = CreateGroupMixer(graph, go, flattenTracks.Count + defaultBlendCount);
             for (int c = 0; c < flattenTracks.Count; c++)
             {
@@ -594,28 +608,35 @@ namespace UnityEngine.Timeline
                 if (mode != AppliedOffsetMode.NoRootTransform && flattenTracks[c].IsRootTransformDisabledByMask(go, genericRoot))
                     childMode = AppliedOffsetMode.NoRootTransform;
 
+                //返回Mixer节点或偏移节点。
                 var compiledTrackPlayable = flattenTracks[c].inClipMode ?
                     CompileTrackPlayable(graph, flattenTracks[c], go, tree, childMode) :
                     flattenTracks[c].CreateInfiniteTrackPlayable(graph, go, tree, childMode);
+                //把轨道节点连接到LayerMixer节点。
                 graph.Connect(compiledTrackPlayable, 0, layerMixer, blendIndex);
+                //注意此时只是在构图，而inClipMode就是轨道上有片段，那么就设置权重为0，也就是初始状态下权重默认为0。
                 layerMixer.SetInputWeight(blendIndex, flattenTracks[c].inClipMode ? 0 : 1);
+                //设置层级遮罩。
                 if (flattenTracks[c].applyAvatarMask && flattenTracks[c].avatarMask != null)
                 {
                     layerMixer.SetLayerMaskFromAvatarMask((uint)blendIndex, flattenTracks[c].avatarMask);
                 }
             }
 
+            //检查Animator的RootMotion选项。
             var requiresMotionXPlayable = RequiresMotionXPlayable(mode, go);
 
             // In the editor, we may require the motion X playable if we are animating the root transform but it is masked out, because the default poses
             //  need to properly update root motion
             requiresMotionXPlayable |= (defaultBlendCount > 0 && RequiresMotionXPlayable(GetOffsetMode(go, animatesRootTransformNoMask), go));
 
+            //创建默认的那两个片段并且做好连接。
             // Attach the default poses
             AttachDefaultBlend(graph, layerMixer, requiresMotionXPlayable);
 
             // motionX playable not required in scene offset mode, or root transform mode
             Playable mixer = layerMixer;
+            //将AnimationLayerMixerPlayable连接到AnimationMotionXToDeltaPlayable（该节点就是用来处理根运动RootMotion的），并将其返回，随后会与TimelinePlayable直接相连。
             if (requiresMotionXPlayable)
             {
                 // If we are animating a root transform, add the motionX to delta playable as the root node
@@ -623,7 +644,7 @@ namespace UnityEngine.Timeline
                 graph.Connect(mixer, 0, motionXToDelta, 0);
                 motionXToDelta.SetInputWeight(0, 1.0f);
                 motionXToDelta.SetAbsoluteMotion(UsesAbsoluteMotion(mode));
-                mixer = (Playable)motionXToDelta;
+                mixer = (Playable)motionXToDelta; //注意Playable节点都是定义为的结构体，所以这里需要强制转换，具体转换逻辑已经定义在底层了。
             }
 
 
@@ -651,6 +672,7 @@ namespace UnityEngine.Timeline
             return mixer;
         }
 
+        /*Tip：在编辑模式下会看到有两个默认的片段，分别引用了DefaultPose和HumanoidDefault。*/
         private int GetDefaultBlendCount()
         {
 #if  UNITY_EDITOR
@@ -724,8 +746,11 @@ namespace UnityEngine.Timeline
 
 #endif
 
+        //Ques：似乎这个方法才是决定是否启用RootMotion？而非AnimatesRootTransform，似乎这是决定是否应用偏移的。
         bool RequiresMotionXPlayable(AppliedOffsetMode mode, GameObject gameObject)
         {
+            if (m_ApplyRootMotion == false) return false;
+
             if (mode == AppliedOffsetMode.NoRootTransform)
                 return false;
             if (mode == AppliedOffsetMode.SceneOffsetLegacy)
@@ -754,6 +779,7 @@ namespace UnityEngine.Timeline
             return animator != null && animator.runtimeAnimatorController != null;
         }
 
+        //传入自己（轨道资产）从PlayableDirector获取绑定的对象Animator。
         internal Animator GetBinding(PlayableDirector director)
         {
             if (director == null)
@@ -763,6 +789,7 @@ namespace UnityEngine.Timeline
             if (isSubTrack)
                 key = parent;
 
+            //传入轨道即自己，获取所绑定的对象。（在PlayableDirector的Scene Bindings可以看到）
             UnityEngine.Object binding = null;
             if (director != null)
                 binding = director.GetGenericBinding(key);
@@ -819,13 +846,13 @@ namespace UnityEngine.Timeline
             m_ClipOffset = AnimationOffsetPlayable.Null;
 #endif
 
+            //Tip：这些模式也就是无偏移。
             // offsets don't apply in scene offset, or if there is no root transform (globally or on this track)
             if (mode == AppliedOffsetMode.SceneOffsetLegacy ||
                 mode == AppliedOffsetMode.SceneOffset ||
                 mode == AppliedOffsetMode.NoRootTransform
             )
                 return root;
-
 
             var pos = position;
             var rot = rotation;
@@ -968,12 +995,14 @@ namespace UnityEngine.Timeline
         // calculate which offset mode to apply
         AppliedOffsetMode GetOffsetMode(GameObject go, bool animatesRootTransform)
         {
+            //首先要（主动）支持RootTransform，然后才是看在检视器中选择的模式。
             if (!animatesRootTransform)
                 return AppliedOffsetMode.NoRootTransform;
 
             if (m_TrackOffset == TrackOffset.ApplyTransformOffsets)
                 return AppliedOffsetMode.TransformOffset;
 
+            //在检视器中直接选择的模式，在此根据运行模式还是编辑模式进行二分。
             if (m_TrackOffset == TrackOffset.ApplySceneOffsets)
                 return (Application.isPlaying) ? AppliedOffsetMode.SceneOffset : AppliedOffsetMode.SceneOffsetEditor;
 
@@ -989,6 +1018,7 @@ namespace UnityEngine.Timeline
 
         private bool IsRootTransformDisabledByMask(GameObject gameObject, Transform genericRootNode)
         {
+            //有遮罩再看后面
             if (avatarMask == null || !applyAvatarMask)
                 return false;
 
@@ -1019,18 +1049,21 @@ namespace UnityEngine.Timeline
         // Returns the generic root transform node. Returns null if it is the root node, OR if it not a generic node
         private Transform GetGenericRootNode(GameObject gameObject)
         {
+            //首先获取绑定的Animator。
             var animator = GetBinding(gameObject != null ? gameObject.GetComponent<PlayableDirector>() : null);
             if (animator == null)
                 return null;
 
+            //因为是获取Generic（通用）节点，所以不能是Humanoid（人形）
             if (animator.isHuman)
                 return null;
-
+            //此时就要求具有Generic类型的Avatar
             if (animator.avatar == null)
                 return null;
 
             // this returns the bone name, but not the full path
-            var rootName = animator.avatar.humanDescription.m_RootMotionBoneName;
+            var rootName = animator.avatar.humanDescription.m_RootMotionBoneName; //内部记录好的根骨骼名称。
+            //根骨骼名称是否与Animator所在游戏对象的名称相同。
             if (rootName == animator.name || string.IsNullOrEmpty(rootName))
                 return null;
 
@@ -1040,13 +1073,15 @@ namespace UnityEngine.Timeline
 
         internal bool AnimatesRootTransform()
         {
+            // if (m_ApplyRootMotion == false) return false;
+
             // infinite mode
             if (AnimationPlayableAsset.HasRootTransforms(m_InfiniteClip))
                 return true;
 
             // clip mode
             foreach (var c in GetClips())
-            {
+            {//只要存在带有RootMotion的片段，就要驱动RootMotion，因为没有的也自然表现为没有，也就是兼容的。
                 var apa = c.asset as AnimationPlayableAsset;
                 if (apa != null && apa.hasRootTransforms)
                     return true;
@@ -1055,11 +1090,13 @@ namespace UnityEngine.Timeline
             return false;
         }
 
+        //Tip：迭代法查找指定名称的Transform（游戏对象）
         private static readonly Queue<Transform> s_CachedQueue = new Queue<Transform>(100);
         private static Transform FindInHierarchyBreadthFirst(Transform t, string name)
         {
             s_CachedQueue.Clear();
             s_CachedQueue.Enqueue(t);
+            //就是遍历树，查找指定名称的节点。
             while (s_CachedQueue.Count > 0)
             {
                 var r = s_CachedQueue.Dequeue();

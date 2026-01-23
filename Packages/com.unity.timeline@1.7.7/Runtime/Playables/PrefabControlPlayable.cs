@@ -147,6 +147,7 @@ namespace UnityEngine.Timeline
                 return;
 
             gameObject.hideFlags = HideFlags.DontSaveInBuild | HideFlags.DontSaveInEditor;
+            //编辑模式下不要显示在层级视图中。
             if (!Application.isPlaying)
                 gameObject.hideFlags |= HideFlags.HideInHierarchy;
             foreach (Transform child in gameObject.transform)

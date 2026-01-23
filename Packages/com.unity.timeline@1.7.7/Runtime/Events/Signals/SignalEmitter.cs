@@ -19,7 +19,7 @@ namespace UnityEngine.Timeline
     {
         [SerializeField] bool m_Retroactive;
         [SerializeField] bool m_EmitOnce;
-        [SerializeField] SignalAsset m_Asset; //提供Receiver的id信息。
+        [SerializeField] SignalAsset m_Asset; //提供Receiver的id信息，以资产文件的名称作为ID，在实现消息通知的时候的常用方式。
 
         /// <summary>
         /// Use retroactive to emit the signal if playback starts after the SignalEmitter time.

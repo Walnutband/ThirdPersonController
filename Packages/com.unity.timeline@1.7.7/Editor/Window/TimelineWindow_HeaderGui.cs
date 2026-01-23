@@ -185,12 +185,14 @@ namespace UnityEditor.Timeline
             string undoOperation = L10n.Tr("Toggle Show Markers");
             if (newValue)
             {
+                //Tip：在点击按钮之后会在TimelineAsset中创建MarkerTrack，之后Compile轨道时看轨道上有没有
                 //Create the marker track if it does not exist
                 TimelineUndo.PushUndo(asset, undoOperation);
                 asset.CreateMarkerTrack();
             }
             else
             {
+                //Ques：我草，这是啥方法啊？Selection.Remove完全内部方法，不知道是干嘛的。不过可以猜测，比如在已经选中MarkerTrack的时候，再次按下按钮，就会隐藏MarkerTrack视图，此处就是同时将其从Selection中移除。
                 SelectionManager.Remove(asset.markerTrack);
             }
 

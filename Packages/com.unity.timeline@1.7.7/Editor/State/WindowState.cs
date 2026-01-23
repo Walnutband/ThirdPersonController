@@ -22,6 +22,7 @@ namespace UnityEditor.Timeline
 {
     delegate bool PendingUpdateDelegate(WindowState state, Event currentEvent);
 
+    //
     /// <summary>
     /// Interface for faking purposes
     /// </summary>
@@ -671,8 +672,10 @@ namespace UnityEditor.Timeline
             return m_Window;
         }
 
+        //编辑时播放，预览播放。
         public void Play()
         {
+            //必须要有PlayableDirector才能播放
             if (masterSequence.director == null)
                 return;
 
@@ -681,6 +684,7 @@ namespace UnityEditor.Timeline
 
             if (previewMode)
             {
+                //到达终点，回到起点。
                 if (masterSequence.time > masterSequence.duration)
                     masterSequence.time = 0;
 #if TIMELINE_FRAMEACCURATE //Tip

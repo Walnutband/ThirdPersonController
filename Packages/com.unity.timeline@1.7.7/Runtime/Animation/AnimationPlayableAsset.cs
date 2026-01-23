@@ -199,6 +199,9 @@ namespace UnityEngine.Timeline
             get { yield return AnimationPlayableBinding.Create(name, this); }
         }
 
+        /*Tip：刚发现一个问题，该方法是重写的基类PlayableAsset的方法（实际上是IPlayableAsset的接口方法），而在AnimationTrack的CompileTrackPlayable方法中调用了PlayableAsset的CreatePlayable方法，但是这里显示的引用为0，
+        这又是多态性导致的一个现象。*/
+
         /// <summary>
         /// Creates the root of a Playable subgraph to play the animation clip.
         /// </summary>
@@ -227,7 +230,7 @@ namespace UnityEngine.Timeline
             if (clip == null || clip.legacy)
                 return Playable.Null;
 
-
+            //创建片段节点，设置相关参数
             var clipPlayable = AnimationClipPlayable.Create(graph, clip);
             clipPlayable.SetRemoveStartOffset(removeStartOffset);
             clipPlayable.SetApplyFootIK(applyFootIK);
@@ -236,6 +239,7 @@ namespace UnityEngine.Timeline
 
             Playable root = clipPlayable;
 
+            //Tip：基本Legacy遗弃了。
             if (ShouldApplyScaleRemove(mode))
             {
                 var removeScale = AnimationRemoveScalePlayable.Create(graph, 1);
@@ -244,6 +248,7 @@ namespace UnityEngine.Timeline
                 root = removeScale;
             }
 
+            //将片段节点与偏移节点进行连接，并且将偏移节点返回，会将其与轨道节点连接（AnimationMixerPlayable）
             if (ShouldApplyOffset(mode, clip))
             {
                 var offsetPlayable = AnimationOffsetPlayable.Create(graph, positionOffset, Quaternion.Euler(eulerOffset), 1);
@@ -257,6 +262,10 @@ namespace UnityEngine.Timeline
 
         private static bool ShouldApplyOffset(AppliedOffsetMode mode, AnimationClip clip)
         {
+            /*Ques：这里比较迷惑的是，实际上这里的RootTransform指的是是否应用偏移，因为偏移本来也是作用于根节点的，而并非指的是RootMotion根运动，但好像又确实没有把这两者完全区分清楚，
+            甚至我感觉这个AnimationTrack就是默认的
+            */
+            //模式判断之后，就看动画片段本身是否支持RootMotion
             if (mode == AppliedOffsetMode.NoRootTransform || mode == AppliedOffsetMode.SceneOffsetLegacy)
                 return false;
 
@@ -314,6 +323,7 @@ namespace UnityEngine.Timeline
             driver.AddFromClip(m_Clip);
         }
 
+        /*Ques：这里似乎是，只要动画片段有Root曲线就行，但其实并不代表就有根运动。*/
         internal static bool HasRootTransforms(AnimationClip clip)
         {
             if (clip == null || clip.empty)

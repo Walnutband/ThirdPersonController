@@ -2,11 +2,12 @@ using System;
 
 namespace UnityEngine.Timeline
 {
+    //TimelineClip可以支持一些特定功能，都是有助于更好编排内容的。
     /// <summary>
     /// Describes the timeline features supported by a clip
     /// </summary>
     [Flags]
-    public enum ClipCaps
+    public enum ClipCaps 
     {
         /// <summary>
         /// No features are supported.
@@ -26,6 +27,7 @@ namespace UnityEngine.Timeline
 
         /// <summary>
         /// The clip supports initial local times greater than zero.
+        /// 可以从非开头开始播放。
         /// </summary>
         ClipIn = 1 << 2,
 

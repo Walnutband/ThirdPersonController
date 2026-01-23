@@ -26,13 +26,13 @@ namespace Timeline.Samples
             foreach (var clip in GetClips()) //获取该轨道上当前所有的Clip
             {
                 var asset = clip.asset as VideoPlayableAsset;
-                if (asset != null)
+                if (asset != null) //检查片段类型，实际上按正常流程就必然是正确的，只是实际可能存在其他方式来创建Clip，所以就可能类型不对。
                 {
                     asset.clipInTime = clip.clipIn;
                     asset.startTime = clip.start;
                 }
             }
-
+            
             return ScriptPlayable<VideoSchedulerPlayableBehaviour>.Create(graph, inputCount);
         }
     }

@@ -54,6 +54,7 @@ namespace CrashKonijn.Goap.Runtime
                 throw new GoapException($"AgentTypeConfig has errors: {config.Name}");
         }
 
+        /*Tip：在编辑器中直接编辑AgentType的配置文件，创建并引用所需要的传感器。*/
         private SensorRunner CreateSensorRunner(IAgentTypeConfig config, GlobalWorldData globalWorldData)
         {
             //传入所有传感器，以及GlobalWorldData
@@ -100,7 +101,7 @@ namespace CrashKonijn.Goap.Runtime
 
         private List<IWorldSensor> GetWorldSensors(IAgentTypeConfig config)
         {
-
+            //根据配置文件中的字符串获取其Type元数据，然后根据Type来创建实例并转换为指定的类型。
             var worldSensors = this.classResolver.Load<IWorldSensor, IWorldSensorConfig>(config.WorldSensors);
             var injector = this.goapConfig.GoapInjector;
 

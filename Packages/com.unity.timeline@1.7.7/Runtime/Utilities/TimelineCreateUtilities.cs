@@ -84,7 +84,7 @@ namespace UnityEngine.Timeline
 
             var curves = new AnimationClip
             {
-                legacy = isLegacy,
+                legacy = isLegacy, //新版还是旧版动画。
 
                 name = name,
 
@@ -93,6 +93,7 @@ namespace UnityEngine.Timeline
                     : (float)timelineAsset.editorSettings.frameRate
             };
 
+            //将curves添加为timelineAsset的子资产。
             SaveAssetIntoObject(curves, timelineAsset);
             curves.hideFlags = trackFlags & ~HideFlags.HideInHierarchy; // Never hide in hierarchy
 

@@ -10,6 +10,7 @@ namespace Timeline.Samples
     [Serializable]
     public class VideoPlayableAsset : PlayableAsset, ITimelineClipAsset
     {
+        //将视频渲染在相机画面中所有物体的前方或者后方，也就是NearPlane和FarPlane
         public enum RenderMode
         {
             CameraFarPlane,
@@ -26,7 +27,7 @@ namespace Timeline.Samples
         public bool loop = true;
 
         [Tooltip("The amount of time before the video begins to start preloading the video stream.")]
-        public double preloadTime = 0.3;
+        public double preloadTime = 0.3; //预加载视频数据流
 
         [Tooltip("The aspect ratio of the video to playback.")]
         public VideoAspectRatio aspectRatio = VideoAspectRatio.FitHorizontally;
@@ -42,14 +43,15 @@ namespace Timeline.Samples
 
         // These are set by the track prior to CreatePlayable being called and are used by the VideoSchedulePlayableBehaviour
         // to schedule preloading of the video clip
-        public double clipInTime { get; set; }
-        public double startTime { get; set; }
+        public double clipInTime { get; set; } //开始播放时的时间（相对于Clip开始时间的局部偏移时间，说白了就是可以从视频的中间位置开始播放，而不是默认从头开始）
+        public double startTime { get; set; } //在轨道上的开始时间。
 
         // Creates the playable that represents the instance that plays this clip.
         // Here a hidden VideoPlayer is being created for the PlayableBehaviour to use
         // to control playback. The PlayableBehaviour is responsible for deleting the player.
         public override Playable CreatePlayable(PlayableGraph graph, GameObject go)
         {
+            //从ExposedReference获取真正的对象引用。没有指定就默认使用主相机
             Camera camera = targetCamera.Resolve(graph.GetResolver());
             if (camera == null)
                 camera = Camera.main;
@@ -101,10 +103,11 @@ namespace Timeline.Samples
             if (videoClip == null)
                 return null;
 
+            //因为视频播放器作为一个组件，必须依附于游戏对象，但这个游戏对象确实也只是播放视频，没有其他任何作用，所以就直接HideAndDontSave。
             GameObject gameObject = new GameObject(videoClip.name) { hideFlags = HideFlags.HideAndDontSave };
             VideoPlayer videoPlayer = gameObject.AddComponent<VideoPlayer>();
-            videoPlayer.playOnAwake = false;
-            videoPlayer.source = VideoSource.VideoClip;
+            videoPlayer.playOnAwake = false; //等待指定播放。
+            videoPlayer.source = VideoSource.VideoClip; //可以是本地视频VideoClip，也可以网页视频URL
             videoPlayer.clip = videoClip;
             videoPlayer.waitForFirstFrame = false;
             videoPlayer.skipOnDrop = true;

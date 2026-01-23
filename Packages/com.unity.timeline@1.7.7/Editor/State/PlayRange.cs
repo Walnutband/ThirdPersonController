@@ -2,6 +2,7 @@ using System;
 
 namespace UnityEditor.Timeline
 {
+    //播放范围，就是起点时间和终点时间。
     [Serializable]
     struct PlayRange : IEquatable<PlayRange>
     {

@@ -51,6 +51,7 @@ namespace UnityEditor.Timeline
                 EnsurePlayRangeIsRespected();
             }
 
+            //到达结尾，回到开头，并且暂停。
             if (director.extrapolationMode == DirectorWrapMode.None && director.playableGraph.IsValid() && !state.playRangeEnabled && director.playableGraph.IsDone())
             {
                 //reset time if we hit the end of the timeline

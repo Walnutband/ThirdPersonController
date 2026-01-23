@@ -11,6 +11,7 @@ namespace Timeline.Samples
     [Serializable]
     public class TextPlayableAsset : PlayableAsset, ITimelineClipAsset
     {
+        //作为资产的序列化字段，直接在检视器中编辑TextClip的相关数据，然后运行时以供TextTrack节点使用来混合显示当下的
         [NoFoldOut]
         [NotKeyable] // NotKeyable used to prevent Timeline from making fields available for animation.
         public TextPlayableBehaviour template = new TextPlayableBehaviour();

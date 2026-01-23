@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.greenbamboogames.playablegraphmonitor": "https://github.com/SolarianZ/UnityPlayableGraphMonitorTool.git",
+    "com.inspiaaa.unityhfsm": "2.2.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.addressables": "1.22.3",
     "com.unity.ai.navigation": "1.1.7",
@@ -57,5 +58,14 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com/",
+      "scopes": [
+        "com.inspiaaa.unityhfsm"
+      ]
+    }
+  ]
 }

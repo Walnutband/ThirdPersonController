@@ -5,7 +5,7 @@ using MyPlugins.AnimationPlayer;
 
 namespace ARPGDemo.ControlSystem_Old
 {
-    [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerLightAttackState", 40)]
+    // [AddComponentMenu("ARPGDemo/ControlSystem/Player/States/PlayerLightAttackState", 40)]
     public class PlayerLightAttackState : PlayerStateBehaviour
     {
         /*TODO：暂时以魂游为例的动画不可打断（除了外部情况以外）来编写此处状态逻辑。*/

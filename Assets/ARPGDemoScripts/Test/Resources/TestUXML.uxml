@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; width: 419px;">
+        <ui:Button text="创建Graph" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CreateGraph" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 40px;" />
+        <ui:Button text="播放Graph" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PlayGraph" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 40px;" />
+        <ui:Button text="停止Graph" parse-escape-sequences="true" display-tooltip-when-elided="true" name="StopGraph" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 40px;" />
+        <ui:Button text="打印信息" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DebugInfo" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 40px;" />
+        <ui:VisualElement>
+            <ui:Label tabindex="-1" text="设置Graph更新模式" parse-escape-sequences="true" display-tooltip-when-elided="true" style="font-size: 30px; -unity-text-align: upper-center;" />
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-around;">
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-grow: 1;" />
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Button" style="flex-grow: 1;" />
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-grow: 1;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-direction: row; justify-content: space-around;">
+            <ui:Button text="播放Clip" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PlayClip" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 20px; padding-right: 0; padding-bottom: 20px; padding-left: 0; font-size: 25px; flex-grow: 1;" />
+            <ui:Button text="暂停Clip" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PauseClip" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 20px; padding-right: 0; padding-bottom: 20px; padding-left: 0; font-size: 25px; flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

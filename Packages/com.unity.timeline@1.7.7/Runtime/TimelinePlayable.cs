@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using PlasticGui.Configuration.OAuth;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Audio;
@@ -37,6 +39,7 @@ namespace UnityEngine.Timeline
     // The TimelinePlayable Playable
     // This is the actual runtime playable that gets evaluated as part of a playable graph.
     // It "compiles" a list of tracks into an IntervalTree of Runtime clips.
+    // 将一系列轨道“编译”进入运行时片段的一个区间树中。
     // At each frame, it advances time, then fetches the "intersection: of various time interval
     // using the interval tree.
     // Finally, on each intersecting clip, it will calculate each clips' local time, as well as
@@ -81,14 +84,17 @@ namespace UnityEngine.Timeline
             if (go == null)
                 throw new ArgumentNullException("GameObject parameter is null", "go");
 
+            //按常规创建特定的PlayableBehaviour，然后就是将需要的数据传入特定方法处理，具体这里就是构建整个时间轴Graph，所有轨道、所有片段、所有输出对象。
+            //Tip：创建中枢节点TimelinePlayable
             var playable = ScriptPlayable<TimelinePlayable>.Create(graph);
             playable.SetTraversalMode(PlayableTraversalMode.Passthrough); //一个轨道对应一个输入端口。
             var sequence = playable.GetBehaviour();
-            //Ques：虽然Compile的具体过程还是比较清晰，但是不知道为何要叫“Compile编译”？
+            //Ques：虽然Compile的具体过程还是比较清晰，但是不知道为何要叫“Compile编译”？可能Compile本来就是这样的意思，只是我的理解远远不够。
             sequence.Compile(graph, playable, tracks, go, autoRebalance, createOutputs);
             return playable;
         }
 
+        //Tip：开始构图，这里的参数就是构图所需要的所有源数据了。
         /// <summary>
         /// Compiles the subgraph of this timeline
         /// </summary>
@@ -106,7 +112,8 @@ namespace UnityEngine.Timeline
             if (go == null)
                 throw new ArgumentNullException("GameObject parameter is null", "go");
 
-            var outputTrackList = new List<TrackAsset>(tracks);
+            //准备好容器，然后开始“编译”
+            var outputTrackList = new List<TrackAsset>(tracks); //转换为List，支持更多操作
             var maximumNumberOfIntersections = outputTrackList.Count * 2 + outputTrackList.Count; // worse case: 2 overlapping clips per track + each track
             m_CurrentListOfActiveClips = new List<RuntimeElement>(maximumNumberOfIntersections);
             m_ActiveClips = new List<RuntimeElement>(maximumNumberOfIntersections);
@@ -124,36 +131,44 @@ namespace UnityEngine.Timeline
 #endif
         }
 
-        //编译各个Output轨道，就是给轨道上的Clip排序，以及创建Track的PlayableOutput
+        //编译各个Output轨道，就是给轨道上的Clip排序，以及创建Track的PlayableOutput。
+        //传入的tracks是经过TimelineAsset的GetOutputTracks方法过滤之后的，
         private void CompileTrackList(PlayableGraph graph, Playable timelinePlayable, IEnumerable<TrackAsset> tracks, GameObject go, bool createOutputs)
-        {
+        {   
+            // Debug.Log($"CompileTrackLists，一共有{tracks.ToList().Where(item => item != null).Count()}个轨道");
+            //这里所处理
             foreach (var track in tracks)
             {
+                //因为轨道支持一些特殊功能，所以并非所有轨道都是可编译的。
                 if (!track.IsCompilable())
                     continue;
 
+                //字典中不包含，就说明还没有处理它。
                 if (!m_PlayableCache.ContainsKey(track))
                 {
-                    track.SortClips();
+                    track.SortClips(); //将各个片段在容器中的位置与其开始时刻的顺序同步。
                     CreateTrackPlayable(graph, timelinePlayable, track, go, createOutputs);
                 }
             }
         }
 
-        //创建TrackOutput，并且
+        //创建TrackOutput，之前的那些创建逻辑，可以简单认为就是创建了TimelinePlayable左边的部分，也就是输入Input的部分，这里所创建的就是右边的部分，也就是输出Output的部分。
         void CreateTrackOutput(PlayableGraph graph, TrackAsset track, GameObject go, Playable playable, int port)
         {
+            //子轨道不会创建Output节点，因为其父轨道必然会创建Output节点。实际上可以认为就是给AnimationTrack的定制功能。
             if (track.isSubTrack)
                 return;
 
+            /*Tip：注意这里很重要，TrackAsset如果有特殊的Output节点的话，就应该重写outputs，不过我比较疑惑的是，真的会存在带有多个Output节点的轨道吗？？*/
             var bindings = track.outputs;
             foreach (var binding in bindings)
             {
                 var playableOutput = binding.CreateOutput(graph);
-                playableOutput.SetReferenceObject(binding.sourceObject);
+                playableOutput.SetReferenceObject(binding.sourceObject); //将TrackAsset资产对象作为ReferenceObject。
                 playableOutput.SetSourcePlayable(playable, port);
-                playableOutput.SetWeight(1.0f);
+                playableOutput.SetWeight(1.0f); 
 
+                //TODO：这里的特殊处理，应该需要进一步探究。实际上就是为动画轨道单独设置的回调，甚至都没有对外开放接口。
                 // only apply this on our animation track
                 if (track as AnimationTrack != null)
                 {
@@ -163,14 +178,18 @@ namespace UnityEngine.Timeline
                         EvaluateAnimationPreviewUpdateCallback(track, (AnimationPlayableOutput)playableOutput);
 #endif
                 }
+                //对于Audio的特殊处理，就是在跳转时是否要播放音频，一般都是不要播放，因为音频的效果本来就是连续的，尽管程序上确实可以采样离散的音频，但其实是违背常理的。
                 if (playableOutput.IsPlayableOutputOfType<AudioPlayableOutput>())
                     ((AudioPlayableOutput)playableOutput).SetEvaluateOnSeek(!muteAudioScrubbing);
 
+
+                /*TODO：这里见将Marker轨道的UseData设置为PlayableDirector，但是似乎也不会用到，只是相当于一个占位。如何去掉这里对于PlayableDirector的依赖呢？*/
                 // If the track is the timeline marker track, assume binding is the PlayableDirector
                 if (track.timelineAsset.markerTrack == track)
                 {
                     var director = go.GetComponent<PlayableDirector>();
                     playableOutput.SetUserData(director);
+                    //Tip：（信号系统起作用的落实处）注册该对象（持有PlayableDirector的对象，或者说就是使用该Timeline的GameObject）上的所有INotificationReceiver到Marker轨道上。
                     foreach (var c in go.GetComponents<INotificationReceiver>())
                     {
                         playableOutput.AddNotificationReceiver(c);
@@ -189,8 +208,8 @@ namespace UnityEngine.Timeline
             m_EvaluateCallbacks.Add(new AnimationPreviewUpdateCallback(animOutput));
         }
 
-        /*创建Track的PlayableOutput（准确来说是ScriptPlayableOutput）
-        
+        /*Tip：创建Track的PlayableOutput（准确来说是ScriptPlayableOutput）
+        这里的返回值是给该方法内部用的，因为可能出现递归的情况。
         */
         Playable CreateTrackPlayable(PlayableGraph graph, Playable timelinePlayable, TrackAsset track, GameObject go, bool createOutputs)
         {
@@ -208,7 +227,7 @@ namespace UnityEngine.Timeline
             //先递归创建或获取父轨道对应的 Playable
             TrackAsset parentActor = track.parent as TrackAsset;
             var parentPlayable = parentActor != null ? CreateTrackPlayable(graph, timelinePlayable, parentActor, go, createOutputs) : timelinePlayable;
-            //为当前轨道生成它自己的 Playable（Mixer / Clip 集合）
+            //为当前轨道生成它自己的 Playable（Mixer / Clip 集合），包括轨道以及其中的所有片段，说白了就是以轨道节点为根节点的一颗子树。
             var actorPlayable = track.CreatePlayableGraph(graph, go, m_IntervalTree, timelinePlayable);
             bool connected = false;
 
@@ -219,7 +238,7 @@ namespace UnityEngine.Timeline
             }
 
 
-            // Special case for animation tracks（可以创建Override Track）
+            // Special case for animation tracks对于动画轨道的特殊用处，大概就是“定制功能”（可以创建Override Track）
             if (parentPlayable.IsValid() && actorPlayable.IsValid())
             {
                 int port = parentPlayable.GetInputCount();
@@ -234,9 +253,12 @@ namespace UnityEngine.Timeline
                 CreateTrackOutput(graph, track, go, parentPlayable, parentPlayable.GetInputCount() - 1);
             }
 
+            //在m_PlayableCache中记录TrackAsset与其对应的轨道节点的映射。
             CacheTrack(track, actorPlayable, connected ? (parentPlayable.GetInputCount() - 1) : -1, parentPlayable);
             return actorPlayable;
         }
+
+        //Tip：作为中枢的TimelinePlayable，处理各个Playable节点的权重和时间。这就是在运行时，整个时间轴运行的起点。
 
         /// <summary>
         /// （为了同步时间）Overridden to handle synchronizing time on the timeline instance.
@@ -265,8 +287,9 @@ namespace UnityEngine.Timeline
             if (m_IntervalTree == null)
                 return;
 
+            //获取当前的运行进度。（感觉还是“进度”更恰当，之前用的“时间”“时刻”感觉都差点意思。）
             double localTime = playable.GetTime();
-            m_ActiveBit = m_ActiveBit == 0 ? 1 : 0;
+            m_ActiveBit = m_ActiveBit == 0 ? 1 : 0; //就是在1和0之间切换。
 
             m_CurrentListOfActiveClips.Clear();
             m_IntervalTree.IntersectsWith(DiscreteTime.GetNearestTick(localTime), m_CurrentListOfActiveClips);
@@ -276,9 +299,13 @@ namespace UnityEngine.Timeline
                 c.intervalBit = m_ActiveBit;
             }
 
+            /*Tip：注意这里判断上一帧Active、当前帧未Active的逻辑，使用m_ActiveBit每次都切换值，而上面会将当前所有Active片段的intervalBit都设置为当前的m_ActiveBit，那么
+            上一帧Active而这一帧未Active即未在m_CurrentListOfActiveClips的片段，那么它的intervalBit就必然是上一帧的m_ActiveBit，即必然与当前帧的m_ActiveBit不同，所以下面
+            只要遍历上一帧的Active片段即m_ActiveClips，比较intervalBit，只要不同，就说明上一帧Active而这一帧未Active，所以调用其DisableAt。*/
+
             // all previously active clips having a different intervalBit flag are not
             // in the current intersection, therefore are considered becoming disabled at this frame
-            var timelineEnd = (double)new DiscreteTime(playable.GetDuration());
+            var timelineEnd = (double)new DiscreteTime(playable.GetDuration()); //因为是时间轴节点，Duration就是从0到End。
             foreach (var c in m_ActiveClips)
             {
                 if (c.intervalBit != m_ActiveBit)
@@ -288,11 +315,12 @@ namespace UnityEngine.Timeline
             m_ActiveClips.Clear();
             // case 998642 - don't use m_ActiveClips.AddRange, as in 4.6 .Net scripting it causes GC allocs
             for (var a = 0; a < m_CurrentListOfActiveClips.Count; a++)
-            {
+            {//调用EvaluateAt方法时就代表该片段处于Active。
                 m_CurrentListOfActiveClips[a].EvaluateAt(localTime, frameData);
                 m_ActiveClips.Add(m_CurrentListOfActiveClips[a]);
             }
 
+            //运行后的回调。
             int count = m_EvaluateCallbacks.Count;
             for (int i = 0; i < count; i++)
             {

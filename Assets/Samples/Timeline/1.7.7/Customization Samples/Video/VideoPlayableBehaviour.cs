@@ -23,8 +23,8 @@ namespace Timeline.Samples
                 return;
 
             videoPlayer.targetCameraAlpha = 0.0f;
-            videoPlayer.time = clipInTime;
-            videoPlayer.Prepare();
+            videoPlayer.time = clipInTime; //从视频的指定位置开始播放。
+            videoPlayer.Prepare(); //底层对于视频准备的处理。
             preparing = true;
         }
 

@@ -22,6 +22,7 @@ public class TextSwitcherMixerBehaviour : PlayableBehaviour
 
         if (!m_FirstFrameHappened)
         {
+            //记录受控对象原本的属性值。
             m_DefaultColor = m_TrackBinding.color;
             m_DefaultFontSize = m_TrackBinding.fontSize;
             m_DefaultText = m_TrackBinding.text;
@@ -58,6 +59,8 @@ public class TextSwitcherMixerBehaviour : PlayableBehaviour
 
         m_TrackBinding.color = blendedColor + m_DefaultColor * (1f - totalWeight);
         m_TrackBinding.fontSize = Mathf.RoundToInt (blendedFontSize + m_DefaultFontSize * (1f - totalWeight));
+        //如果有多于1个的正在播放的片段，那么看总权重剩下的权重即需要与默认值（原始值）混合的权重，相比于片段中的最大权重，如果权重更大，则应该重置为原始文本，
+        // 说白了还是遵从“使用最高权重的文本作为当前文本”的规则，只是默认文本并不作为片段存在，而是直接参与混合，所以需要在这里特殊分支处理一下。
         if (currentInputs != 1 && 1f - totalWeight > greatestWeight)
         {
             m_TrackBinding.text = m_DefaultText;
@@ -71,6 +74,7 @@ public class TextSwitcherMixerBehaviour : PlayableBehaviour
         if (m_TrackBinding == null)
             return;
 
+        //销毁时恢复为默认值。
         m_TrackBinding.color = m_DefaultColor;
         m_TrackBinding.fontSize = m_DefaultFontSize;
         m_TrackBinding.text = m_DefaultText;

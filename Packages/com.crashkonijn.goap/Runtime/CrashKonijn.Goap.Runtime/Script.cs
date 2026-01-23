@@ -6,7 +6,7 @@ namespace CrashKonijn.Goap.Runtime
     [Serializable]
     public class Script
     {
-        [field: SerializeField]
+        [field: SerializeField] //表示应用到属性的后台字段上。
         public string Name { get; set; }
 
         [SerializeField]

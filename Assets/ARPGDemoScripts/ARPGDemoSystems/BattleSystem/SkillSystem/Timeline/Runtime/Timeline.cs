@@ -144,6 +144,7 @@ namespace ARPGDemo.SkillSystemtest
     {
         [SerializeField] private uint m_ID;
         public uint id => m_ID;
+        //在运行时，名称和描述并不直接参与逻辑，主要是用于在UI中显示，否则的话都不需要这两个成员。
         [SerializeField] private string m_Name;
         public string name => m_Name;
         [TextArea(3,6)]

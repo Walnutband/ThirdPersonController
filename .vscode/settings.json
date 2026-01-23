@@ -57,5 +57,7 @@
         "Temp/": true
     },
     "dotnet.defaultSolution": "ThirdPersonController.sln",
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "todo-tree.tree.disableCompactFolders": true,
+    "todo-tree.tree.scanMode": "workspace only"
 }

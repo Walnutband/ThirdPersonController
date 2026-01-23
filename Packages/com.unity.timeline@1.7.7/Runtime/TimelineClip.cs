@@ -49,6 +49,11 @@ namespace UnityEngine.Timeline
         // constant representing the longest possible sequence duration
         internal static readonly double kMaxTimeValue = 1000000; // more than a week's time, and within numerical precision boundaries
 
+
+        /*Tip：Extrapolation就是一个片段本身的长度，尤其是AnimationCip和AudioClip本身就有确定长度，而如果拉长，就会有PreExtrapolation和PostExtrapolation，在超出原长度范围时的处理方式
+        就由这个枚举类型决定。
+        
+        */
         /// <summary>
         /// How the clip handles time outside its start and end range.
         /// </summary>
@@ -62,7 +67,7 @@ namespace UnityEngine.Timeline
             /// <summary>
             /// Hold the time at the end value of the clip.
             /// </summary>
-            Hold,
+            Hold,   
 
             /// <summary>
             /// Repeat time values outside the start/end range.
@@ -106,9 +111,10 @@ namespace UnityEngine.Timeline
         [SerializeField] double m_ClipIn;
         [SerializeField] Object m_Asset;
         [SerializeField] [FormerlySerializedAs("m_HackDuration")] double m_Duration;
-        [SerializeField] double m_TimeScale = 1.0;
+        [SerializeField] double m_TimeScale = 1.0; //就是检视器中看到的Spped Multiplier
         [SerializeField] TrackAsset m_ParentTrack;
 
+        /*Tip：简单来说，Blend是与其他动画片段有交集而必然出现的，而Ease是主动设置的，只有支持混合功能才会在编辑器中能够重叠，由此就出现了Blend，否则就是默认没有Blend或Ease，而可以手动设定Ease。*/ 
         // for mixing out scripts - default is no mix out (i.e. flat)
         [SerializeField] double m_EaseInDuration;
         [SerializeField] double m_EaseOutDuration;
@@ -132,6 +138,7 @@ namespace UnityEngine.Timeline
         // extrapolation
         [SerializeField] ClipExtrapolation m_PostExtrapolationMode;
         [SerializeField] ClipExtrapolation m_PreExtrapolationMode;
+        //Tip：这两个值在编辑器的时候就会自动计算出来，不会手动去调整。因为本质上这两个值是直接与同轨道的其他片段相关的。所以在最后位置的片段的PostExtrapolationTime就是Infinity（如果有的话）。
         [SerializeField] double m_PostExtrapolationTime;
         [SerializeField] double m_PreExtrapolationTime;
 
@@ -156,8 +163,9 @@ namespace UnityEngine.Timeline
         /// <summary>
         /// A speed multiplier for the clip;
         /// </summary>
-        public double timeScale
+        public double timeScale 
         {
+            //这样可以很方便地划定最大最小值。
             get { return clipCaps.HasAny(ClipCaps.SpeedMultiplier) ? Math.Max(kTimeScaleMin, Math.Min(m_TimeScale, kTimeScaleMax)) : 1.0; }
             set
             {
@@ -325,6 +333,7 @@ namespace UnityEngine.Timeline
             if (m_ParentTrack == newParentTrack)
                 return;
 
+            //改变所在Track，移旧入新。
             if (m_ParentTrack != null)
                 m_ParentTrack.RemoveClip(this);
 
@@ -521,6 +530,7 @@ namespace UnityEngine.Timeline
 
         /// <summary>
         /// Returns the capabilities supported by this clip.
+        /// 该片段所支持的一些功能。
         /// </summary>
         public ClipCaps clipCaps
         {
@@ -551,8 +561,9 @@ namespace UnityEngine.Timeline
             if (!clipCaps.HasAny(ClipCaps.Blending))
                 return 1.0f;
 
+            //就是有mixOut过程。
             if (mixOutDuration > Mathf.Epsilon)
-            {
+            {//注意区别，MixIn就是startTime，因为是从开始到后面一段时间MixIn，而这里则是从内部某时刻开始过一段时间到结束，所以就是以mixOutTime开始。
                 var perc = (float)(time - mixOutTime) / (float)mixOutDuration;
                 perc = Mathf.Clamp01(mixOutCurve.Evaluate(perc));
                 return perc;
@@ -570,6 +581,7 @@ namespace UnityEngine.Timeline
             if (!clipCaps.HasAny(ClipCaps.Blending))
                 return 1.0f;
 
+            //有混合功能，且指定了混合时间。
             if (mixInDuration > Mathf.Epsilon)
             {
                 var perc = (float)(time - m_Start) / (float)mixInDuration;
@@ -579,14 +591,15 @@ namespace UnityEngine.Timeline
             return 1.0f;
         }
 
+        //对于连续变化，默认的变化曲线。
         static AnimationCurve GetDefaultMixInCurve()
         {
-            return AnimationCurve.EaseInOut(0, 0, 1, 1);
+            return AnimationCurve.EaseInOut(0, 0, 1, 1); //y = x
         }
 
         static AnimationCurve GetDefaultMixOutCurve()
         {
-            return AnimationCurve.EaseInOut(0, 1, 1, 0);
+            return AnimationCurve.EaseInOut(0, 1, 1, 0); //y = -x + 1
         }
 
         /// <summary>
@@ -598,7 +611,7 @@ namespace UnityEngine.Timeline
         /// </returns>
         public double ToLocalTime(double time)
         {
-            if (time < 0)
+            if (time < 0) //传入的是时间轴时刻，为负完全是不正常情况。
                 return time;
 
             // handle Extrapolation
@@ -611,7 +624,7 @@ namespace UnityEngine.Timeline
 
             // handle looping and time scale within the clip
             time *= timeScale;
-            time += clipIn;
+            time += clipIn; //Ques：看起来clipIn是不受timeScale影响的？？
 
             return time;
         }
@@ -755,6 +768,10 @@ namespace UnityEngine.Timeline
             }
         }
 
+        /*Tip: 这里揭示了在Extrapolation时刻的数据不同处理方式。
+        须注意，比如AnimationClip就会在超出原长度之后，默认Hold，而这段也是包含在Duration中的，要超出这部分之后才是Extrapolation。
+        */
+        //这里的time是时间轴当前进度相对于m_Start经过的时间。
         static double GetExtrapolatedTime(double time, ClipExtrapolation mode, double duration)
         {
             if (duration == 0)
@@ -765,6 +782,7 @@ namespace UnityEngine.Timeline
                 case ClipExtrapolation.None:
                     break;
 
+                //循环，以实际duration作为循环长度。
                 case ClipExtrapolation.Loop:
                     if (time < 0)
                         time = duration - (-time % duration);
@@ -779,6 +797,7 @@ namespace UnityEngine.Timeline
                         return duration;
                     break;
 
+                //就是来回，与Loop的思路类似，只是会以2倍duration作为基准。
                 case ClipExtrapolation.PingPong:
                     if (time < 0)
                     {
@@ -859,8 +878,10 @@ namespace UnityEngine.Timeline
         /// </remarks>
         public void ConformEaseValues()
         {
+            //渐入和渐出的时间之和超过了总时间，本质上是两者出现了交集也就是矛盾，所以需要在此解决这个矛盾。
             if (m_EaseInDuration + m_EaseOutDuration > duration)
             {
+                //根据比例，瓜分总时间。
                 var ratio = CalculateEasingRatio(m_EaseInDuration, m_EaseOutDuration);
                 m_EaseInDuration = duration * ratio;
                 m_EaseOutDuration = duration * (1.0 - ratio);
@@ -869,6 +890,7 @@ namespace UnityEngine.Timeline
 
         static double CalculateEasingRatio(double easeIn, double easeOut)
         {
+            //过于接近，就认为相等。
             if (Math.Abs(easeIn - easeOut) < TimeUtility.kTimeEpsilon)
                 return 0.5;
 

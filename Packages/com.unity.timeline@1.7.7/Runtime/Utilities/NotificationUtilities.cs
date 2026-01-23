@@ -25,6 +25,7 @@ namespace UnityEngine.Timeline
             bool didCalculateDuration = false;
             var duration = 0d;
 
+            //如果有marker的话则notificationPlayable不为Null。
             foreach (IMarker e in markers)
             {
                 var notification = e as INotification;

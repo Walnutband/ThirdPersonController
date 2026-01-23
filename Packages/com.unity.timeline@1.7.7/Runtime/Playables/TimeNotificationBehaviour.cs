@@ -4,7 +4,11 @@ using UnityEngine.Playables;
 
 namespace UnityEngine.Timeline
 {
-    /*在图的 PrepareFrame 或 ProcessFrame 中，根据 timeSource 对比当前时间，调用 Playab leOutput.PushNotification 派发事件*/
+    /*在图的 PrepareFrame 或 ProcessFrame 中，根据 timeSource 对比当前时间，调用 PlayableOutput.PushNotification 派发事件。
+    这个信号系统（可以认为就是Timeline的事件系统）是基于PlayableOutput自带的发送通知的功能。
+    */
+
+    /*Tip：在一条轨道上有SignalEmmitter时，该轨道就会有一个这里的TimeNotificationBehaviour节点连接到TimelinePlayable上，然后轨道节点再连接到这个通知节点上。*/
 
     /// <summary>
     /// （在 指定时间点 发出 INotification（如信号、标记回调）Use this PlayableBehaviour to send notifications at a given time.
@@ -95,9 +99,13 @@ namespace UnityEngine.Timeline
             var currentTime = playable.GetTime();
             for (var i = 0; i < m_Notifications.Count; i++)
             {
+                /*Tip：注意这里的triggerOnce条件，因为这里所面对的是Graph恢复播放的情况，而OnGraphStart就是在Graph调用Play时触发，并不管是否是第一次播放，所以这里就是
+                统一处理，所以必须要加上triggerOnce的判断，也就是恢复播放时如果当前播放进度在Notification之前，那么就重置notificationFired标记，因为在后续正常处理通知逻辑
+                的时候就会用到该标记。*/
                 // case 1257208 - when a timeline is _resumed_, only reset notifications after the resumed time
                 if (m_Notifications[i].time > currentTime && !m_Notifications[i].triggerOnce)
                 {
+                    //注意对于结构体就需要像这样取值再赋值，因为结构体取值得到的是副本而非其原本。
                     var notification = m_Notifications[i];
                     notification.notificationFired = false;
                     m_Notifications[i] = notification;
@@ -190,14 +198,17 @@ namespace UnityEngine.Timeline
         void SortNotifications()
         {
             if (m_NeedSortNotifications)
-            {
+            {//按时间从小到大排序。
                 m_Notifications.Sort((x, y) => x.time.CompareTo(y.time));
                 m_NeedSortNotifications = false;
             }
         }
 
+        //是否可以恢复通知，就是再次通知。
+        //TODO：这里应该会出现BUG。
         static bool CanRestoreNotification(NotificationEntry e, FrameData info, double currentTime, double previousTime)
         {
+            //是否可以触发多次
             if (e.triggerOnce)
                 return false;
             if (info.timeLooped)
@@ -239,6 +250,7 @@ namespace UnityEngine.Timeline
             }
         }
 
+        ///<see cref="TrackAsset.CreateNotificationsPlayable"/>    
         void SyncDurationWithExternalSource(Playable playable)
         {
             if (m_TimeSource.IsValid())

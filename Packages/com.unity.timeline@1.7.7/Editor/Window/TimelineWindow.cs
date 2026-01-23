@@ -92,6 +92,7 @@ namespace UnityEditor.Timeline
                 RefreshSelection(state != null && !state.recording);
         }
 
+        //打开EditorWindow时调用。
         void OnEnable()
         {
             if (m_SequencePath == null)
@@ -209,7 +210,7 @@ namespace UnityEditor.Timeline
                 给一段逻辑加上函数名作为标识，表示出了这段逻辑的目的是什么，一系列这样的处理，就可以在OnGUI中看到清晰的逻辑链条，而不用被每个部分中具体的处理细节所干扰。
                 这些方法也是典型的可内联函数，不过似乎C#的编译器会自动进行内联处理，甚至C++的编译器也是会自动尝试将函数内联。*/
 
-                //确保内置的 GUIStyle、各类图标与资源只初始化一次。避免在每帧重复加载样式，提升性能。
+            //确保内置的 GUIStyle、各类图标与资源只初始化一次。避免在每帧重复加载样式，提升性能。
             InitializeGUIIfRequired();
             //根据当前窗口尺寸和 Editor DPI 重新计算时间尺、轨道 header、缩放手柄等静态布局常量。
             UpdateGUIConstants(); //实际上更新了m_HorizontalScrollBarSize和m_VerticalScrollBarSize
@@ -492,7 +493,7 @@ namespace UnityEditor.Timeline
                 state.UpdateViewStateHash();
         }
 
-        //按下Ctrl
+        //按下Ctrl（Ctrl+Z进行撤销操作）
         static bool PerformUndo()
         {
             if (!Event.current.isKey) //该事件是否是键盘事件

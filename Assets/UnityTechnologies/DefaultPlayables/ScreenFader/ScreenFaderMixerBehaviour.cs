@@ -40,11 +40,13 @@ public class ScreenFaderMixerBehaviour : PlayableBehaviour
             blendedColor += input.color * inputWeight;
             totalWeight += inputWeight;
 
+            //具有最大权重的片段，这是一个基本信息，只是看该轨道会不会用到这个值。
             if (inputWeight > greatestWeight)
             {
                 greatestWeight = inputWeight;
             }
 
+            //权重非零（PlayableGraph内部保证权重必然在0~1范围内）就代表正在处于播放状态，也就是正在提供输入内容。
             if (!Mathf.Approximately (inputWeight, 0f))
                 currentInputs++;
         }

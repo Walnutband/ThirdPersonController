@@ -12,12 +12,12 @@ namespace UnityEngine.Timeline
         /// <summary>
         /// The time set for the marker, in seconds.
         /// </summary>
-        double time { get; set; }
+        double time { get; set; } //一个Marker就是一个时间点。
 
         /// <summary>
         /// The track that contains the marker.
         /// </summary>
-        TrackAsset parent { get; }
+        TrackAsset parent { get; } //因为Marker是以轨道为附着对象的。
 
         /// <summary>
         /// This method is called when the marker is initialized.

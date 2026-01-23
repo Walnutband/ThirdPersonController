@@ -49,6 +49,7 @@ namespace ARPGDemo.BattleSystem
                 {
                     buff.OnHit(buff, ref _damage, defender);
                 }
+                //攻击者和受击者分别有固定的攻击回调和受击回调。
                 attacker.OnHit(defender, _damage);
             }
             defenderBuffs = defender.buffs;

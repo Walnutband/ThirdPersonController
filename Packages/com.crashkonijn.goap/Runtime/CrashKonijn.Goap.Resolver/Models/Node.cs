@@ -17,6 +17,7 @@ namespace CrashKonijn.Goap.Resolver
         //Tip：这里就表明，IGoal和IGoapAction就是图的节点类型，而IGoal则作为根节点。
         public bool IsRootNode => this.Action is IGoal;
 
+        //获取当前节点下的所有Action节点。
         public void GetActions(List<IGoapAction> actions)
         {
             if (actions.Contains(this.Action as IGoapAction))

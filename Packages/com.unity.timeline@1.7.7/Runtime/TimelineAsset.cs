@@ -131,7 +131,7 @@ namespace UnityEngine.Timeline
 
         /// <summary>
         /// The length, in seconds, of the timeline
-        /// 以秒s作为单位，实际的总时间
+        /// 以秒s作为单位，实际的总时间，在编辑时就会自动计算，根据Duration Mode，基于Clips或者是直接指定固定值。
         /// </summary>
         public override double duration
         {
@@ -311,7 +311,7 @@ namespace UnityEngine.Timeline
                 {
                     m_CacheRootTracks = new List<TrackAsset>(m_Tracks.Count);
                     if (markerTrack != null)
-                    {//marker单独处理，没有包含在m_Tracks中
+                    {//marker单独处理，没有包含在m_Tracks中，但是包含在返回的m_CacheRootTracks中
                         m_CacheRootTracks.Add(markerTrack);
                     }
 
@@ -325,6 +325,7 @@ namespace UnityEngine.Timeline
             }
         }
 
+        //更新作为输出节点的各个轨道的原始资产TrackAsset实例。
         void UpdateOutputTrackCache()
         {
             if (m_CacheOutputTracks == null)
@@ -404,7 +405,7 @@ namespace UnityEngine.Timeline
             }
         }
 
-        //CreatePlayable创建TimelinePlayable的起始方法
+        //Tip：CreatePlayable创建TimelinePlayable的起始方法，应该说这是整个Timeline的起点。
         /// <summary>
         /// （根据TimelineAsset创建TimelinePlayable）Creates an instance of the timeline
         /// </summary>
@@ -413,7 +414,7 @@ namespace UnityEngine.Timeline
         /// <returns>The Root Playable of the Timeline</returns>
         public override Playable CreatePlayable(PlayableGraph graph, GameObject go)
         {
-            bool autoRebalanceTree = false;
+            bool autoRebalanceTree = false; 
 #if UNITY_EDITOR
             autoRebalanceTree = true;
 #endif
@@ -421,21 +422,25 @@ namespace UnityEngine.Timeline
             // only create outputs if we are not nested
             /*graph.GetPlayableCount() == 0 表明这是 PlayableGraph 的根节点（非嵌套调用）。
             仅在根 Graph 才创建输出（PlayableOutput），避免重复嵌套时生成多余的输出端口。*/
-            bool createOutputs = graph.GetPlayableCount() == 0;
+            //Tip：这里是为了“嵌套”这样的高级功能，通常大概不会用到该功能。
+            bool createOutputs = graph.GetPlayableCount() == 0; //Playable
             //该方法会创建Root即TimelinePlayable，以及各个Track对应的Output节点
+            //Tip：创建作为整个Timeline中枢的Playable节点。
             var timeline = TimelinePlayable.Create(graph, GetOutputTracks(), go, autoRebalanceTree, createOutputs);
-            /*作用：显式指定根 Playable 的播放时长，覆盖默认的“无限时长”行为。
+            /*作用：显式指定根 Playable 的播放时长，覆盖默认的“无限时长”行为。因为这是一个明确的整体时间轴，TimelinePlayable就代表了整个时间轴的时长。
             效果：
                 控制 Timeline 播放到末尾时何时触发完成、循环或停止。
                 驱动 PlayableGraph.Evaluate() 时，只在 [0, duration] 范围内生效。*/
+            //Tip：显式指定Duration，就代表会有Done。这里就是将中枢节点TimelinePlayable的Duration设置为整个时间轴的时长，Graph自动播放，直到Duration也就标志着Timeline播放结束。
             timeline.SetDuration(this.duration);
             /*
             文档说明：开启后，根 Playable 在执行 SetTime() 或者进行时间跳跃（如编辑器拖拽进度）时，会自动将新的本地时间“向下”传播到所有输入节点（轨道 Mixer、Clip Playable 等）。
             为何需要：
                 Timeline 在编辑器模式下允许即时预览、精准拖拽。当根时间被修改时，所有子节点必须同步更新当前帧，否则轨道混合和剪辑播放会错位。
                 若不启用时间传播，子节点依旧保持旧时间，需要手动调用 Evaluate() 或其它机制才能同步，导致体验不连贯。*/
+            //Tip：保证在对TimelinePlayable调用SetTime时（通常是跳转操作），所有作为子节点的轨道也能同步时间。
             timeline.SetPropagateSetTime(true);
-            return timeline.IsValid() ? timeline : Playable.Null;
+            return timeline.IsValid() ? timeline : Playable.Null; //返回中枢节点
         }
 
         /// <summary>
@@ -553,7 +558,7 @@ namespace UnityEngine.Timeline
             var discreteDuration = new DiscreteTime(0);
             foreach (var track in flattenedTracks)
             {
-                if (track.muted)
+                if (track.muted)//跳过静音（muted）轨道
                     continue;
 
                 discreteDuration = DiscreteTime.Max(discreteDuration, (DiscreteTime)track.end);

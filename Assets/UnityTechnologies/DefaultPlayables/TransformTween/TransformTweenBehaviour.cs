@@ -19,6 +19,8 @@ public class TransformTweenBehaviour : PlayableBehaviour
     public Transform endLocation;
     public bool tweenPosition = true;
     public bool tweenRotation = true;
+
+    //TODO：要学会利用动画曲线了，
     public TweenType tweenType;
     public AnimationCurve customCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     
@@ -65,6 +67,8 @@ public class TransformTweenBehaviour : PlayableBehaviour
         }
     }
 
+    /*Tip：注意这里对于曲线是否归一化的判断，就是看自变量和因变量范围是否均为0~1，具体判断就是取第一个关键帧的time和value，以及最后一个关键帧的time和value，注意这里的
+    索引是取曲线中的关键帧，time就是自变量，value就是因变量。*/
     bool IsCustomCurveNormalised ()
     {
         if (!Mathf.Approximately (customCurve[0].time, 0f))

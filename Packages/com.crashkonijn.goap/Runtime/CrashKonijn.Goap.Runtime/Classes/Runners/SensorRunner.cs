@@ -26,7 +26,7 @@ namespace CrashKonijn.Goap.Runtime
         )
         {
             this.worldData = globalWorldData;
-
+            //在defaultSet中记录该运行器具有的所有传感器。
             foreach (var worldSensor in worldSensors)
             {
                 this.defaultSet.AddSensor(worldSensor);
@@ -226,30 +226,33 @@ namespace CrashKonijn.Goap.Runtime
             return set;
         }
 
+        //传入根节点即目标节点。
         private SensorSet CreateSet(INode node)
         {
             var actions = new List<IGoapAction>();
-            node.GetActions(actions);
+            node.GetActions(actions); //获取根节点下的所有节点（未连接的节点不算，不过正常情况下应该不允许出现未连接的节点，因为这完全取决于预先的设计，无关实际的运行情况。）
 
             var set = new SensorSet();
 
+            //选择Condition作为遍历元素
             foreach (var condition in node.Conditions.Select(x => x.Condition))
             {
                 var key = condition.WorldKey.GetType();
 
-                set.Keys.Add(key);
+                set.Keys.Add(key); //Condition的Type信息
 
                 if (this.sensors.TryGetValue(key, out var sensor))
                 {
                     set.AddSensor(sensor);
                 }
             }
-
+            //去掉重复元素再遍历。
             foreach (var action in actions.Distinct())
             {
                 var actionSet = this.GetSet(action);
                 set.Merge(actionSet);
 
+                //Ques：意思就是指定了Target，
                 if (action.Config.Target != null)
                 {
                     set.Keys.Add(action.Config.Target.GetType());

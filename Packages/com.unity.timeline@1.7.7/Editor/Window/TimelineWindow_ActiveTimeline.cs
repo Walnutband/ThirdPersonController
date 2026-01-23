@@ -13,6 +13,7 @@ namespace UnityEditor.Timeline
             SetCurrentTimeline(null, null, null, true);
         }
 
+        //Tip：将TimelineAsset绑定到Timeline的编辑窗口上。
         public override void SetTimeline(TimelineAsset seq)
         {
             SetCurrentTimeline(seq, null, null);

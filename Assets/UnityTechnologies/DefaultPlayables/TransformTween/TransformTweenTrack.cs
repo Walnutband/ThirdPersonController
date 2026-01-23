@@ -9,7 +9,7 @@ public class TransformTweenTrack : TrackAsset
 {
 	public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
 	{
-	    return ScriptPlayable<TransformTweenMixerBehaviour>.Create (graph, inputCount);
+	    return ScriptPlayable<TransformTweenMixerBehaviour>.Create(graph, inputCount);
 	}
 
     public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)

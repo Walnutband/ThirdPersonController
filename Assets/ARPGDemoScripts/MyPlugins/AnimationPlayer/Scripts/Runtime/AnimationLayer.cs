@@ -79,7 +79,7 @@ namespace MyPlugins.AnimationPlayer
         {
             if (m_IsFading)
             {
-                Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
+                // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
                 m_FadeHandler.Complete(); //首先结束过渡
                 // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
@@ -102,7 +102,7 @@ namespace MyPlugins.AnimationPlayer
 
             if (m_IsFading)
             {
-                Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
+                // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
                 m_FadeHandler.Complete(); //首先结束过渡
                 // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
@@ -133,7 +133,7 @@ namespace MyPlugins.AnimationPlayer
         {
             if (m_IsFading)
             {
-                Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
+                // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
                 m_FadeHandler.Complete(); //首先结束过渡
                 // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
@@ -144,7 +144,7 @@ namespace MyPlugins.AnimationPlayer
         //只是清空连接的节点，仍然保持输入端口数量
         private void ClearStates(AnimationStateBase _exclude = null)
         {
-            Debug.Log($"ClearStates清空状态，除开{(_exclude == null ? "空" : _exclude.key)}");
+            // Debug.Log($"ClearStates清空状态，除开{(_exclude == null ? "空" : _exclude.key)}");
             if (m_States.Count <= 0) return;
 
             for (int i = 0; i < m_States.Count; i++)
@@ -152,7 +152,7 @@ namespace MyPlugins.AnimationPlayer
                 AnimationStateBase state = m_States[i];
                 if (state != null && state != _exclude)
                 {
-                    Debug.Log($"清理槽位{i}上的{state.key}");
+                    // Debug.Log($"清理槽位{i}上的{state.key}");
                     //断开，然后置空
                     m_Graph.Disconnect(state, this);
                     /*BUG：注意这是C#的一个常见错误，因为没有使用指针，而是所谓的“引用类型”，这里的m_States[i]与state指向的并非同一块内存，所以要直接对m_States[i]置空。*/
@@ -183,7 +183,7 @@ namespace MyPlugins.AnimationPlayer
 #if UNITY_EDITOR
                 else
                 {
-                    Debug.Log($"槽位{i}已被占用");
+                    // Debug.Log($"槽位{i}已被占用");
                 }
 #endif
             }
@@ -205,7 +205,7 @@ namespace MyPlugins.AnimationPlayer
                     m_States.Add(null);
                 }
             }
-            Debug.Log($"找到槽位：{nullIndex}");
+            // Debug.Log($"找到槽位：{nullIndex}");
             return nullIndex;
         }
 
