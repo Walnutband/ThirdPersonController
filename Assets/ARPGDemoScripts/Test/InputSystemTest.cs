@@ -7,7 +7,7 @@ namespace ARPGDemo.ControlSystem_Old
     {
         // public InputActionAsset inputActions;
         // public InputActionReference inputActionRef;
-        public InputAction inputAction;
+        public InputActionReference input;
         public bool changeAssetState;
         public bool changeActionState;
 
@@ -18,6 +18,29 @@ namespace ARPGDemo.ControlSystem_Old
         private void Awake()
         {
             // inputAction = inputActionRef.action;
+        }
+
+        private void OnEnable()
+        {
+            input.action.Enable();
+            input.action.started += Started;
+            input.action.performed += Performed;
+            input.action.canceled += Canceled;
+        }
+
+        public void Started(InputAction.CallbackContext context)
+        {
+            Debug.Log($"在{Time.frameCount}，Started，交互：{context.interaction}");
+        }
+
+        public void Performed(InputAction.CallbackContext context)
+        {
+            Debug.Log($"在{Time.frameCount}，Performed，交互：{context.interaction}");
+        }
+
+        public void Canceled(InputAction.CallbackContext context)
+        {
+            Debug.Log($"在{Time.frameCount}，Canceled，交互：{context.interaction}");
         }
 
         private void Start()

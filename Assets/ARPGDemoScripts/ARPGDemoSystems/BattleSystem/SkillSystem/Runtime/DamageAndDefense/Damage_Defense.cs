@@ -37,6 +37,7 @@ namespace ARPGDemo.BattleSystem
     {
         public IAttacker attacker;
         public IDefender defender;
+        //此次攻击中，原始的伤害和防御值。
         public Damage damage;
         public Defense defense;
 

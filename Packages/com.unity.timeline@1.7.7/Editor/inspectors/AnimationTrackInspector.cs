@@ -154,8 +154,8 @@ namespace UnityEditor.Timeline
 
         void DrawRootTransformOffset()
         {
-            // if (!AnimatesRootTransform())
-            //     return;
+            if (!AnimatesRootTransform())
+                return;
 
             bool showWarning = SetupOffsetTooltip();
             DrawRootTransformDropDown();
@@ -253,8 +253,8 @@ namespace UnityEditor.Timeline
 
         void DrawMatchFieldsGUI()
         {
-            // if (!AnimatesRootTransform())
-            //     return;
+            if (!AnimatesRootTransform())
+                return;
 
             m_MatchFieldsProperty.isExpanded = EditorGUILayout.Foldout(m_MatchFieldsProperty.isExpanded, Styles.MatchTargetFieldsTitle, true);
             if (m_MatchFieldsProperty.isExpanded)

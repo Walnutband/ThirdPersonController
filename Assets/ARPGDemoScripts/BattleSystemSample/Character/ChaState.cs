@@ -627,7 +627,7 @@ namespace ARPGDemo.BuffSystemSample
 
             }
             /*TODO：当然，对于无法释放技能，技能释放失败，等等情况，都还需要扩展逻辑，所以大概还需要考虑留出一些对应的回调点*/
-            skillObj.cooldown = 0.1f;   //无论成功与否，都会进入gcd
+            skillObj.cooldown = 0.1f;   //无论成功与否，都会进入gcd，避免立刻再次释放，本质上是“响应间隔时间”。
             return castSuccess;
         }
 

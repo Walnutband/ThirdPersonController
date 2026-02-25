@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.bandoware.gameplaytags": {
+      "version": "file:com.bandoware.gameplaytags",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      }
+    },
     "com.crashkonijn.goap": {
       "version": "file:com.crashkonijn.goap",
       "depth": 0,
@@ -7,6 +15,13 @@
       "dependencies": {
         "com.unity.collections": "1.2.4"
       }
+    },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "73a63b7f672b88f7e9992f6917eb458a8cbb6fa9"
     },
     "com.greenbamboogames.playablegraphmonitor": {
       "version": "file:com.greenbamboogames.playablegraphmonitor@79a77b0c18",
@@ -369,6 +384,14 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "studio.physalia.flexi": {
+      "version": "file:studio.physalia.flexi",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      }
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

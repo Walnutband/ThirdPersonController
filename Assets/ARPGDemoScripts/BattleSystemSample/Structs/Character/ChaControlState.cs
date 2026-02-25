@@ -40,7 +40,7 @@ namespace ARPGDemo.BuffSystemSample
         public void Origin()
         {
             this.canMove = true; //禁锢
-            this.canRotate = true; //我只知道可以旋转、不能移动的，没见过可以移动却不能旋转的。。。
+            this.canRotate = true; //我只知道可以旋转、不能移动的，没见过可以移动却不能旋转的。。。好像也有，有那种朝向指定方向不断发射投射物的技能，过程中可以移动但不能转向。
             this.canUseSkill = true; //沉默
         }
 

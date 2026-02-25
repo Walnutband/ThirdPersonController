@@ -16,12 +16,19 @@ namespace MyPlugins.SkillEditor
         {
             get { yield return AnimationPlayableBinding.Create(name, this); }
         }
-
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
             // AnimationMixerPlayable mixer = AnimationMixerPlayable.Create(graph, inputCount);
             // ActionTrackBehaviour behaviour =  
-            return ScriptPlayable<ActionTrackBehaviour>.Create(graph, inputCount);  
+            // return ScriptPlayable<ActionTrackBehaviour>.Create(graph, inputCount);  
+            return AnimationMixerPlayable.Create(graph, inputCount);
         }
+
+        // internal override Playable CompileClips(PlayableGraph graph, GameObject go, IList<TimelineClip> timelineClips, IntervalTree<RuntimeElement> tree)
+        // {
+            
+        // }
+
+        // private Playable 
     }
 }

@@ -21,7 +21,7 @@ namespace ARPGDemo.BuffSystemSample
         public GameObject target;
 
         ///<summary>
-        ///buff的model，这里当然可以从数据里拿，也可以是逻辑脚本现生成的
+        ///buff的model，这里当然可以从数据里拿，也可以是逻辑脚本现生成的。不管怎样，这个都是Buff的核心内容。
         ///</summary>
         public BuffModel buffModel;
 

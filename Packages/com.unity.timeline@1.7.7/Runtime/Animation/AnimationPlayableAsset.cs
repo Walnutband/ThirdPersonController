@@ -323,12 +323,19 @@ namespace UnityEngine.Timeline
             driver.AddFromClip(m_Clip);
         }
 
-        /*Ques：这里似乎是，只要动画片段有Root曲线就行，但其实并不代表就有根运动。*/
+        /*Ques：这里似乎是，只要动画片段有Root曲线就行，但其实并不代表就有根运动。甚至这里的属性表达的范围更加广泛。
+        测试了一下，也没有完全确定，至少可以认为，只要有Root的曲线（Root Q或Root T均可），就会有hasRootMotion和hasRootCurves为true，如果没有Root曲线的话，则都为false。
+        而自带RootMotion的，则包括前两个，还会有hasMotionCurves为true（在AnimationClip的检视器中也可以看到提示“Root contains root motion curves”）。
+        */
         internal static bool HasRootTransforms(AnimationClip clip)
         {
             if (clip == null || clip.empty)
                 return false;
 
+            // if (clip.hasRootMotion) Debug.Log("clip.hasRootMotion为true");
+            // if (clip.hasGenericRootTransform) Debug.Log("clip.hasGenericRootTransform为true");
+            // if (clip.hasMotionCurves) Debug.Log("clip.hasMotionCurves为true");
+            // if (clip.hasRootCurves) Debug.Log("clip.hasRootCurves为true");
             return clip.hasRootMotion || clip.hasGenericRootTransform || clip.hasMotionCurves || clip.hasRootCurves;
         }
     }

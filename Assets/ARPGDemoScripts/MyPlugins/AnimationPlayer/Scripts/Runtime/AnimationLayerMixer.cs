@@ -65,6 +65,7 @@ namespace MyPlugins.AnimationPlayer
         {
             get
             {
+                // Debug.Log($"访问层级，传入的index为：{index}");
                 if (index < 0)
                 {
                     // Debug.LogError("在访问层级时传入的索引小于0，已自动修正为0");
@@ -219,6 +220,8 @@ namespace MyPlugins.AnimationPlayer
                 m_Layers.Add(null);
                 AddLayer(i);
             }
+
+            // Debug.Log($"SetLayers结束，层级数量为：{layerCount}");
         }
 
         public void ClearLayers()

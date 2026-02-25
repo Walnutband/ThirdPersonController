@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32f4e526f6c4d2a49979457203108d7a, type: 3}
+  m_Name: HelloWorld
+  m_EditorClassIdentifier: 
+  blackboard: []
+  graphGroups:
+  - jsons:
+    - '{"_type":"Physalia.Flexi.AbilityGraph","nodes":[{"_id":625881,"_position":{"x":-39.19998,"y":106.4},"_type":"Physalia.Flexi.StartNode"},{"_id":633552,"_position":{"x":179.200012,"y":82.4},"_type":"Physalia.Flexi.LogNode","text":"Hello
+      World!!"},{"_id":318811,"_position":{"x":179.200012,"y":213.6},"_type":"ARPGDemo.Test.RandomIntNode"},{"_id":967448,"_position":{"x":249.600037,"y":323.2},"_type":"ARPGDemo.Test.AddDataValueNode"}],"edges":[{"id1":625881,"port1":"next","id2":633552,"port2":"previous"}]}'

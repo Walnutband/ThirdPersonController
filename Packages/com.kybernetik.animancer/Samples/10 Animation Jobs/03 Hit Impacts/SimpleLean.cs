@@ -31,7 +31,7 @@ namespace Animancer.Samples.Jobs
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer.Samples.Jobs/SimpleLean
     /// 
-    public class SimpleLean : AnimancerJob<SimpleLean.Job>, IDisposable
+    public class SimpleLean : AnimancerJob<SimpleLean.Job>, IDisposable //通过泛型传入Job类型，也就是作为数据类型，实现了IAnimationJob。
     {
         /************************************************************************************************************************/
         #region Initialization
@@ -46,12 +46,13 @@ namespace Animancer.Samples.Jobs
 
             _Job = new()
             {
-                root = animator.BindStreamTransform(animator.transform),
+                root = animator.BindStreamTransform(animator.transform), //以此为根。
                 bones = leanBones,
                 axis = axis,
                 angle = AnimancerUtilities.CreateNativeReference<float>(),
             };
 
+            //创建AnimationScriptPlayable节点，并且插入到AnimationPlayableOutput的前面。
             CreatePlayable(animancer);
 
             animancer.Disposables.Add(this);
@@ -97,6 +98,7 @@ namespace Animancer.Samples.Jobs
 
         void IDisposable.Dispose() => Dispose();
 
+        //Tip：NativeArray原生数组，自己管理内存，所以记得销毁。
         /// <summary>Cleans up the <see cref="NativeArray{T}"/>s.</summary>
         /// <remarks>Called by <see cref="AnimancerGraph.OnPlayableDestroy"/>.</remarks>
         private void Dispose()
@@ -142,16 +144,19 @@ namespace Animancer.Samples.Jobs
 
             /************************************************************************************************************************/
 
+            //readonly表示：此方法不会修改结构体的任何字段
             public readonly void ProcessRootMotion(AnimationStream stream) { }
 
             /************************************************************************************************************************/
 
+            //Tip：就是这里导致的Hit效果。
             public void ProcessAnimation(AnimationStream stream)
             {
-                float angle = this.angle[0] / bones.Length;
-                Vector3 worldAxis = root.GetRotation(stream) * axis;
+                float angle = this.angle[0] / bones.Length; //平均分配角度。
+                Vector3 worldAxis = root.GetRotation(stream) * axis; //这里将axis做root的旋转，本质上就是从root的局部转换到世界。
                 Quaternion offset = Quaternion.AngleAxis(angle, worldAxis);
 
+                //Tip：虽然没完全看懂，但是从下面这个式子可以直观发现，获取原始的数据，乘以offset也就是进行一个偏移，这个偏移就是Hit的效果，然后SetRotation写回到AnimationStream中，最终输出到Animator。
                 for (int i = bones.Length - 1; i >= 0; i--)
                 {
                     TransformStreamHandle bone = bones[i];

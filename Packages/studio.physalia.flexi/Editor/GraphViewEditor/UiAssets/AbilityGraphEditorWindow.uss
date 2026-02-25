@@ -1,0 +1,204 @@
+.group-label {
+  font-size: 18px;
+}
+
+.graph-button {
+  font-size: 14px;
+}
+
+.graph-button--selected {
+  background-color: rgba(0, 127, 255, 1);
+}
+
+#node-inspector-parent .unity-base-field__label {
+  min-width: 75px;
+}
+
+.node .unity-base-field__label {
+  min-width: 50px;
+}
+
+#input-field-container {
+  --layer: -50;
+  position: absolute;
+  right: 100%;
+  top: 42px;
+  align-items: flex-end;
+  padding-top: 4px;
+}
+
+#input-field-container .port-input-element {
+  background-color: rgba(72, 72, 72, 0.6);
+  height: 20px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 2px;
+  margin-left: 2px;
+  padding-right: 1px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+#input-field-container .port-input-element__hidden {
+  visibility: Hidden;
+  height: 20px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 2px;
+  margin-left: 2px;
+  padding-right: 1px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+#input-field-container .port-input-element Vector2Field Label,
+#input-field-container .port-input-element Vector3Field Label,
+#input-field-container .port-input-element Vector4Field Label,
+#input-field-container .port-input-element Vector2IntField Label,
+#input-field-container .port-input-element Vector3IntField Label {
+  min-width: 8px;
+  flex-basis: 8px;
+  padding-top: 2px;
+  margin-right: 4px;
+}
+
+#input-field-container .port-input-element Toggle .unity-toggle__input {
+  height: 18px;
+}
+
+#input-field-container .port-input-element TextField TextInput {
+  min-width: 100px;
+  height: 18px;
+}
+
+#input-field-container .port-input-element IntegerField IntegerInput,
+#input-field-container .port-input-element LongField LongInput,
+#input-field-container .port-input-element FloatField FloatInput,
+#input-field-container .port-input-element DoubleField DoubleInput,
+#input-field-container .port-input-element Vector2Field FloatInput,
+#input-field-container .port-input-element Vector3Field FloatInput,
+#input-field-container .port-input-element Vector4Field FloatInput,
+#input-field-container .port-input-element Vector2IntField IntegerInput,
+#input-field-container .port-input-element Vector3IntField IntegerInput {
+  min-width: 50px;
+  height: 18px;
+}
+
+.node #node-border {
+  overflow: visible;
+}
+
+.node #extension {
+  background-color: rgba(43, 43, 43, 0.8);
+}
+
+.entry-node #title {
+  background-color: rgba(252, 101, 198, 0.8);
+}
+
+.entry-node #title-label {
+  color: rgb(22, 25, 36);
+  -unity-font-style: bold;
+}
+
+.entry-node #title-icon-container {
+  display: none;
+}
+
+.flow-control-node #title {
+  background-color: rgba(48, 134, 255, 0.8);
+}
+
+.flow-control-node #title-label {
+  color: rgb(8, 10, 5);
+  -unity-font-style: bold;
+}
+
+.flow-control-node #title-icon-container {
+  display: none;
+}
+
+.process-node #title {
+  background-color: rgba(48, 134, 255, 0.8);
+}
+
+.process-node #title-label {
+  color: rgb(8, 10, 5);
+  -unity-font-style: bold;
+}
+
+.process-node #title-icon-container {
+  display: none;
+}
+
+.modifier-node #title {
+  background-color: rgba(139, 107, 255, 0.8);
+}
+
+.modifier-node #title-label {
+  color: rgb(8, 10, 5);
+  -unity-font-style: bold;
+}
+
+.modifier-node #title-icon-container {
+  display: none;
+}
+
+.macro-node #title {
+  background-color: rgba(170, 233, 103, 0.71);
+}
+
+.macro-node #title-label {
+  color: rgb(22, 25, 36);
+  -unity-font-style: bold;
+}
+
+.macro-node #title-icon-container {
+  display: none;
+}
+
+.common-value-node #title {
+  background-color: rgba(63, 63, 63, 0.8);
+}
+
+.common-value-node #title-label {
+  color: rgb(193, 193, 193);
+  -unity-font-style: bold;
+}
+
+.common-value-node #title-icon-container {
+  display: flex;
+}
+
+.common-value-node #title-icon {
+  background-image: url("../Icons/CommonValueIcon.png");
+}
+
+.integer-node #title-icon {
+  background-image: url("../Icons/IntegerIcon.png");
+}
+
+.string-node #title-icon {
+  background-image: url("../Icons/StringIcon.png");
+}
+
+.other-node #title {
+  background-color: rgba(102, 102, 102, 0.8);
+}
+
+.other-node #title-label {
+  color: rgb(8, 10, 5);
+  -unity-font-style: bold;
+}
+
+.other-node #title-icon-container {
+  display: none;
+}
+
+.missing-node #title {
+  background-color: rgba(255, 0, 0, 0.8);
+}
+
+.missing-node #title-icon-container {
+  display: none;
+}

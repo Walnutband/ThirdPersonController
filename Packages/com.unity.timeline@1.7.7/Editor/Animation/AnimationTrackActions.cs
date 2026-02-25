@@ -20,6 +20,7 @@ namespace UnityEditor.Timeline
             return true;
         }
 
+        //Tip：传入的是被选中的轨道（TrackAsset）。意思就是可以同时给多个轨道创建Override Track，只是需要每个选中的轨道都符合以下的条件。
         public override ActionValidity Validate(IEnumerable<TrackAsset> tracks)
         {
             if (tracks.Any(t => t.isSubTrack || !t.GetType().IsAssignableFrom(typeof(AnimationTrack))))

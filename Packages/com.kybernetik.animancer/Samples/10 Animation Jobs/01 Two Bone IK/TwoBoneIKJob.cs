@@ -35,10 +35,12 @@ namespace Animancer.Samples.Jobs
 
         public readonly void ProcessRootMotion(AnimationStream stream)
         {
+            // Debug.Log("ProcessRootMotion");
         }
 
         public readonly void ProcessAnimation(AnimationStream stream)
         {
+            // Debug.Log("ProcessAnimation");
             Solve(stream, top, mid, low, effector);
         }
 

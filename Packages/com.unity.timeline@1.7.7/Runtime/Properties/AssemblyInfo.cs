@@ -26,3 +26,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Unity.Timeline.Tests.Common")]
 [assembly: InternalsVisibleTo("Unity.Timeline.Tests.Performance")]
 [assembly: InternalsVisibleTo("Unity.Timeline.Tests.Performance.Editor")]
+[assembly: InternalsVisibleTo("SkillEditor.Runtime")]
+

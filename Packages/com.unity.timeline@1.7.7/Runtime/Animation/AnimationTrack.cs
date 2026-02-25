@@ -537,7 +537,7 @@ namespace UnityEngine.Timeline
                 if (asset == null)
                     continue;
 
-                //这里就是因为有一个appliedOffsetMode属性需要赋值，所以进行转换。
+                //这里就是因为有一个appliedOffsetMode属性需要赋值，所以进行转换。后面在AnimationPlayableAsset的ShouldApplyOffset会基于该属性判断。
                 var animationAsset = asset as AnimationPlayableAsset;
                 if (animationAsset != null)
                     animationAsset.appliedOffsetMode = mode;
@@ -581,15 +581,16 @@ namespace UnityEngine.Timeline
 
             //Tip：就是这里，我之前一直疑惑为何自动给我开启RootMotion，原来是因为只要判断AnimationClip可以进行RootMotion（含有相关曲线）那么就自动开启RootMotion模式。
             var genericRoot = GetGenericRootNode(go); //获取Generic（通用）根节点（Transform）
-            var animatesRootTransformNoMask = AnimatesRootTransform();
+            var animatesRootTransformNoMask = AnimatesRootTransform(); //这就是没有考虑遮罩的情况下，单纯根据轨道上的片段做的判断。
+            // if (animatesRootTransformNoMask == true) Debug.Log("AnimatesRootTransform为true");
             var animatesRootTransform = animatesRootTransformNoMask && !IsRootTransformDisabledByMask(go, genericRoot);
             foreach (var subTrack in GetChildTracks())
             {
                 var child = subTrack as AnimationTrack;
                 if (child != null && child.CanCompileClips())
-                {
+                {//Tip：其实这里的判断和上面的逻辑完全一样，就是站在主轨道和子轨道的层面，只要有轨道的animatesRootTransform为true，那么就会让后续参与逻辑的animatesRootTransform为true。
                     var childAnimatesRoot = child.AnimatesRootTransform();
-                    animatesRootTransformNoMask |= child.AnimatesRootTransform();
+                    animatesRootTransformNoMask |= child.AnimatesRootTransform(); //Ques：为何不直接写childAnimatesRoot，不是相同值吗？
                     animatesRootTransform |= (childAnimatesRoot && !child.IsRootTransformDisabledByMask(go, genericRoot));
                     flattenTracks.Add(child);
                 }
@@ -601,12 +602,14 @@ namespace UnityEngine.Timeline
             //创建AnimationLayerMixerPlayable节点。
             var layerMixer = CreateGroupMixer(graph, go, flattenTracks.Count + defaultBlendCount);
             for (int c = 0; c < flattenTracks.Count; c++)
-            {
+            {//Tip：在这里发现，其实对于主轨道和子轨道都是一视同仁的，都是按照同样的条件来决定是否驱动RootTransform。只是在实际编辑的时候，确实对于主轨道会有一个特殊倾向。
                 int blendIndex = c + defaultBlendCount;
                 // if the child is masking the root transform, compile it as if we are non-root mode
                 var childMode = mode;
                 if (mode != AppliedOffsetMode.NoRootTransform && flattenTracks[c].IsRootTransformDisabledByMask(go, genericRoot))
                     childMode = AppliedOffsetMode.NoRootTransform;
+
+                Debug.Log($"索引{c}的轨道IsRootTransformDisabledByMask为{flattenTracks[c].IsRootTransformDisabledByMask(go, genericRoot)}");
 
                 //返回Mixer节点或偏移节点。
                 var compiledTrackPlayable = flattenTracks[c].inClipMode ?
@@ -623,6 +626,7 @@ namespace UnityEngine.Timeline
                 }
             }
 
+            //Tip：上面其实都是在说偏移，根节点在初始位置的偏移，而这里才是指的RootMotion根运动。
             //检查Animator的RootMotion选项。
             var requiresMotionXPlayable = RequiresMotionXPlayable(mode, go);
 
@@ -749,8 +753,10 @@ namespace UnityEngine.Timeline
         //Ques：似乎这个方法才是决定是否启用RootMotion？而非AnimatesRootTransform，似乎这是决定是否应用偏移的。
         bool RequiresMotionXPlayable(AppliedOffsetMode mode, GameObject gameObject)
         {
-            if (m_ApplyRootMotion == false) return false;
+            /*TODO：主动取消RootMotion，下面的模式判断应该属于“是否具备进行RootMotion的能力”。按理来说，没有能力那当然就返回false，而如果有，再看主观意见，所以貌似放在下面更合适。*/
+            // if (m_ApplyRootMotion == false) return false;
 
+            //过了这个条件，应该就是具备进行RootMotion的能力。
             if (mode == AppliedOffsetMode.NoRootTransform)
                 return false;
             if (mode == AppliedOffsetMode.SceneOffsetLegacy)
@@ -758,6 +764,11 @@ namespace UnityEngine.Timeline
                 var animator = GetBinding(gameObject != null ? gameObject.GetComponent<PlayableDirector>() : null);
                 return animator != null && animator.hasRootMotion;
             }
+
+            //TODO: 隐含了就是看主轨道的该选项，是否合理呢？
+            //这个选项属性就是主动取消，说白了就是有能力就默认开启，但可以主动取消，否则的话这个选项为true，意思就是完全看有没有这个能力，有就开启，没有自然就关闭。
+            if (m_ApplyRootMotion == false) return false;
+
             return true;
         }
 
@@ -996,6 +1007,7 @@ namespace UnityEngine.Timeline
         AppliedOffsetMode GetOffsetMode(GameObject go, bool animatesRootTransform)
         {
             //首先要（主动）支持RootTransform，然后才是看在检视器中选择的模式。
+            //所以另一面，就是当（主动）不支持时，就直接设置为NoRootTransform，不看其他。
             if (!animatesRootTransform)
                 return AppliedOffsetMode.NoRootTransform;
 
@@ -1006,7 +1018,8 @@ namespace UnityEngine.Timeline
             if (m_TrackOffset == TrackOffset.ApplySceneOffsets)
                 return (Application.isPlaying) ? AppliedOffsetMode.SceneOffset : AppliedOffsetMode.SceneOffsetEditor;
 
-            if (HasController(go))
+            //上面两个都没选择的话，可选的那就只有Auto了，其实也就是执行这里的逻辑。
+            if (HasController(go)) //查找绑定的Animator是否有AnimatorController。
             {
                 if (!Application.isPlaying)
                     return AppliedOffsetMode.SceneOffsetLegacyEditor;
@@ -1022,16 +1035,22 @@ namespace UnityEngine.Timeline
             if (avatarMask == null || !applyAvatarMask)
                 return false;
 
+            //传入GameObject就是为了获取绑定的Animator。
             var animator = GetBinding(gameObject != null ? gameObject.GetComponent<PlayableDirector>() : null);
             if (animator == null)
                 return false;
 
+            //Tip：其实这里的根节点，就是在AvatarMask检视器中的Humanoid看到的脚底的那个遮罩，这个就是用来控制是否启用RootMotion。
+            //人形骨骼的根节点如果Active，那么就返回false，即没有被遮。
             if (animator.isHuman)
                 return !avatarMask.GetHumanoidBodyPartActive(AvatarMaskBodyPart.Root);
 
             if (avatarMask.transformCount == 0)
                 return false;
 
+            /*Tip：注意这里检查第一个变换路径是否为空或空字符串，也就是判断其是否代表根节点，这是AvatarMask的变换路径的机制。然后就是该根节点没有Active则返回true。
+            意思就是，遮罩接管了根节点，但是又没有Active，所以就相当于根运动被遮盖了。
+            */
             // no special root supplied
             if (genericRootNode == null)
                 return string.IsNullOrEmpty(avatarMask.GetTransformPath(0)) && !avatarMask.GetTransformActive(0);
@@ -1063,7 +1082,7 @@ namespace UnityEngine.Timeline
 
             // this returns the bone name, but not the full path
             var rootName = animator.avatar.humanDescription.m_RootMotionBoneName; //内部记录好的根骨骼名称。
-            //根骨骼名称是否与Animator所在游戏对象的名称相同。
+            //根骨骼名称是否与Animator所在游戏对象的名称相同。说明不能与其相同，应当是在其以下层级的对象作为根节点。
             if (rootName == animator.name || string.IsNullOrEmpty(rootName))
                 return null;
 
@@ -1071,14 +1090,17 @@ namespace UnityEngine.Timeline
             return FindInHierarchyBreadthFirst(animator.transform, rootName);
         }
 
+        //Tip：简单来说，这里判断的就是是否具备RootTransform的能力（其实主要指的是根节点的初始偏移，而非RootMotion，但貌似也没完全分开，有点混合的意思），具备则默认开启。
         internal bool AnimatesRootTransform()
         {
             // if (m_ApplyRootMotion == false) return false;
 
+            //TODO：暂时可以不管这个infiniteClip，就看后面的。
             // infinite mode
             if (AnimationPlayableAsset.HasRootTransforms(m_InfiniteClip))
                 return true;
 
+            //Tip：理解这里的核心是理解在AnimationPlayableAsset的HasRootTransforms。
             // clip mode
             foreach (var c in GetClips())
             {//只要存在带有RootMotion的片段，就要驱动RootMotion，因为没有的也自然表现为没有，也就是兼容的。

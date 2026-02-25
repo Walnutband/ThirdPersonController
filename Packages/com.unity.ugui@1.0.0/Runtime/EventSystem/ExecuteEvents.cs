@@ -245,6 +245,10 @@ namespace UnityEngine.EventSystems
             }
         }
 
+        /*Tip：IEventSystemHandler的各个派生接口就使用强类型标识了一个特定的事件，实现该接口也就代表可以处理该事件，而这里传入的functor就是调用该接口即泛型T的接口的方法，
+        显然这是固定逻辑，因为每个接口都是确定的，而且还不能通用，因为都是不同的事件，参数并非完全相同（只要存在不同，就不能统一处理），所以需要调用不同的方法，所以由此，
+        就在ExecuteEvents中将这些每个事件对应的functor都定义为了静态方法，并且在调用这里的Execute时就是传入这些写好的静态方法。
+        */
         public static bool Execute<T>(GameObject target, BaseEventData eventData, EventFunction<T> functor) where T : IEventSystemHandler
         {
             var internalHandlers = ListPool<IEventSystemHandler>.Get();

@@ -74,10 +74,10 @@ namespace Animancer.Samples.Jobs
                 job.localRotations[i] = bone.localRotation;
                 job.positions[i] = bone.position;
 
-                bone = bone.parent;
+                bone = bone.parent; //往上查找，所以才叫做EndBone。
             }
 
-            job.rootHandle = animator.BindStreamTransform(bone);
+            job.rootHandle = animator.BindStreamTransform(bone); //注意这里的bone是向上查找了之后的那个节点，并非原本的EndBone。
 
             // Add the job to Animancer's output.
             _Animancer.Graph.InsertOutputJob(job);
@@ -113,12 +113,12 @@ namespace Animancer.Samples.Jobs
                 for (int i = 0; i < _BoneCount; i++)
                 {
                     bone = bone.parent;
-                    if (bone == root)
+                    if (bone == root) //因为到根部了，就是事实上的最顶点。
                     {
                         _BoneCount = i + 1;
                         break;
                     }
-                    else if (bone == null)
+                    else if (bone == null) //这是在BoneCount之内向上查找到最顶层，都没有找到自己的Animator的transform。
                     {
                         _EndBone = null;
                         Debug.LogWarning("The End Bone must be a child of the Animator.");

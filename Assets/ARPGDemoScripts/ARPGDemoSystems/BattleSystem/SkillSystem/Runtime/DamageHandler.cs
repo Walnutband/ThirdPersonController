@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ARPGDemo.BattleSystem
 {
+
     /*Tip：由于这只是一个处理器，职责完全是处理运行时的数据，并不需要编辑时对它单独编辑，所以用Singleton可能比SingletonMono更恰当。
     但是这个处理器又需要参与生命周期，如果没有统一管理的话，就只能自己作为组件直接参与生命周期了。
     */
@@ -17,6 +18,7 @@ namespace ARPGDemo.BattleSystem
             m_Instance = GameObject.Find("DamageHandler").GetComponent<DamageHandler>();
         }
 
+        //Tip：为了遍历的性能，也应当使用结构体。
         //每一轮处理完就清空了，
         private List<DamageInfo> damages = new List<DamageInfo>();
 
@@ -68,6 +70,9 @@ namespace ARPGDemo.BattleSystem
             //     defenderActor.ModResource(result);
             // }
 
+            /*Ques：击杀和被击杀与ModeResource的顺序似乎不固定。比如一种效果：如果此次要被击杀，则会保留1点血。这就应该在击杀之前处理，否则应该会直接触发死亡事件，
+            但也要看这个死亡事件是如何触发的。。*/
+
             //受击者被杀，就意味着攻击者进行了击杀，这就是纠缠态罢。
             if (defender != null && defender.BeKilled())
             {
@@ -92,4 +97,52 @@ namespace ARPGDemo.BattleSystem
             damages.Add(new DamageInfo(_attacker, _defender, _damage, _defense));
         }
     }
+}
+
+namespace ARPGDemo.AbilitySystem
+{
+    public class delta
+    {
+        private int a;
+
+        public class del
+        {
+            private delta d;
+
+            private void A()
+            {
+                int b = d.a;
+            }
+        }
+    }
+
+    //临时记录属性变化量
+    public struct DeltaProperySet
+    {
+
+    }
+
+    public struct DamageInfo
+    {
+        //直接float表示伤害就行了。
+        public DamageInfo(float _damage, ElementalAttribute _e)
+        {
+            
+        }
+    }
+
+    //伤害属性（物理或元素）
+    public enum ElementalAttribute
+    {
+        Physics,
+        HUO,
+        SHUI,
+        CAO,
+        LEI,
+        FENG,
+        BING,
+        YAN        
+    }
+
+    
 }

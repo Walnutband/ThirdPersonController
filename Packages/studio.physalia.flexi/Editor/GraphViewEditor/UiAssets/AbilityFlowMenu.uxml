@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Button text="New Group" name="button-new-group" style="height: 40px; font-size: 14px; width: 120px;" />
+    <ui:VisualElement style="height: 10px;" />
+    <ui:VisualElement name="element-parent" />
+</ui:UXML>

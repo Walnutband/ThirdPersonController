@@ -265,4 +265,10 @@ namespace ARPGDemo.ControlSystem
 
     }
 
+
+    public class ActorStateMachine
+    {
+        
+    }
+
 }

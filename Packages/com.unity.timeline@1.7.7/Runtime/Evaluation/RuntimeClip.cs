@@ -52,10 +52,10 @@ namespace UnityEngine.Timeline
         }
 
         public override bool enable
-        {
+        {//TODO：应当在进入播放和退出播放的时刻设置回调。
             set
             {
-                //从暂停到播放，所以调用Play，而且从ClipIn开始。
+                //从暂停到播放，所以调用Play，而且从ClipIn开始，这里就是支持的ClipIn功能。
                 if (value && m_Playable.GetPlayState() != PlayState.Playing)
                 {
                     m_Playable.Play();
@@ -64,7 +64,8 @@ namespace UnityEngine.Timeline
                 else if (!value && m_Playable.GetPlayState() != PlayState.Paused)
                 {
                     m_Playable.Pause();
-                    if (m_ParentMixer.IsValid())
+                    //这里是因为调用DisableAt才会设置enable=false，而调用DisableAt意味着不会调用EvaluateAt，也就是不会设置权重，所以在此处需要手动设置权重为0。所以也算是一个补丁代码
+                    if (m_ParentMixer.IsValid()) 
                         m_ParentMixer.SetInputWeight(m_Playable, 0.0f);
                 }
             }

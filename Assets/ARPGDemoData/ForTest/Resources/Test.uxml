@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement style="flex-grow: 0; height: 243px; flex-direction: row;">
-        <ui:VisualElement style="flex-grow: 0; background-image: url(&quot;project://database/Assets/AssetsPackage/Arts/Fantasy%20Wooden%20GUI%20%20Free/normal_ui_set%20A/1_normal_ui_set%20free.psd?fileID=2800000&amp;guid=1ab331a196bae1046b7a75ed7e3f6b46&amp;type=3#1_normal_ui_set free&quot;); flex-shrink: 0; height: 198px; flex-basis: 52%; scale: 1 2; transform-origin: center; translate: 64px 0;">
-            <ui:VisualElement style="flex-grow: 1;" />
-        </ui:VisualElement>
-    </ui:VisualElement>
-</ui:UXML>

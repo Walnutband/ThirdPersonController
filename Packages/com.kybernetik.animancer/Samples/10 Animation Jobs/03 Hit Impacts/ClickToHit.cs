@@ -52,7 +52,8 @@ namespace Animancer.Samples.Jobs
             if (!Physics.Raycast(ray, out RaycastHit raycastHit))// Note the exclamation mark !
                 return;
 
-            Vector3 direction = _HitReceiver.transform.position - raycastHit.point;
+            // Vector3 direction = _HitReceiver.transform.position - raycastHit.point;
+            Vector3 direction =  raycastHit.point - _HitReceiver.transform.position;
             _HitReceiver.Hit(direction, force);
         }
 

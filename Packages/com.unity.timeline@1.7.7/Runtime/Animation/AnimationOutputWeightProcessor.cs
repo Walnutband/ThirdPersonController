@@ -27,6 +27,7 @@ namespace UnityEngine.Timeline
             FindMixers();
         }
 
+        //Tip：LayerMixer节点就是通过以Output节点作为起点，利用节点的连接关系，向下查找而获取到的，而在创建和连接节点的那部分逻辑中并未处理LayerMixer的记录。
         void FindMixers()
         {
             var playable = m_Output.GetSourcePlayable();

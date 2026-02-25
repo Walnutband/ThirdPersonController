@@ -205,3 +205,12 @@ namespace ARPGDemo.BattleSystem
     /**/
     // public delegate TimelineObj BuffOnCast(Buff buff, SkillObj skill, TimelineObj timeline);
 }
+
+
+namespace ARPGDemo.AbilitySystem
+{
+    public class GameplayEffectHandler : MonoBehaviour
+    {
+        
+    }
+}

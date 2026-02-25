@@ -159,7 +159,9 @@ namespace UnityEngine.Timeline
             if (track.isSubTrack)
                 return;
 
-            /*Tip：注意这里很重要，TrackAsset如果有特殊的Output节点的话，就应该重写outputs，不过我比较疑惑的是，真的会存在带有多个Output节点的轨道吗？？*/
+            /*Ques：注意这里很重要，TrackAsset如果有特殊的Output节点的话，就应该重写outputs，不过我比较疑惑的是，真的会存在带有多个Output节点的轨道吗？？
+            而且如果是多个Output节点的话，那么还都会连接到同一个端口上，这对吗？？
+            */
             var bindings = track.outputs;
             foreach (var binding in bindings)
             {
@@ -181,7 +183,6 @@ namespace UnityEngine.Timeline
                 //对于Audio的特殊处理，就是在跳转时是否要播放音频，一般都是不要播放，因为音频的效果本来就是连续的，尽管程序上确实可以采样离散的音频，但其实是违背常理的。
                 if (playableOutput.IsPlayableOutputOfType<AudioPlayableOutput>())
                     ((AudioPlayableOutput)playableOutput).SetEvaluateOnSeek(!muteAudioScrubbing);
-
 
                 /*TODO：这里见将Marker轨道的UseData设置为PlayableDirector，但是似乎也不会用到，只是相当于一个占位。如何去掉这里对于PlayableDirector的依赖呢？*/
                 // If the track is the timeline marker track, assume binding is the PlayableDirector
@@ -287,9 +288,11 @@ namespace UnityEngine.Timeline
             if (m_IntervalTree == null)
                 return;
 
+            //Tip：注意考虑第一帧，m_ActiveBit初始为0，而在此立刻变为1，所以
             //获取当前的运行进度。（感觉还是“进度”更恰当，之前用的“时间”“时刻”感觉都差点意思。）
             double localTime = playable.GetTime();
             m_ActiveBit = m_ActiveBit == 0 ? 1 : 0; //就是在1和0之间切换。
+
 
             m_CurrentListOfActiveClips.Clear();
             m_IntervalTree.IntersectsWith(DiscreteTime.GetNearestTick(localTime), m_CurrentListOfActiveClips);
@@ -321,6 +324,7 @@ namespace UnityEngine.Timeline
             }
 
             //运行后的回调。
+            //Tip：注意这是在PrepareFrame中调用，在处理之后，才是ProcessFrame正式执行相关逻辑来得到最终要输出的内容。
             int count = m_EvaluateCallbacks.Count;
             for (int i = 0; i < count; i++)
             {

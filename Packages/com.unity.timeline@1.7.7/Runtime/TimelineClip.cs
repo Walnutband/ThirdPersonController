@@ -112,7 +112,7 @@ namespace UnityEngine.Timeline
         [SerializeField] Object m_Asset;
         [SerializeField] [FormerlySerializedAs("m_HackDuration")] double m_Duration;
         [SerializeField] double m_TimeScale = 1.0; //就是检视器中看到的Spped Multiplier
-        [SerializeField] TrackAsset m_ParentTrack;
+        [SerializeField] TrackAsset m_ParentTrack; //该片段所在Track。 
 
         /*Tip：简单来说，Blend是与其他动画片段有交集而必然出现的，而Ease是主动设置的，只有支持混合功能才会在编辑器中能够重叠，由此就出现了Blend，否则就是默认没有Blend或Ease，而可以手动设定Ease。*/ 
         // for mixing out scripts - default is no mix out (i.e. flat)

@@ -294,7 +294,7 @@ namespace UnityEngine.Timeline
                 }
                 //默认就是自定义轨道，所以ScriptPlayableBinding，而特殊的如Animation和Audio，就有自己特定的AnimationPlayableBinding和AudioPlayableBinding
                 var trackBindingType = attribute != null ? attribute.type : null;
-                ///注意，<see cref="TimelinePlayable.CreateTrackOutput"/>，由此会发现这里的作为参数的this就是SetReferenceObject的对象。
+                ///注意，<see cref="TimelinePlayable.CreateTrackOutput"/>，由此会发现这里的作为参数的this就是SetReferenceObject的对象，也就是key就会作为PlayableBinding的sourceObject，type会成为outputTargetType。
                 yield return ScriptPlayableBinding.Create(name, this, trackBindingType);
             }
         }
@@ -382,6 +382,7 @@ namespace UnityEngine.Timeline
                 if (locked)
                     return true;
 
+                //看自己，或者往上看GroupTrack。
                 TrackAsset p = this;
                 while (p.parent as TrackAsset != null)
                 {
@@ -818,6 +819,7 @@ namespace UnityEngine.Timeline
             return notificationsPlayable.IsValid() ? notificationsPlayable : mixerPlayable;
         }
 
+        /*Tip：实际上这个写成虚方法，大概可以代表Unity官方确实考虑过这方面的重写逻辑*/
         //Tip：生成轨道节点以及各个片段的节点，并且将各个片段节点连接到轨道节点上的对应端口上（还没有将轨道节点连接到中枢节点上）。
         internal virtual Playable CompileClips(PlayableGraph graph, GameObject go, IList<TimelineClip> timelineClips, IntervalTree<RuntimeElement> tree)
         {
@@ -931,6 +933,7 @@ namespace UnityEngine.Timeline
             return CompileClips(graph, go, s_BuildData.clipList, tree);
         }
 
+        //Ques：暂不明确这个方法到底有何用？？
         internal void ConfigureTrackAnimation(IntervalTree<RuntimeElement> tree, GameObject go, Playable blend)
         {
             if (!hasCurves)

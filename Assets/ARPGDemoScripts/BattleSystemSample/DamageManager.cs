@@ -101,7 +101,7 @@ namespace ARPGDemo.BuffSystemSample
                     -dVal
                 ));
                 //按游戏设计的规则跳数字，如果要有暴击，也可以丢在策划脚本函数（lua可以返回多参数）也可以随便怎么滴
-                //这属于UI表现层的内容，实际上应该通过类似于UIManager的类调用UI的相关逻辑，比如触发某个UI元素的某个回调、并且将自己的相关数据传入。
+                //Tip：这属于UI表现层的内容，实际上应该通过类似于UIManager的类调用UI的相关逻辑，比如触发某个UI元素的某个回调、并且将自己的相关数据传入。
                 SceneVariants.PopUpNumberOnCharacter(dInfo.defender, Mathf.Abs(dVal), isHeal);
             }
 

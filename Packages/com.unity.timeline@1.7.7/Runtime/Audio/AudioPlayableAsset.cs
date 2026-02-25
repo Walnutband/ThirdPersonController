@@ -90,6 +90,7 @@ namespace UnityEngine.Timeline
             if (m_Clip == null)
                 return Playable.Null;
 
+            //Tip：这里GetHandle是公开方法，但是Handle的其他方法就是内部方法了，这里的SetScriptInstance可以通过GetObject<>()来获取所设置的实例。
             var audioClipPlayable = AudioClipPlayable.Create(graph, m_Clip, m_Loop);
             audioClipPlayable.GetHandle().SetScriptInstance(m_ClipProperties.Clone());
 

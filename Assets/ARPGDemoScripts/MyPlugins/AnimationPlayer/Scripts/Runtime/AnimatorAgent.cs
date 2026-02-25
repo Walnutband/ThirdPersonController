@@ -8,7 +8,7 @@ namespace MyPlugins.AnimationPlayer
     /*Tip：改名为了“Animator代理”，因为终究要落实到Animator，这里就是替代了AnimatorContorller的职责。
     但是命名空间还是保持AnimationPlayer，因为作用本质上就是播放动画。*/
     // public class AnimationPlayer : MonoBehaviour
-    [AddComponentMenu("ARPGDemo/MyPlugins/AnimatorAgent")]
+    [AddComponentMenu("ARPGDemo/MyPlugins/AnimationPlayer/AnimatorAgent")]
     public class AnimatorAgent : MonoBehaviour
     {
         [SerializeField] private Animator m_Animator;

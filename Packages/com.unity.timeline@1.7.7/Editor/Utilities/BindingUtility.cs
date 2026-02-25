@@ -19,6 +19,7 @@ namespace UnityEditor.Timeline
 
         const string k_BindingOperation = "Bind Track";
 
+        //Tip：绑定轨道的目标对象。
         public static void Bind(PlayableDirector director, TrackAsset bindTo, Object objectToBind)
         {
             if (director == null || bindTo == null || TimelineWindow.instance == null)
@@ -28,8 +29,8 @@ namespace UnityEditor.Timeline
                 return;
 
             TimelineWindow.instance.state.previewMode = false; // returns all objects to previous state
-            TimelineUndo.PushUndo(director, k_BindingOperation);
-            director.SetGenericBinding(bindTo, objectToBind);
+            TimelineUndo.PushUndo(director, k_BindingOperation); //先存储当前状态在Undo栈中，然后在下面绑定，以便可以撤销绑定操作、回到绑定前的状态。
+            director.SetGenericBinding(bindTo, objectToBind); //将轨道绑定到Object对象，该对象会在运行时成为轨道输出节点的UserData。
             TimelineWindow.instance.state.rebuildGraph = true;
         }
 

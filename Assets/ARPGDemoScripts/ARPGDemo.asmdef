@@ -9,7 +9,8 @@
         "Unity.Addressables",
         "DOTween",
         "MyPlugins.AnimationPlayer",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Physalia.Flexi"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

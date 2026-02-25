@@ -42,7 +42,8 @@ namespace Animancer.Samples.Jobs
         protected virtual void Awake()
         {
             Debug.Assert(_Bones.Length > 0, "No bones are assigned.", this);
-            NativeArray<TransformStreamHandle> boneHandles =
+            //将Transform与Animator绑定，返回TransformStreamHandle。
+            NativeArray<TransformStreamHandle> boneHandles = 
                 AnimancerUtilities.ConvertToTransformStreamHandles(_Bones, _Animancer.Animator);
             _Lean = new(_Animancer.Graph, Vector3.right, boneHandles);
         }
@@ -51,6 +52,7 @@ namespace Animancer.Samples.Jobs
 
         public void Hit(Vector3 direction, float force)
         {
+            //Tip：这里叉积很细节，基于常理，向哪个方向倾斜，应该绕其垂直方向旋转，而非绕倾斜的方向。
             _Lean.Axis = Vector3.Cross(Vector3.up, direction).normalized;
 
             _Speed = force;
@@ -62,6 +64,7 @@ namespace Animancer.Samples.Jobs
 
         protected virtual void Update()
         {
+            //倾向于向0插值，所以会看到受到Hit偏移之后会逐渐回归到正常状态（动画原始数据，因为Hit本质上就是在原始数据上加了一个偏移值）。
             float angle = Mathf.SmoothDamp(_Lean.Angle, 0, ref _Speed, _SmoothingTime);
             angle = Math.Min(angle, _MaximumAngle);
             _Lean.Angle = angle;

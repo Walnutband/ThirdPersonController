@@ -166,8 +166,8 @@ MonoBehaviour:
     TargetNode: 0
     FollowNode: 0
     RotateByNode: 0
-  ColliderOffset: {x: 0, y: 0, z: -0.12031689}
-  ColliderSize: {x: 1, y: 1, z: 1.4696195}
+  ColliderOffset: {x: 0.31583703, y: 0, z: 0.5685909}
+  ColliderSize: {x: 1.631674, y: 1, z: 2.847435}
   Radius: 1
   Height: 1
 --- !u!114 &5766600694809400285

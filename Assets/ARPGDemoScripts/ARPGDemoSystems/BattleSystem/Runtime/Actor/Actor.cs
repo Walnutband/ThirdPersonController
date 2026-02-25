@@ -24,4 +24,14 @@ namespace ARPGDemo.BattleSystem
             // m_Property = new ActorProperty();
         }
     }
+
+    
+}
+
+namespace ARPGDemo.AbilitySystem
+{
+    public class ActorProfile
+    {
+                
+    }
 }

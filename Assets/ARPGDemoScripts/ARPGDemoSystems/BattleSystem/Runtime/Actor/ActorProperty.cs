@@ -175,6 +175,8 @@ namespace ARPGDemo.BattleSystem
         private int m_HP;
         public int hp { get => m_HP; private set => m_HP = value; }
         private int m_MaxHP;
+        //可能也会有以MaxHP作为条件的技能、动作之类的
+        public int maxHP { get => m_MaxHP; private set => m_MaxHP = value; }
         public event Action HPMinEvent;
         public event Action HPMaxEvent;
 
@@ -184,7 +186,7 @@ namespace ARPGDemo.BattleSystem
         private int m_MaxMP;
 
         private int m_SP;
-        public int sp { get => m_SP; private set => m_SP = value; }
+        public int sp { get => m_SP; set => m_SP = value; }
         private int m_MaxSP;
 
         /*异常值计算，就是读条，从0到临界点，触发效果，持续效果如中毒就是从临界点再逐渐降到0，如果是即时效果如出血那就是直接变为0*/
@@ -377,4 +379,16 @@ namespace ARPGDemo.BattleSystem
 
     }
 
+}
+
+namespace ARPGDemo.AbilitySystem
+{
+
+
+    public class ActorPropertySet
+    {
+        public float hp;
+        public float mp;
+        public float sp;    
+    }
 }

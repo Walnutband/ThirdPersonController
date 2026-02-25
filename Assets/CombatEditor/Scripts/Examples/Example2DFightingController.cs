@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /*Ques: 不知道这里为何要使用partial关键字，虽然确实是将每个动作都分别写在一个partial类中，但属实没必要，完全可以使用#region来划分区域，因为partial关键字本来就是为了
 让一个类分为几部分写在不同的文件中，而不是像这样挤在同一个文件中。*/
@@ -133,7 +134,8 @@ namespace CombatEditor
         }
         void SaveAttackBufferOnInput()
         {
-            if (Input.GetKey(AttackKey))
+            // if (Input.GetKey(AttackKey))
+            if (Keyboard.current.jKey.isPressed)
             {
                 LastPressAttackTime = Time.time;
             }
@@ -161,11 +163,13 @@ namespace CombatEditor
         }
         void UpdateStateWithInput_Idle()
         {
-            if (Input.GetAxisRaw("Horizontal") != 0)
+            // if (Input.GetAxisRaw("Horizontal") != 0)
+            if ((Keyboard.current.aKey.ReadValue() * -1 + Keyboard.current.dKey.ReadValue()) != 0)
             {
                 ChangeState(CharacterState.Run);
             }
-            if (Input.GetKeyDown(AttackKey))
+            // if (Input.GetKeyDown(AttackKey))
+            if (Keyboard.current.jKey.isPressed)
             {
                 ChangeState(CharacterState.Attack1);
             }
@@ -193,11 +197,13 @@ namespace CombatEditor
         }
         void UpdateStateWithInput_Run()
         {
-            if (Input.GetAxisRaw("Horizontal") == 0)
+            // if (Input.GetAxisRaw("Horizontal") == 0)
+            if ((Keyboard.current.aKey.ReadValue() * -1 + Keyboard.current.dKey.ReadValue()) == 0)
             {
                 ChangeState(CharacterState.Idle);
             }
-            if (Input.GetKeyDown(AttackKey))
+            // if (Input.GetKeyDown(AttackKey))
+            if (Keyboard.current.jKey.isPressed)
             {
                 ChangeState(CharacterState.Attack1);
             }
@@ -209,7 +215,8 @@ namespace CombatEditor
         void FixedUpdateWithInput_Run()
         {
             //HandleRotation;
-            var Direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
+            // var Direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
+            var Direction = new Vector3(Keyboard.current.aKey.ReadValue() * -1 + Keyboard.current.dKey.ReadValue(), 0, 0);
             if (Direction != Vector3.zero)
             {
                 TargetAnimator.transform.forward = Direction;

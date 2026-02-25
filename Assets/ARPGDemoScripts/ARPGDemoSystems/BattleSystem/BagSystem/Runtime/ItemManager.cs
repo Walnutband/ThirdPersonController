@@ -16,3 +16,8 @@ namespace ARPGDemo.BattleSystem
         // }
     }
 }
+
+namespace ARPGDemo.AbilitySystem
+{
+    
+}

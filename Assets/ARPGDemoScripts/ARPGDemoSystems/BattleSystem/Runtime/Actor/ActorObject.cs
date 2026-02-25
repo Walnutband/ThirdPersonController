@@ -307,3 +307,11 @@ namespace ARPGDemo.BattleSystem
         }
     }
 }
+
+namespace ARPGDemo.AbilitySystem
+{
+    public class ActorObject : MonoBehaviour
+    {
+        
+    }
+}

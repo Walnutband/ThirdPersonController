@@ -44,10 +44,13 @@ namespace ARPGDemo.BuffSystemSample
         ///</summary>
         public string id; //分类、查找、替换，等等操作。
 
+        /*TODO：技能的使用条件可能不一定只有资源要求，还会有一些条件判断之类的，大概可以写一个虚方法MeetCondition或MeetRequirement，默认实现就是这里的是否满足资源量要求，
+        或者说，使用组合而非这种继承的方式？可能会更好，留下组合的通道（接口），以便引用其他条件？
+        */
         ///<summary>
         ///技能使用的条件，这个游戏中只有资源需求，比如hp、ammo之类的
         ///</summary>
-        public ChaResource condition;
+        public ChaResource condition; 
 
         ///<summary>
         ///技能的消耗，成功之后会扣除这些资源
