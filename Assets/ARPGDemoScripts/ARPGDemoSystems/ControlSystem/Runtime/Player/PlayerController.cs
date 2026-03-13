@@ -1,4 +1,5 @@
 using ARPGDemo.BattleSystem;
+using ARPGDemo.CustomAttributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;

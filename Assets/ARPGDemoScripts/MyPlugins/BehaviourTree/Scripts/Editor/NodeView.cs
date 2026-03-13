@@ -10,7 +10,9 @@ using UnityEditor;
 namespace MyPlugins.BehaviourTree.EditorSection
 {
 
-    public class NodeView : UnityEditor.Experimental.GraphView.Node { //与自定义Node区别，这里的Node是为了在GraphView视图中以节点的形式显示，而自定义Node是作为运行时的节点存在
+    //与自定义Node区别，这里的Node是为了在GraphView视图中以节点的形式显示，而自定义Node是作为运行时的节点存在
+    //Tip：当时的理解很奇怪，其实就是视图节点和数据节点，一个用于编辑器UI，一个用于运行时逻辑。
+    public class NodeView : UnityEditor.Experimental.GraphView.Node { 
         public Action<NodeView> OnNodeSelected;
         public NodeData node; //对应的数据节点
         public Port input;
@@ -29,12 +31,14 @@ namespace MyPlugins.BehaviourTree.EditorSection
             style.left = node.position.x;
             style.top = node.position.y;
 
-            CreateInputPorts();
-            CreateOutputPorts();
-            SetupClasses();
-            SetupDataBinding();
+            CreateInputPorts(); //创建输入端口。
+            CreateOutputPorts(); //创建输出端口。
+            SetupClasses(); //设置样式
+            SetupDataBinding(); //
         }
 
+
+        /*Tip：这些都是NodeView的UXMl中*/
         /// <summary>
         /// 设置样式类，以便自动应用对应节点类型的样式选择器
         /// </summary>
@@ -66,7 +70,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
         }
 
         
-        
+        //Tip：都是GraphView提供的类型。
         //创建输入端口，主要是为不同类型设置能否连接多个端口（Single或Multiple）
         private void CreateInputPorts() {
             if (node is ActionNode) {
@@ -75,12 +79,12 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 input = new NodePort(Direction.Input, Port.Capacity.Single);
             } else if (node is DecoratorNode) {
                 input = new NodePort(Direction.Input, Port.Capacity.Single);
-            } else if (node is RootNode) {
+            } else if (node is RootNode) { //根节点只有输出端口，没有输入端口。
 
             }
 
             if (input != null) {
-                input.portName = ""; //没有端口名，就只是一个小圆圈。端口名就是与圆圈同级的一个Label的Text属性值。
+                input.portName = ""; //没有端口名，就只是一个小圆圈。端口名就是与圆圈同级的一个Label的Text属性值，实在没啥必要。
                 input.style.flexDirection = FlexDirection.Column;
                 /*Tip；这一步添加端口，会自动将端口类Port的node字段设置为该类的引用。
                 还有这里的inputContainer和下面的outputContainer，默认引用的是名为input和output的元素，所以在NoewView的uxml文件中
@@ -90,14 +94,17 @@ namespace MyPlugins.BehaviourTree.EditorSection
         }
 
         private void CreateOutputPorts() {
-            if (node is ActionNode) {
+            if (node is ActionNode) { //动作节点必然是叶子结点，所以没有输出端口。
 
             } else if (node is ControlNode) {
                 output = new NodePort(Direction.Output, Port.Capacity.Multi);
             } else if (node is DecoratorNode) {
                 output = new NodePort(Direction.Output, Port.Capacity.Single);
             } else if (node is RootNode) {
+                //Tip：不知道为什么之前写成了Single，根节点明显就是要连接多个分支啊。。。
+                //TODO：但是发现，牵涉到运行时部分，暂时不动。
                 output = new NodePort(Direction.Output, Port.Capacity.Single);
+                // output = new NodePort(Direction.Output, Port.Capacity.Multi);
             }
 
             if (output != null) {
@@ -113,10 +120,10 @@ namespace MyPlugins.BehaviourTree.EditorSection
             //基类方法会根据鼠标移动长度来相应地移动节点位置。
             base.SetPosition(newPos); //如果没有调用基类方法，但存储了位置，会发现再次打开窗口时会设置为之前鼠标松开的位置
             // Debug.Log("调用SetPosition");
-            //按下撤销键会发现退回到开始移动时的位置，其实是因为注册了treeView的OnUndoRedo方法，会立刻刷新视图数据，否则的话就只是回退了NodeData记录的值、并没有同步到UI显示。
+            //Tip：按下撤销键会发现退回到开始移动时的位置，其实是因为注册了treeView的OnUndoRedo方法，会立刻刷新视图数据，否则的话就只是回退了NodeData记录的值、并没有同步到UI显示。
             Undo.RecordObject(node, "Behaviour Tree (Set Position)");
             //左上角为原点，代表坐标位置
-            //NodeData记录位置数据。
+            //Tip：NodeData记录位置数据，因为需要脱离编辑器，而编辑器中更换行为树之后会将之前的视图节点全部清空，所以需要放在数据节点中才能持久存储。
             node.position.x = newPos.xMin;
             node.position.y = newPos.yMin;
             EditorUtility.SetDirty(node);
@@ -134,7 +141,8 @@ namespace MyPlugins.BehaviourTree.EditorSection
         但确实触发该方法的位置又在NodeView这里。
         还有一点，设置为Action委托主要是为了扩展性（其实就是观察者模式），因为选中节点以后可能会增加其他要执行的方法，而不仅仅是更新检视视图。
         */
-        //GraphElement被选中时调用（似乎是鼠标单击选中时触发，但框选不会触发）
+
+        //Tip：GraphElement被选中时调用（似乎是鼠标单击选中时触发，但框选不会触发）
         public override void OnSelected() { 
             base.OnSelected();
             if (OnNodeSelected != null) {
@@ -182,6 +190,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             }
         }
 
+        //Tip：重写以给视图节点的上下文菜单添加更多内容（在默认的基础上），当然也可以不调用base实现，就不会有默认的菜单项了。
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             base.BuildContextualMenu(evt);

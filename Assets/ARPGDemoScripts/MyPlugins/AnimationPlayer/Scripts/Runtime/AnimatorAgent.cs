@@ -12,6 +12,7 @@ namespace MyPlugins.AnimationPlayer
     public class AnimatorAgent : MonoBehaviour
     {
         [SerializeField] private Animator m_Animator;
+        public Animator animator => m_Animator;
 
         [SerializeField] private AnimatorAgentSettings m_Settings;
 
@@ -19,7 +20,7 @@ namespace MyPlugins.AnimationPlayer
         更具有可读性，但是实际上来说，要么是一层要么就是两层分为上半身和下半身，这才是通常情况。*/
 
         private AnimationGraph m_Graph;
-        public AnimationGraph graph
+        private AnimationGraph graph
         {
             get
             {
@@ -31,7 +32,7 @@ namespace MyPlugins.AnimationPlayer
             }
         }
 
-
+        //在Awake时就会自己维护一个图。
         private void Awake()
         {
             //默认该组件就是与Animator放在同一个游戏对象上。
@@ -41,6 +42,11 @@ namespace MyPlugins.AnimationPlayer
             {
                 ApplySettings(m_Settings);
             }
+        }
+
+        private void Reset()
+        {
+            if (m_Animator == null) m_Animator = GetComponent<Animator>();
         }
 
         private void Start()
@@ -67,40 +73,28 @@ namespace MyPlugins.AnimationPlayer
             m_Graph?.Destroy();
         }
 
-        //应用设置，虽然设置为公开，但是应当只在初始化时才会调用一次。
-        public void ApplySettings(AnimatorAgentSettings _settings)
+        private void ApplySettings(AnimatorAgentSettings _settings)
         {
-            if (_settings == null) return;
-
-            if (_settings.layerCount > 0)
+            graph.layerMixer.SetLayers(_settings.layerCount);
+            for (int i = 0; i < _settings.layerCount; i++)
             {
-                graph.SetLayerCount(_settings.layerCount);
-            }
-            List<AnimatorAgentSettings.LayerMask> masks = _settings.layerMasks;
-            if (masks != null && masks.Count > 0)
-            {
-                for (int i = 0; i < masks.Count; i++)
-                {
-                    graph.SetLayerMask((uint)i, masks[i].mask);
-                }
-            }
-            List<AnimatorAgentSettings.LayerBlend> blends = _settings.layerBlends;
-            if (blends != null && blends.Count > 0)
-            {
-                for (int i = 0; i < blends.Count; i++)
-                {
-                    graph.SetLayerAdditive((uint)i, blends[i].additive);
-                }
+                SetLayerMask((uint)i, _settings.layerInfos[i].mask);
+                SetLayerAdditive((uint)i, _settings.layerInfos[i].additive);
             }
         }
 
-        public AnimationClipState Play(AnimationClip _clip, PlayOption option = PlayOption.FromStart)
+        public AnimationClipState Play(AnimationClip _clip, PlayOptions option = PlayOptions.None)
         {
             return Play(0, _clip, option);
         }
 
+        public AnimationClipState Play(AnimationClip _clip, float _fadeDuration)
+        {
+            return graph.Play(0, _clip, _fadeDuration);
+        }
+
         /*Tip：参数默认值有一些限制，比如必须放在非默认参数之后，必须是编译时常量等等，这个时候就应该改为使用重载了。*/
-        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, PlayOption option = PlayOption.FromStart)
+        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, PlayOptions option = PlayOptions.None)
         {
             if (_layerIndex < 0)
             {
@@ -110,14 +104,19 @@ namespace MyPlugins.AnimationPlayer
             return graph.Play(_layerIndex, _clip, option); 
         }
 
-        public AnimationClipState Play(FadeAnimation _fade)
+        public AnimationClipState Play(FadeAnimation _fade, PlayOptions _option = PlayOptions.None)
         {
-            return Play(0, _fade);
+            return Play(0, _fade, _option);
         }
 
-        public AnimationClipState Play(int _layerIndex, FadeAnimation _fade)
+        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, float _fadeDuration, PlayOptions _option = PlayOptions.None)
         {
-            return graph.Play(_layerIndex, _fade);
+            return Play(_layerIndex, new FadeAnimation(_clip, _fadeDuration), _option);
+        }
+
+        public AnimationClipState Play(int _layerIndex, FadeAnimation _fade, PlayOptions _option = PlayOptions.None)
+        {
+            return graph.Play(_layerIndex, _fade, _option);
         }
 
         public AnimationMixerState Play(MixerAnimation _mixer)
@@ -130,10 +129,17 @@ namespace MyPlugins.AnimationPlayer
             return graph.Play(_layerIndex, _mixer);
         }
 
+        //新增，为了方便外部编辑而定制了一些类型。
+        public AnimationClipState Play(FadeAnimation_ForAbilityTask _fade)
+        {
+            return Play(_fade.layerIndex, _fade.ToFadeAnimation());
+        }
+
         //对于层级的创建无需外部调用，外部只需要指定层级
 
         public void SetLayerMask(uint _index, AvatarMask _mask)
         {
+            if (_mask == null) return;
             graph.SetLayerMask(_index, _mask);
         }
 

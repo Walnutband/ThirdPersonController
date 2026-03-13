@@ -235,11 +235,12 @@ namespace ARPGDemo.UISystem_Old
             return canvasGroup;
         }
 
+        /*Tip：*/
         /// <summary>
         /// 为对应的UI层创建对应的画布。这里是从无到有创建Canvas对象的一个完整过程
         /// </summary>
         /// <returns>返回创建的UILayer游戏对象挂载的Canvas组件</returns>
-        public static Canvas CreateLayerCanvas(UILayer layer, bool is3D, Transform parent, Camera camera, float width, float height)
+        public static Canvas CreateLayerCanvas(UILayerType layer, bool is3D, Transform parent, Camera camera, float width, float height)
         {
             GameObject canvasGo = new GameObject(layer.ToString()); //直接以枚举常量名作为游戏对象名
             RectTransform rectTransform = canvasGo.AddComponent<RectTransform>();
@@ -250,8 +251,8 @@ namespace ARPGDemo.UISystem_Old
             canvasGo.layer = is3D ? Layer.Default : Layer.UI; //设置层级，用于相机剔除。UI相机只显示UI层级的对象
             Canvas canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = is3D ? RenderMode.WorldSpace : RenderMode.ScreenSpaceCamera;
-            canvas.overrideSorting = true;
-            canvas.sortingOrder = (int)layer;
+            canvas.overrideSorting = true; //不继承父Canvas的
+            canvas.sortingOrder = (int)layer; //在整个“UI”Layer中的渲染顺序。
             canvas.worldCamera = camera; //这应该就是在检视器中看到的渲染相机的对应属性，只不过定义在C++中。
             canvas.pixelPerfect = false;
             CanvasScaler canvasScaler = canvasGo.AddComponent<CanvasScaler>();
@@ -260,8 +261,8 @@ namespace ARPGDemo.UISystem_Old
             //参考分辨率，要看做什么游戏，PC的话大概就是1920*1080
             canvasScaler.referenceResolution = new Vector2(width, height);
             canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand; //扩展方式进行缩放。
-
-            canvasGo.AddComponent<GraphicRaycaster>(); //投射射线
+            //射线投射器，事件系统的基础。
+            canvasGo.AddComponent<GraphicRaycaster>(); 
 
             return canvas;
         }

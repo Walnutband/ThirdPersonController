@@ -14,9 +14,9 @@ namespace MyPlugins.BehaviourTree
 
         //实际值 T可以是值类型和引用类型
         [SerializeField]
-        protected TData val = default(TData); //default就是该类型的默认值
+        protected TData val = default(TData); //default就是该类型的默认值，编译器自己处理。
         //注意如果是结构体，比如Vector3，这是值类型，return返回的是副本，无法直接设置Vector3的成员值，显然就不合适了。
-        //这里说错了，其实值类型结构体的读写本来就是副本，而不是引用，所以本来就不能直接修改其成员值，而应该分别计算后，再整体赋值。
+        //Tip：这里说错了，其实值类型结构体的读写本来就是副本，而不是引用，所以本来就不能直接修改其成员值，而应该分别计算后，再整体赋值。
         public TData Value
         {
             get { return val; }

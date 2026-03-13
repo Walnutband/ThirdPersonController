@@ -85,46 +85,6 @@ namespace MyPlugins.GoodUI
 
         }
 
-
-
-        /*之前的Snap方法，可以处理元素尺寸不同的情况，但是严格来说是吸附于上边界。不过从商业使用来看，根本不会出现元素的尺寸不同的情况，所以就弃用了，其实代码还更好写了
-        /// <summary>
-        /// 实现吸附功能的方法，通常在结束拖拽时调用。
-        /// 不过由于可以提供边界元素信息，所以可以在滑动之前的某些地方调用，以便滑动时可以准确应用动效
-        /// </summary>
-        /// <remarks>利用虚实，实际情况下不存在吸附，就是正常的上下连续滑动改变位置，而虚在于以Content初始位置（上边界重合）时的数据作为参考，想象其根据边界元素的高度进行上下位移，使用当前实际
-        /// 的Content的位置与虚中准确按照边界元素高度移动的位置作比较，就能确定此时位于边界的对应元素的索引了。
-        /// 注意索引是从上到下的，但是这里的想象是从下到上的，不过也可以认为是从上到下的，因为初始是上边界重合，而最终是下边界重合，总之怎么想得通就怎么想</remarks>
-        private void Snap(int dir) //为正就向上吸附，为负就向下吸附
-        {
-            int itemCount = items.Length; //求出元素数量，不能直接用foreach遍历，因为要用到索引
-            float shouldPosition = 0f;
-            float preShouldPosition = 0f; //两个变量记录向上吸附和向下吸附所需的位置数据
-            float snapToPosition = 0f;
-            //其实由于滑动区域限制，不可能
-            for (int i = 0; i < itemCount; i++)
-            {
-                preShouldPosition = shouldPosition;
-                shouldPosition += items[i].sizeDelta.y;
-                float contentPosY = content.anchoredPosition.x;
-                if (Mathf.Approximately(contentPosY, shouldPosition))
-                {
-                    content.anchoredPosition = new Vector2(0f, shouldPosition);//修正浮点位置
-                    // break;
-                    return; //近似的话，说明此时就刚好处于边界位置，不需要进行后续的插值移动了，也就是不需要吸附过程，如果用break的话，会发现到了下边界的时候，再拖拽会自动回到上边界，因为snapToPosition默认值为0
-                } //直到找到小于或等于，才能确定此时位于边界的元素。
-                else if (contentPosY < shouldPosition)
-                {
-                    if (dir > 0) snapToPosition = shouldPosition;
-                    else snapToPosition = preShouldPosition; //这样就包含为0的情况了，不过实际来说无所谓，因为在传入的时候就应该传入1或者-1。
-                    break;
-                }
-            }
-
-            snapTween = content.DOAnchorPos(new Vector2(0, snapToPosition), duration, false);
-        }
-        */
-
         /// <summary>
         /// 实现附着功能。
         /// </summary>
@@ -261,6 +221,7 @@ namespace MyPlugins.GoodUI
             if (hasEffect)
                 ApplyEffect();
 
+            //实时更新拖拽方向。
             if (eventData.delta.x > 0) dragDir = 1;
             else if (eventData.delta.x < 0) dragDir = -1;
 

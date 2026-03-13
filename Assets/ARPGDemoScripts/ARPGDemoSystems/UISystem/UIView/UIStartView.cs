@@ -33,7 +33,8 @@ namespace ARPGDemo.UISystem_Old
 
         //TODO:
         [SceneName]
-        public string enterMainScene = "MainScene";
+        // public string enterMainScene = "MainScene";
+        public string enterMainScene = "TestScene";
 
         public override void OnInit(UIControlData uIControlData, UIViewController controller)
         {

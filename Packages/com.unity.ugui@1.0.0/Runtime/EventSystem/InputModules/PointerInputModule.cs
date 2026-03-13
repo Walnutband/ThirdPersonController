@@ -42,7 +42,7 @@ namespace UnityEngine.EventSystems
         {
             if (!m_PointerData.TryGetValue(id, out data) && create)
             {
-                data = new PointerEventData(eventSystem)
+                data = new PointerEventData(eventSystem) //同归属于某个EventSystem
                 {
                     pointerId = id,
                 };
@@ -72,7 +72,7 @@ namespace UnityEngine.EventSystems
             PointerEventData pointerData;
             var created = GetPointerData(input.fingerId, out pointerData, true);
 
-            pointerData.Reset();
+            pointerData.Reset(); //设置为未使用状态。
 
             pressed = created || (input.phase == TouchPhase.Began);
             released = (input.phase == TouchPhase.Canceled) || (input.phase == TouchPhase.Ended);
@@ -342,6 +342,7 @@ namespace UnityEngine.EventSystems
         /// </summary>
         protected virtual void ProcessMove(PointerEventData pointerEvent)
         {
+            //这里注意，在实际游戏中，确实通常就会将鼠标锁定，这里意思就是锁定之后就不会检测到UI对象，其实是个很重要的机制。
             var targetGO = (Cursor.lockState == CursorLockMode.Locked ? null : pointerEvent.pointerCurrentRaycast.gameObject);
             HandlePointerExitAndEnter(pointerEvent, targetGO);
         }
@@ -380,6 +381,7 @@ namespace UnityEngine.EventSystems
             }
         }
 
+        //
         public override bool IsPointerOverGameObject(int pointerId)
         {
             var lastPointer = GetLastPointerEventData(pointerId);

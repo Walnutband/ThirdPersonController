@@ -152,6 +152,7 @@ namespace UnityEngine.EventSystems
 
         /// <summary>
         /// Set the object as selected. Will send an OnDeselect the the old selected object and OnSelect to the new selected object.
+        /// 发送OnDeselect给旧的选中对象,发送OnSelect给新的选中对象
         /// </summary>
         /// <param name="selected">GameObject to select.</param>
         /// <param name="pointer">Associated EventData.</param>
@@ -472,6 +473,7 @@ namespace UnityEngine.EventSystems
             base.OnDisable();
         }
 
+        //相当于初始化，UpdateModule更新所有模块的内部状态。
         private void TickModules()
         {
             var systemInputModulesCount = m_SystemInputModules.Count;
@@ -491,15 +493,18 @@ namespace UnityEngine.EventSystems
 
         protected virtual void Update()
         {
+            //意思就是同时只会运行一个EventSystem
             if (current != this)
                 return;
             TickModules();
 
             bool changedModule = false;
             var systemInputModulesCount = m_SystemInputModules.Count;
+            //找到第一个符合条件的输入模块，切换为当前使用的输入模块。
             for (var i = 0; i < systemInputModulesCount; i++)
             {
                 var module = m_SystemInputModules[i];
+                //是否可用（Supported）、是否要用（Activate）。
                 if (module.IsModuleSupported() && module.ShouldActivateModule())
                 {
                     if (m_CurrentInputModule != module)
@@ -511,6 +516,7 @@ namespace UnityEngine.EventSystems
                 }
             }
 
+            //降低条件，设置第一个为当前。
             // no event module set... set the first valid one...
             if (m_CurrentInputModule == null)
             {
@@ -526,6 +532,7 @@ namespace UnityEngine.EventSystems
                 }
             }
 
+            //执行输入模块的内容。
             if (!changedModule && m_CurrentInputModule != null)
                 m_CurrentInputModule.Process();
 

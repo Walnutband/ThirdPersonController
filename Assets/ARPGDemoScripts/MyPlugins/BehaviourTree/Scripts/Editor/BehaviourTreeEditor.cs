@@ -29,10 +29,10 @@ namespace MyPlugins.BehaviourTree.EditorSection
         InspectorView inspectorView; //检视视图
         VisualElement blackboardView; //黑板视图
         VisualElement noBlackboardMSG; //幕布，用于提示当前行为树没有绑定黑板
-        TextField variableNameField;
-        DropdownField variableTypeField;
+        TextField variableNameField; //变量名显示字段，可输入。
+        DropdownField variableTypeField; //变量类型下拉菜单
         List<Type> variableTypes = new List<Type>(); //当前所有的黑板变量类型。注意初始化，否则对一个空引用的列表调用Clear是会报空引用错误的
-        ListView variableList;
+        ListView variableList; //当前黑板变量的列表视图。
         VisualTreeAsset variableView; //黑板变量的UI结构
 
         Toolbar editorToolbar; //编辑窗口顶部工具栏
@@ -41,19 +41,19 @@ namespace MyPlugins.BehaviourTree.EditorSection
         TextField treeNameField; //Overlay的文件名字段
         //静态变量本身并非持久化，会随着比如热重载这样的过程而被重置即初始化。不过对于连续的创建行为树，可以作为临时缓存选中目录，还是挺方便的。
         static string locationPath = "Assets"; //新建行为树的目录路径，必须是相对路径（相对于项目路径，所以都是Assets起手）
-        Button createNewTreeButton; 
-        Button createNewTreeButtonQuick;
+        Button createNewTreeButton; //创建新树按钮
+        Button createNewTreeButtonQuick; //创建新树快捷按钮
         VisualElement overlay;
         BehaviourTreeSettings settings;
 
-        [MenuItem("MyPlugins/BehaviourTreeEditor")]
+        [MenuItem("MyPlugins/BehaviourTreeEditor")] 
         public static void OpenWindow() {
             BehaviourTreeEditor wnd = GetWindow<BehaviourTreeEditor>();
             wnd.titleContent = new GUIContent("BehaviourTreeEditor"); //这里是IMGUI，因为UI Toolkit还不支持这样的一些小UI。
             wnd.minSize = new Vector2(600, 400);
         }
 
-        [OnOpenAsset] //双击资源文件时触发自定义逻辑
+        [OnOpenAsset] //双击资源文件时触发自定义逻辑，就是一个反射回调。
         public static bool OnOpenAsset(int instanceId, int line) { //特性要求的参数
             if (Selection.activeObject is BehaviourTree) { //当前选中对象类型是行为树，就打开编辑窗口
                 OpenWindow();
@@ -63,7 +63,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
         }
 
         /// <summary>
-        /// 获取指定类型的所有资产文件
+        /// 获取指定类型的所有资产文件（这里就是用于加载BehaviourTree资产文件）
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -84,13 +84,11 @@ namespace MyPlugins.BehaviourTree.EditorSection
 
             // EditorWindow的根VisualElement
             VisualElement root = rootVisualElement;
-            //Debug.Log($"{root.name}");
             //导入行为树编辑器的UXML文件，从中读取数据并且实例化为VisualElement
             var visualTree = settings.behaviourTreeEditorUxml;
             visualTree.CloneTree(root); //从外存克隆到内存
-            // Debug.Log($"{root.name}");
 
-            /*这里实际上就是个用于GridBackground元素的选择器，另外主要的USS文件是在UI Builder中就添加好了的，那才是对于编辑器中各个元素所需要的选择器样式。*/
+            /*这里实际上就是个专门用于GridBackground元素的选择器，固定的那几个属性，另外主要的USS文件是在UI Builder中就添加好了的，那才是对于编辑器中各个元素所需要的选择器样式。*/
             var styleSheet = settings.behaviourTreeStyle; //加载uss文件到编辑窗口的根元素上，然后uss中的各个选择器匹配相应的UI元素
             root.styleSheets.Add(styleSheet);
 
@@ -125,7 +123,6 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 };
             });
 
-            //
             //界面显示的容器，存储各个页面
             infoViewContainer = root.Q<VisualElement>("InfoViewContainer"); //显示页面内容
             noBlackboardMSG = infoViewContainer.Q<VisualElement>("MSG-NoBlackboard"); //没有黑板的提示幕布。
@@ -157,6 +154,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             BTName = editorToolbar.Q<Label>("BehaviourTreeName");
             ToolbarButton toolbarButton = editorToolbar.Q<ToolbarButton>("Frame");
             toolbarButton.clicked += () => treeView.FrameAll(); //提供一个可以回归原本位置的工具按钮
+            //工具栏菜单
             ToolbarMenu toolbarMenu = editorToolbar.Q<ToolbarMenu>("Assets"); //查找菜单元素，然后设置菜单项 
             var behaviourTrees = LoadAssets<BehaviourTree>();
             behaviourTrees.ForEach(tree => {
@@ -175,6 +173,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             }
             //获取当前项目中存在的黑板变量类型，只要出现了增减，就需要调用该方法刷新列表，当然最直接的方式就是关闭窗口重新打开。
             UpdateVariableTypeSelector(); //与有无黑板无关
+
             //获取当前选择的行为树后再来执行，因为其中会同时尝试获取行为树绑定的黑板，如果没有的话，在选中黑板页面时就需要同时显示noBlackboardMSG
             // if (blackboard != null) GenerateVariableListView(); //这个工作就统一在SelectTree中做了。
             //默认选中第一个页面
@@ -206,6 +205,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
         private void OnDisable() {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             Undo.undoRedoPerformed -= treeView.OnUndoRedo; //由于treeView要在CreateGUI中获取到引用后才可访问，所以不能在Enable中注册
+            //就是清理回调，避免残留逻辑，在对应时刻触发导致意外。
             if (tree) tree.blackboardChanged = null;
         }
 
@@ -216,10 +216,10 @@ namespace MyPlugins.BehaviourTree.EditorSection
         {
             
             BehaviourTreeBlackboard blackboard = ScriptableObject.CreateInstance<BehaviourTreeBlackboard>();
-            //blackboard.name = "New Blackboard";
             //获取行为树所在目录路径，中间方法返回的是文件路径（包括扩展名）
-            string treeDirectoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(tree)); 
+            string treeDirectoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(tree)); //从Assets开始，直到包含扩展名的文件名。
             string filePath = Path.Combine(treeDirectoryPath, "New Blackboard.asset"); 
+            Debug.Log($"创建的Blackboard文件路径：{filePath}");
             //注意这里创建的资产文件和作为原本的实例并非相同，所以不能直接将原本实例绑定到行为树上，则可以通过创建的路径查找并绑定，
             //但是有个隐含问题是，会将同一路径下的New Blackboard覆盖。所以一般来说应该把行为树和黑板分开存储在不同文件夹下，总之就是要稍微遵循一些行为规范
             AssetDatabase.CreateAsset(blackboard, filePath); //创建资产文件。这样保证创建的资产路径必然为filePath
@@ -241,6 +241,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 //这是显示页面信息的地方，每个页面都有自己的容器、同时作为infoViewContainer的直接子对象，首先全部隐藏，然后再遍历查找当前选中的页面
                 view.style.display = DisplayStyle.None; 
             }
+
+            /*Tip：其实这些对于样式值的处理，都可以通过选择器来完成，也就是在UI Builder中编辑，然后只在代码这里Add和Remove样式类即可。而且这样逻辑更清晰，因为样式类的命名具有明确含义
+            */
 
             foreach (Button tab in tabButtons)
             {
@@ -287,7 +290,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             }
         }
 
-        //EditorWindow的消息方法，在 Project 窗口 或 Hierarchy 窗口 中更改选中的对象时调用
+        //Tip：EditorWindow的消息方法，在 Project 窗口 或 Hierarchy 窗口 中更改选中的对象时调用
         private void OnSelectionChange() {
             /*Tip：EditorApplication.delayCall用于在所有 Inspector 面板更新完成后执行一次性操作。它非常适合在编辑器环境中实现延迟调用或处理需要在下一帧执行的任务。
             注意注册的函数只会执行一次，并且这个回调委托属于one-shot 委托（一次性回调），当所有 Inspector 面板更新完成后，Unity 会调用注册的函数，
@@ -300,13 +303,13 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 // BTName.Unbind();
                 //首先检查是否选中了行为树资产文件，然后检查是否选中了带有执行器的游戏对象，获取执行器上指定的行为树
                 BehaviourTree tree = Selection.activeObject as BehaviourTree; //activeObject指的是所有对象。as转换，如果非BehaviourTree就返回null
-                if (tree == null) { 
+                if (tree == null) { //并非行为树资产，再检查是否选中了带有执行器的游戏对象
                     if (Selection.activeGameObject) { //activeGameObject指的是场景中的对象以及Project视图中的预制体
                         BehaviourTreeExecutor runner = Selection.activeGameObject.GetComponent<BehaviourTreeExecutor>();
                         if (runner) {
                             GOName.text = runner.gameObject.name;
                             // GOName.Bind(new SerializedObject(runner.gameObject));
-                            Debug.Log("绑定对象");
+                            Debug.Log($"绑定对象:{runner.gameObject.name}");
                             tree = runner.tree;
                             //由于总会调用SelectTree，所以由于黑板绑定在行为树上，所以在其中获取黑板更具有逻辑意义。
                             //blackboard = tree.blackboard; 
@@ -322,6 +325,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             };
         }
 
+        //Tip：在确定了要编辑的行为树之后，就要调用该方法，这属于编辑器UI的方法，主要用于更新UI数据。
         /// <summary>
         /// 在编辑窗口中显示选中树的视图(只有改变选中对象时会调用，所以属于初始化方法)
         /// </summary>
@@ -332,7 +336,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 return;
             }
             //Tip:在编辑窗口打开时，只要选中了行为树，切换选中对象时如果不是其他行为树，则保持编辑当前的行为树
-            if (!newTree) {
+            if (!newTree) { 
                 //如果当前编辑窗口未指定行为树才显示幕布，否则在编辑时点击其他只要是非行为树的对象就会显示幕布，就很不方便，正常来说是选中其他行为树就会进行切换，没选中就保持当前行为树
                 if (tree == null) 
                 {
@@ -498,14 +502,15 @@ namespace MyPlugins.BehaviourTree.EditorSection
             };
             variableList.bindItem = (item, index) =>
             {
-                // item.Q<Label>("VariableName").text = (variableList.itemsSource[index] as BlackboardVariable).key;
+                //显示变量名称。
                 item.Q<Label>("VariableName").text = blackboard.variables[index].key;
+                //每个变量都是一个SO资产。
                 SerializedObject serializedObject = new SerializedObject(blackboard.variables[index]);
-                SerializedProperty property = serializedObject.FindProperty("val"); //绑定的是受保护字段，其实本来属性property就不能序列化，只能序列化字段变量
+                SerializedProperty property = serializedObject.FindProperty("val"); 
+                //属性字段的检视器。
                 var field = item.Q<PropertyField>("Field");
                 field.label = "";
                 field.BindProperty(property); //绑定，这样在编辑窗口中编辑黑板变量和在变量文件的检视面板中编辑是同步的。
-                //field.Bind(serializedObject);
             };
             variableList.itemsSource = blackboard.variables; //ListView会根据itemsSource.Count作为总行数，
             //设置为动态高度，以便不同类型的变量能够正常显示其检视样式。
@@ -521,6 +526,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             if (Application.isPlaying) return; //运行时不可增减变量
             if (string.IsNullOrEmpty(variableNameField.text)) return; //首先要有名字。
             int selectedIndex = -1;
+            //读取UI对象所记录的当前数据，据此创建变量。
             blackboard.CreateVariable(variableNameField.text, variableTypes[variableTypeField.index], ref selectedIndex); //下拉框和变量类型列表是一一对应的
             // Debug.Log($"name: {variableNameField.text}, type: {variableTypes[variableTypeField.index]}");
             if (selectedIndex >= 0) variableList.selectedIndex = selectedIndex; //非负，说明已存在，则选中。
@@ -528,9 +534,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
         }
 
         /// <summary>
-        /// 删除variable并刷新variableList
+        /// 删除选中的variable并刷新variableList
         /// </summary>
-        private void DeleteVariable()
+        private void DeleteVariable() //不需要传入参数，是因为
         {
             if (Application.isPlaying) return;
             if (variableList.selectedItem == null) return;
@@ -538,13 +544,10 @@ namespace MyPlugins.BehaviourTree.EditorSection
             var variable = blackboard.variables.Find(variable => variable.key == (variableList.selectedItem as BlackboardVariable).key);
             if (variable != null)
             {
-                // string assetPath = AssetDatabase.GetAssetPath(variable); // 获取资产路径
-                // AssetDatabase.DeleteAsset(assetPath);// 删除子资产。并非子资产，这其实就是父资产，会直接将整个资产删掉
-                // blackboard.DeleteVariable(variable.key);
                 DestroyImmediate(variable, true); //由于这是子资产，默认是不可移除的，如果真要移除，就要加一个参数true。
                 blackboard.variables.RemoveAll(v => v == null);
                 variableList.Rebuild();
-                //只有立刻保存，才能同时将对应的子资产也一并移除
+                //Tip：只有立刻保存，才能同时将对应的子资产也一并移除
                 /*将所有未保存的资产更改写入到磁盘中，如果没有，则会发现只移除了列表元素，而子资产还存在，但实际上也不是如此，因为只是
                 看到检视面板中移除了，打开黑板文件的YAML文本查看，并没有变化，而进行一下域重载，会发现子资产的检视面板消失了，但是仍然
                 YAML文本没有变化。
@@ -561,30 +564,56 @@ namespace MyPlugins.BehaviourTree.EditorSection
             variableTypes.Clear(); //必须首先为列表分配实例
             variableTypeField.choices.Clear(); //这里字段的列表成员choices应该是自动分配了实例的
 
-            //遍历整个程序集查找所有继承自BlackboardVariable类 即找到所有variable类型
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            //Tip：这里获取的就是BlackboardVariable类所在的程序集，更加准确，而不需要查找所有程序集，本来就应该将所有黑板变量类型定义在这个程序集中。
+            Assembly assembly = typeof(BlackboardVariable).Assembly;
+            IEnumerable<Type> enumerable = assembly //这里获取到的都是指定条件下的实际类型的元数据
+                .GetTypes()
+                .Where( //需要使用System.Linq查询
+                    myType => //是类，非抽象类，是BlackboardVariable的派生类
+                        myType.IsClass
+                        && !myType.IsAbstract
+                        && myType.IsSubclassOf(typeof(BlackboardVariable)) //需要转化为Type类型的元数据
+    );
+            //这样同时添加，就可以建立起一个映射关系，即在类型的下拉框中选中元素的索引可以直接作为在variableTypes中访问对应类型的索引
+            //Tip：其实也可以用字典，typeName作为键，类型元数据作为值，因为确实具有唯一性，不过这里也是一种技巧，将两个数组的索引一一对应，实现字典的效果。
+            foreach (Type type in enumerable)
             {
-                IEnumerable<Type> enumerable = assembly //这里获取到的都是指定条件下的实际类型的元数据
-                    .GetTypes()
-                    .Where( //需要使用System.Linq查询
-                        myType => //是类，非抽象类，是BlackboardVariable的派生类
-                            myType.IsClass
-                            && !myType.IsAbstract
-                            && myType.IsSubclassOf(typeof(BlackboardVariable)) //需要转化为Type类型的元数据
-                    );
-                //这样同时添加，就可以建立起一个映射关系，即在类型的下拉框中选中元素的索引可以直接作为在variableTypes中访问对应类型的索引
-                foreach (Type type in enumerable)
-                {
-                    string typeName = type.Name;
-                    string suffix = "Variable"; //去掉类名的后缀，直接显示单独的类型名
-                    if (typeName.EndsWith(suffix))  typeName = typeName.Substring(0, typeName.Length - suffix.Length);
-                    variableTypes.Add(type);
-                    variableTypeField.choices.Add(typeName);
-                    // variableTypeField.choices.Add(type.Name);
-                }
+                string typeName = type.Name;
+                string suffix = "Variable"; //去掉类名的后缀，直接显示单独的类型名
+                                            //这里也是命名要求，就应该以这个后缀结尾来命名
+                if (typeName.EndsWith(suffix)) typeName = typeName.Substring(0, typeName.Length - suffix.Length);
+                variableTypes.Add(type);
+                variableTypeField.choices.Add(typeName);
+                // variableTypeField.choices.Add(type.Name);
             }
+
+
+            //遍历整个程序集查找所有继承自BlackboardVariable类 即找到所有variable类型
+            // foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            // {
+            //     IEnumerable<Type> enumerable = assembly //这里获取到的都是指定条件下的实际类型的元数据
+            //         .GetTypes()
+            //         .Where( //需要使用System.Linq查询
+            //             myType => //是类，非抽象类，是BlackboardVariable的派生类
+            //                 myType.IsClass
+            //                 && !myType.IsAbstract
+            //                 && myType.IsSubclassOf(typeof(BlackboardVariable)) //需要转化为Type类型的元数据
+            //         );
+            //     //这样同时添加，就可以建立起一个映射关系，即在类型的下拉框中选中元素的索引可以直接作为在variableTypes中访问对应类型的索引
+            //     //Tip：其实也可以用字典，typeName作为键，类型元数据作为值，但是
+            //     foreach (Type type in enumerable)
+            //     {
+            //         string typeName = type.Name;
+            //         string suffix = "Variable"; //去掉类名的后缀，直接显示单独的类型名
+            //         //这里也是命名要求，就应该以这个后缀结尾来命名
+            //         if (typeName.EndsWith(suffix))  typeName = typeName.Substring(0, typeName.Length - suffix.Length);
+            //         variableTypes.Add(type);
+            //         variableTypeField.choices.Add(typeName);
+            //         // variableTypeField.choices.Add(type.Name);
+            //     }
+            // }
             // variableNameField.text = "newVariable"; //默认变量名。注意TextField的text成员只能读取，不能访问（受保护），所以只能在UXML中设置默认值
-            variableTypeField.index = 0; //默认选中第一个
+            variableTypeField.index = 0; //默认选中第一个，PopupField渲染时就根据该值设置UI数据。
         }
 
         /// <summary>
@@ -595,15 +624,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
         {
             int selectedIndex = variableList.selectedIndex;
             var items = variableList.itemsSource; //需要多次调用，所以用一个临时变量存储，避免反复访问
+            //越界就不操作。
             if (selectedIndex < 0 || selectedIndex + direction < 0 || selectedIndex + direction >= items.Count)
                 return;
-
-            // // 交换元素位置,这里是为了更新数据源。这里用到的是元组交换，可以避免使用临时变量，简单直接
-            // (items[selectedIndex + direction], items[selectedIndex]) = (items[selectedIndex], items[selectedIndex + direction]);
-            // variableList.itemsSource = items;
-
-            // 更新选中索引，仍然选中对应项
-            // variableList.selectedIndex += direction;
 
             //只需要处理数据源，即blackboard.variables，即可直接反映到ListView上。
             var vars = blackboard.variables;
@@ -613,7 +636,6 @@ namespace MyPlugins.BehaviourTree.EditorSection
 
             // 刷新 ListView
             variableList.Rebuild();
-            // variableList.selectedIndex += direction;
         }
         #endregion 处理黑板视图
     }

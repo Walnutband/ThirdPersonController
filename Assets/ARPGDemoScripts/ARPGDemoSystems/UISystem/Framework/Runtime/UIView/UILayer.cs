@@ -4,23 +4,32 @@ using UnityEngine;
 
 namespace ARPGDemo.UISystem_Old
 {
-    public enum UILayer
-    {//这里的数值会直接作为Canvas的sortingOrder渲染顺序（在检视面板中是Order In Layer）。这个系统中的各个Canvas的Sorting Layer都是Default，就是根据Order In Layer来设置渲染顺序的。
-        SceneLayer = 1000, //用于显示3DUI，画布使用World Space模式
-        BackgroundLayer = 2000, //用于显示UI背景，如主界面，或者黑边图等。
-        NormalLayer = 3000, //游戏中没有特殊层级要求的UI都放这层
-        InfoLayer = 4000, //游戏中一些需要显示在普通界面上面的信息
-        TopLayer = 5000, //顶层，显示Loading等
-        TipLayer = 6000, //提示层，看情况设计，有时Loading中也需要弹出提示框等信息
-        BlackMaskLayer = 7000, //大概可以用于切换UI主界面时的淡入淡出效果
+    // public enum UILayerType
+    // {//这里的数值会直接作为Canvas的sortingOrder渲染顺序（在检视面板中是Order In Layer）。这个系统中的各个Canvas的Sorting Layer都是Default，就是根据Order In Layer来设置渲染顺序的。
+    //     SceneLayer = 1000, //用于显示3DUI，画布使用World Space模式
+    //     BackgroundLayer = 2000, //用于显示UI背景，如主界面，或者黑边图等。
+    //     NormalLayer = 3000, //游戏中没有特殊层级要求的UI都放这层
+    //     InfoLayer = 4000, //游戏中一些需要显示在普通界面上面的信息
+    //     TopLayer = 5000, //顶层，显示Loading等
+    //     TipLayer = 6000, //提示层，看情况设计，有时Loading中也需要弹出提示框等信息
+    //     BlackMaskLayer = 7000, //大概可以用于切换UI主界面时的淡入淡出效果
+    // }
+
+    public enum UILayerType
+    {
+        SceneLayer = 1000, //位于场景的3DUI。
+        BackgroundLayer = 2000,  // 底层，主界面、背景UI
+        NormalLayer = 3000,      // 中层，普通功能界面，大部分UI面板都放在这里，遵循一致的“后打开先关闭”的顺序。
+        PopUpLayer = 4000,       // 弹窗层，弹窗、提示框，属于游戏内容本身，但是要在普通UI面板之上。
+        SystemLayer = 5000       // 系统层，系统提示、加载界面，不属于游戏内容本身的一些UI。
     }
 
     public class UILayerLogic
     {
-        public UILayer layer; //对应层级，只是一个标识符，不过其int值也提供了顺序值的信息。
+        public UILayerType layer; //对应层级，只是一个标识符，不过其int值也提供了顺序值的信息。
         public Canvas canvas; //所属画布
         //在UILayer中，管理层中视图的渲染顺序，是一个核心环节。
-        private int maxOrder; // 最大排序号。排序号就是渲染顺序，这里就是当前层级中最大的
+        private int maxOrder; // 最大排序号。排序号就是渲染顺序，这里就是当前层级中最大的。暂时没有实际作用。
         private HashSet<int> orders; // 已分配的排序号
         //存储在这个UI层中打开的UI视图对象。对于UI来说，都是用栈来存储，因为其后进先出的特性，正好对应从里到外打开、从外到里关闭。这其实是数据结构应用的一个典型体现。
         public Stack<UIViewController> openedViews; // 所有已打开的UI，栈的最上面就是当前显示在最上层的UI，所以在方法调用上必须为了实现该功能而保持与实际情况同步。
@@ -28,11 +37,12 @@ namespace ARPGDemo.UISystem_Old
         /// <summary>
         /// 从构造函数看出核心成员就是layer和canvas，其他就是初始化分配实例内存
         /// </summary>
-        public UILayerLogic(UILayer layer, Canvas canvas)
+        public UILayerLogic(UILayerType layer, Canvas canvas)
         {
             this.layer = layer;
             this.canvas = canvas;
-            maxOrder = (int)layer; //将枚举常量值即层级的预设order直接作为最大order，所以在UILayer中就要注意调整数值
+            //将枚举常量值即层级的预设order直接作为最大order，所以在UILayer中就要注意调整数值
+            maxOrder = (int)layer; 
             orders = new HashSet<int>();
             openedViews = new Stack<UIViewController>();
         }
@@ -44,59 +54,65 @@ namespace ARPGDemo.UISystem_Old
         public void CloseUI(UIViewController closedUI)
         {
             int order = closedUI.order;
-            PushOrder(closedUI); //处理order以及移出openedViews容器
-            closedUI.order = 0;
+            PopUIView(closedUI); //处理order以及移出openedViews容器
 
-            //善后工作，如果还有打开的UI视图的话，移除UI视图会对各自产生的一些影响。
+            /*Tip：善后工作，如果在当前层级还有打开的UI视图的话，移除UI视图会对各自产生的一些影响，所以也要注意不同UI层级之间是隔离的。
+            
+            */
             if (openedViews.Count > 0)
             {
                 // 拿到最上层UI，如果被暂停的话，则恢复，
                 var topViewController = openedViews.Peek();
-                // 暂停和恢复不影响其是否被覆盖隐藏，只要不是最上层UI都应该标记暂停状态
+                // Tip：暂停和恢复不影响其是否被覆盖隐藏，只要不是最上层UI都应该标记暂停状态，也就是说弹窗视图或非弹窗视图。
                 if (topViewController != null && topViewController.isPause)
                 {
                     topViewController.isPause = false;
                     if (topViewController.HasUIView())
                     {
-                        // topViewController.uiView.OnResume();
                         topViewController.Resume();
                     }
                 }
 
-                if (!closedUI.isPopWindow) //isWindow应该指的是否为弹出窗口，弹出窗口就只是有一个蒙版遮住背后UI，但并不会导致其完全不可见，蒙版会随着自己的消失而消失，而全屏窗口就会直接导致背后的UI视图不可见，所以就需要在关闭自己时通知被遮盖的UI视图重新显示。
+                /*Tip：isWindow指的是否为弹出窗口，弹出窗口就只是有一个蒙版遮住背后UI，但并不会导致其完全不可见，蒙版会随着自己的消失而消失，
+                而全屏窗口就会直接导致背后的UI视图不可见，所以就需要在关闭自己时通知被遮盖的UI视图重新显示。*/
+                if (!closedUI.isPopWindow)  
                 {
+                    //Tip：遍历，因为不一定就是相邻视图，比如是一个视图加上一个弹窗视图，那么与此处closedUI相邻的就是弹窗视图。
                     foreach (var viewController in openedViews)
                     {
                         if (viewController != closedUI
                             && viewController.isOpen
                             && viewController.order < order) //顺序更小就说明被遮挡了，现在将其关闭了当然就减去该遮挡物。
                         {
-                            viewController.AddTopViewNum(-1);
+                            viewController.ChangeTopViewNum(-1);
                         }
                     }
                 }
             }
         }
 
-        public void OpenUI(UIViewController openedUI)
+        public void OpenUI(UIViewController _openedUI)
         {
-            //UIViewController在创建实例时（UIManager的InitUIConfig方法）没有指定order值，那么就是默认int值为0，order确实应该在打开该UI视图时才确定。
-            if (openedUI.order == 0)
-            {
-                openedUI.order = PopOrder(openedUI); //分配Order。
-            }
+            //Tip：UIViewController在创建实例时（UIManager的InitUIConfig方法）没有指定order值，那么就是默认int值为0，order确实应该在打开该UI视图时才确定。
+            //TODO：所以0在这里就是无效值，只是默认规定，没什么特别含义。
+            // if (openedUI.order == 0)
+            // {
+            //     // openedUI.order = PopOrder(openedUI); //分配Order。
+            // }
+            PushUIView(_openedUI); //此时已经添加到了openedViews中。
 
+            /*Tip：暂停逻辑。将在更底层的UI视图暂停，但注意，往往只是相邻一层暂停，在更下面的层在此之前就已经暂停了。*/
             foreach (var viewController in openedViews)
             {
-                if (viewController != openedUI
+                if (viewController != _openedUI
                     && viewController.isOpen
-                    && viewController.order < openedUI.order
+                    && viewController.order < _openedUI.order
                     && viewController.HasUIView())
                 {
-                    Debug.Log($"{viewController.uiViewLogic}");
-                    if (!viewController.isPause)
+                    // Debug.Log($"{viewController.uiViewLogic}");
+                    if (!viewController.isPause) //需要指定暂停逻辑。
                     {
-                        Debug.Log($"{viewController.uiViewLogic}暂停，OnPause");
+                        // Debug.Log($"{viewController.uiViewLogic}暂停，OnPause");
 
                         viewController.isPause = true;
                         /*TODO:这里感觉UILayerLogic越级了,不应该直接访问UIView然后调用其方法,大概应该在UIViewController中封装好对应UIView的OnPause方法的调用,然后这里就是
@@ -105,18 +121,21 @@ namespace ARPGDemo.UISystem_Old
                         // viewController.uiView.OnPause();
                         viewController.Pause();
                     }
-                    if (!openedUI.isPopWindow)
+                    //并非弹窗窗口，则将其记录下来。
+                    if (!_openedUI.isPopWindow)
                     {
-                        viewController.AddTopViewNum(1);
+                        viewController.ChangeTopViewNum(1);
                     }
                 }
             }
         }
 
+        /*Tip：这里的两个方法就是处理打开和关闭时的Order分配和openedViews容器的进出。*/
+
         /*TODO:这里命名有些迷惑，实质上做的事就是，传入将要关闭的UI视图，更新相关数据，即orders、maxOrder、openedViews。就是说它的命名与其实际的任务不太一致，而且与CloseUI方法有所歧义。*/
-        public void PushOrder(UIViewController closedUI)
+        public void PopUIView(UIViewController closedUI)
         {
-            int order = closedUI.order;
+            int order = closedUI.order; //当前Order，也就是在层级中打开时分配的order。
             if (orders.Remove(order)) //如果HashSet中有的话，就移除并且返回true。
             {
                 // 重新计算最大值
@@ -126,9 +145,7 @@ namespace ARPGDemo.UISystem_Old
                     maxOrder = Mathf.Max(maxOrder, item);
                 }
 
-                // 移除界面，list用于保存在closedUI上面的UI视图，在弹出了closedUI之后再按照正确顺序推入回栈。
-                // 因为栈的特性，无法直接遍历查找，不过其实本质也一样。
-                //TODO: 那这样还不如直接使用列表存储？？使用栈也没带来什么好处。
+                //Tip：移除界面，list用于保存在closedUI上面的UI视图，在弹出了closedUI之后再按照正确顺序推入回栈。因为栈的特性，无法直接遍历查找，不过其实本质也一样。
                 // 虽然这里从算法上确实支持了关闭UI层中间的UI，但其实实际应用中应当确定限制只能关闭最顶层UI（不过似乎有时难以完全保证？），按顺序从外到内，或者是一键关闭当前UI层的所有UI视图，基本不会设置可以关闭中间本来就被覆盖了的UI的操作。
                 List<UIViewController> list = ListPool<UIViewController>.Get();
                 while (openedViews.Count > 0)
@@ -148,20 +165,23 @@ namespace ARPGDemo.UISystem_Old
                 {
                     openedViews.Push(list[i]);
                 }
-                ListPool<UIViewController>.Release(list);
+                ListPool<UIViewController>.Release(list); //将临时使用的容器放回对象池。
             }
+
+            closedUI.order = 0;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="uIViewController"></param>
+        /// <param name="_controller"></param>
         /// <returns></returns>
-        public int PopOrder(UIViewController uIViewController)
+        public int PushUIView(UIViewController _controller)
         {
             maxOrder += 10;
             orders.Add(maxOrder);
-            openedViews.Push(uIViewController); //将新打开的视图压入记录栈
+            openedViews.Push(_controller); //将新打开的视图压入记录栈
+            _controller.order = maxOrder;
             return maxOrder;
         }
     }

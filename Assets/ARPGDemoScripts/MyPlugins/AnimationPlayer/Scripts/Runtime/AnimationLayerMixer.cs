@@ -5,17 +5,23 @@ using UnityEngine.Playables;
 
 namespace MyPlugins.AnimationPlayer
 {
+    public interface IAnimationMixer
+    {
+        Playable playable { get; }
+    }
+
     /*Tip：这感觉并不需要模仿Animancer，其实说白了这就是个普通但是完全够用的动画系统，如果是对于独立游戏或者非超大型游戏都是肯定够用的，而且动画系统真的没什么区别，
     真正有区别的是那种专门编辑动画的，比如专门的IK插件、动画编辑器等等，而像这样只是基于Playables系统的实现播放、过渡、混合动画的动画系统，真的都差不多。*/
     //TODO：其实也可以巧妙使用泛型来将这些节点的类型统一化。
     // public class AnimationLayerMixerNode : AnimationNodeBase
-    public class AnimationLayerMixer
+    public class AnimationLayerMixer : IAnimationMixer
     {
         private AnimationGraph m_Graph;
         private AnimationLayerMixerPlayable m_Playable;
-        public AnimationLayerMixerPlayable playable => m_Playable; //公开主要还是为了连接节点，也没必要为Connect封装方法，实在犯不上。
+        // public AnimationLayerMixerPlayable playable => m_Playable; //公开主要还是为了连接节点，也没必要为Connect封装方法，实在犯不上。
+        public Playable playable => m_Playable; //公开主要还是为了连接节点，也没必要为Connect封装方法，实在犯不上。
         private List<AnimationLayer> m_Layers;
-        // private AnimationLayer[] m_Layers;
+        public List<AnimationLayer> layers => m_Layers;
         public int layerCount => m_Layers.Count; //就是提供给AnimationLayer的，避免让它直接访问到Layers列表。
 
         private FadeHandler m_FadeHandler;
@@ -38,25 +44,21 @@ namespace MyPlugins.AnimationPlayer
                 return;
             }
             
-            //说明该位置已经有了层级，提示一下，不能重复添加，也默认不能覆盖。
+            //说明该位置已经有了层级，提示一下，不能重复添加，也默认不能覆盖。这就是系统刻意设计的底层机制。
             if (m_Layers[_index] != null)
             {
                 Debug.LogError($"尝试在索引{_index}添加层级时发现该位置已经有了层级，默认不能覆盖，请检查。");
                 return;
             }
-
-            AnimationLayer layer = new AnimationLayer(m_Graph, this);
-            // m_Layers.Add(layer); //一定要放在前面，因为layerCount返回的就是List的Count成员。
-            m_Layers[_index] = layer;
+            // Debug.Log($"AddLayer，此时index为{_index}");
+            AnimationLayer layer = new AnimationLayer(m_Graph); 
             m_Graph.Connect(layer, this, _index);
             if (_index == 0)
             {//Base Layer直接权重设置为1
-                // SetLayerWeight(layer, 1f);
                 layer.weight = 1f;
-            }//TODO: 似乎按理来说，默认都应该直接设置为1，如果因为播放逻辑而调整权重的话，到时候调整就是了。
+            }
             else
             {
-                // SetLayerWeight(layer, 0f);
                 layer.weight = 0f;
             }
         }
@@ -65,11 +67,9 @@ namespace MyPlugins.AnimationPlayer
         {
             get
             {
-                // Debug.Log($"访问层级，传入的index为：{index}");
+                // Debug.Log($"index: {index}， layerCount: {layerCount}");
                 if (index < 0)
                 {
-                    // Debug.LogError("在访问层级时传入的索引小于0，已自动修正为0");
-                    // index = 0;
                     Debug.LogError("在访问层级时传入的索引小于0，请检查");
                     return null;
                 }
@@ -78,8 +78,14 @@ namespace MyPlugins.AnimationPlayer
                     Debug.LogError("在访问层级时传入的索引超出了当前的输入端口数量范围，请检查。");
                     return null;
                 }
-                //不用搞什么惰性增加，没啥意义，要用到什么层级本来就是在编辑时就确定好了的，初始化时直接赋值即可。
                 return m_Layers[index];
+            }
+            set
+            {
+                if (index >= 0 && index < layerCount)
+                {
+                    m_Layers[index] = value;
+                }
             }
         }
 
@@ -89,78 +95,91 @@ namespace MyPlugins.AnimationPlayer
 
             //Tip：没有过渡，确实就没啥麻烦事了
             layer.Play(_state);
-            layer.weight = 1f;
+            // layer.weight = 1f;
         }
 
         public void Play(int _layerIndex, AnimationStateBase _state, float _fadeDuration)
         {
             AnimationLayer layer = this[_layerIndex];
-
-            if (layer.isPlaying)
-            {
-                layer.Play(_state, _fadeDuration);
-                if (_layerIndex > 0)
-                {
-                    // m_FadeHandler?.Complete();
-                    m_FadeHandler?.Cancel();
-                    layer.weight = 1f;
-                }
-            }
-            //该层级没有正在播放的动画
-            else
-            {
-                //Base层直接播放，不进行过渡
-                if (_layerIndex == 0)
-                {
-                    layer.weight = 1f;
-                    layer.Play(_state);
-                }
-                //Tip: 非Base层，需要过渡，但注意是过渡层级权重而非状态权重。
-                else
-                {
-                    m_FadeHandler?.Complete();
-                    layer.weight = 0f;
-                    layer.Play(_state); //层级上直接播放，而层级之间进行过渡。
-                    m_FadeHandler = new FadeHandler(null, layer, _fadeDuration, () => { m_FadeHandler = null; });
-                    m_Graph.pre.AddUpdatable(m_FadeHandler);
-                }
-            }
+            layer.Play(_state, _fadeDuration);
         }
 
-        public void Stop(int _layerIndex, AnimationStateBase _state)
+        // public void Play(int _layerIndex, AnimationStateBase _state, float _fadeDuration)
+        // {
+        //     AnimationLayer layer = this[_layerIndex];
+
+        //     if (layer.isPlaying)
+        //     {
+        //         layer.Play(_state, _fadeDuration);
+        //         if (_layerIndex > 0) //非Base层
+        //         {
+        //             m_FadeHandler?.Complete();
+        //             // m_FadeHandler?.Cancel();
+        //             layer.weight = 1f;
+        //         }
+        //     }
+        //     //该层级没有正在播放的动画
+        //     else
+        //     {
+        //         //Base层直接播放，不进行过渡
+        //         if (_layerIndex == 0)
+        //         {
+        //             layer.weight = 1f;
+        //             layer.Play(_state);
+        //         }
+        //         //Tip: 非Base层，需要过渡，但注意是过渡层级权重而非状态权重。
+        //         else
+        //         {
+        //             m_FadeHandler?.Complete();
+        //             layer.weight = 0f;
+        //             layer.Play(_state); //层级上直接播放，而层级之间进行过渡。
+        //             m_FadeHandler = new FadeHandler(null, layer, _fadeDuration, () => { m_FadeHandler = null; });
+        //             m_Graph.pre.AddUpdatable(m_FadeHandler);
+        //         }
+        //     }
+        // }
+
+        public void Stop(int _layerIndex, AnimationStateBase _state, float _duration)
         {
             AnimationLayer layer = this[_layerIndex];
-
-            //没有在播放的动画，就不可能存在传入的状态了
-            if (layer.isPlaying == false) return;
-
-            if (_layerIndex == 0)
-            {
-                layer.Stop(_state);
-            }
-            else //非Base层
-            {
-                //就是取出
-                float baseDuration = this[0].currentFadeDuration;
-                if (baseDuration <= 0.001f)
-                {
-                    layer.Stop(_state);
-                    layer.weight = 0f; //直接设置为0，否则的话就是按照下面进行一个过渡。
-                }
-                else
-                {
-                    Debug.Log("非Base层过渡到0");
-                    //放入容器中，注意使用初始化器简化。
-                    List<IFadeTarget> outs = new List<IFadeTarget>(1) { layer };
-                    m_FadeHandler = new FadeHandler(outs, null, baseDuration, () =>
-                    {
-                        m_FadeHandler = null;
-                        layer.Stop(_state);
-                    });
-                    m_Graph.pre.AddUpdatable(m_FadeHandler);
-                }
-            }
+            layer.Stop(_state, _duration); 
         }
+
+        // public void Stop(int _layerIndex, AnimationStateBase _state)
+        // {
+        //     AnimationLayer layer = this[_layerIndex];
+
+        //     //没有在播放的动画，就不可能存在传入的状态了
+        //     if (layer.isPlaying == false) return;
+
+        //     if (_layerIndex == 0)
+        //     {
+        //         layer.Stop(_state);
+        //     }
+        //     else //非Base层
+        //     {
+        //         //就是取出
+        //         float baseDuration = this[0].currentFadeDuration;
+        //         if (baseDuration <= 0.001f)
+        //         {
+        //             layer.Stop(_state);
+        //             layer.weight = 0f; //直接设置为0，否则的话就是按照下面进行一个过渡。
+        //         }
+        //         else
+        //         {
+        //             Debug.Log("非Base层过渡到0");
+        //             //放入容器中，注意使用初始化器简化。
+        //             List<IFadeTarget> outs = new List<IFadeTarget>(1) { layer };
+        //             //因为本来就是Override，计算就是根据后面一层的权重临时改变前一层的权重，使得两者权重和为1，而以后面一层权重优先。
+        //             m_FadeHandler = new FadeHandler(outs, null, baseDuration, () =>
+        //             {
+        //                 m_FadeHandler = null;
+        //                 layer.Stop(_state);
+        //             });
+        //             m_Graph.pre.AddUpdatable(m_FadeHandler);
+        //         }
+        //     }
+        // }
 
         public List<AnimationStateBase> AllPlayingStates()
         {
@@ -218,10 +237,10 @@ namespace MyPlugins.AnimationPlayer
             {
                 /*BugFix：很尬，List访问索引比如保证其位置被显式添加过元素，尽管其实际上就是null，但如果没有添加过元素的话，也会无法访问、直接报错。*/
                 m_Layers.Add(null);
-                AddLayer(i);
+                AddLayer(i); //在该索引位置添加层级。
             }
 
-            // Debug.Log($"SetLayers结束，层级数量为：{layerCount}");
+            // Debug.Log($"SetLayers结束之后，layerCount：{layerCount}");
         }
 
         public void ClearLayers()

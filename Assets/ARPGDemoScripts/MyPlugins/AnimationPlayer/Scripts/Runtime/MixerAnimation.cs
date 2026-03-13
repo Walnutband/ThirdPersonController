@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using ARPGDemo.CustomAttributes;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace MyPlugins.AnimationPlayer
 {
     [Serializable]
-    public class MixerAnimation
+    public class MixerAnimation : IAnimationInfo
     {
         [Serializable]
-        public class Motion
+        public struct Motion
         {
             [SerializeField] private AnimationClip m_Clip;
             public AnimationClip clip => m_Clip;
@@ -32,10 +33,12 @@ namespace MyPlugins.AnimationPlayer
             }    
         }
 
+        [DisplayName("过渡时间")]
         [SerializeField] private float m_FadeDuration;
         public float fadeDuration => m_FadeDuration;
 
         /*Tip：要求只要分配了列表元素就必须设置好片段和阈值，并且在编辑时就保证按照从小到大的顺序排列。*/
+        [ContainerDisplay("混合动画", "Motion", true)]
         [SerializeField] private List<Motion> m_Motions;
         public List<Motion> motions => m_Motions;
     }

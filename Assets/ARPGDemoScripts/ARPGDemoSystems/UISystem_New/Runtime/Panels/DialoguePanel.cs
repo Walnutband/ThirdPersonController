@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ARPGDemo.UISystem_New;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 namespace ARPGDemo.UISystem
 {
     [AddComponentMenu("ARPGDemo/UISystem_New/Panels/DialoguePanel")]
-    public class DialoguePanel : BasePanel
+    public class DialoguePanel : UIPanelBase
     {
         /*TODO：从实际来看，都不需要使用InputAction，直接静态访问输入即可，不过这样的话就需要管理器在对话面板打开的时候保持监测，但这也不会产生多少的消耗。
         而且这种UI操作可能会让同一个操作可以由多种输入来触发，要是单个定义InputActionReference变量的话，就有些冗余了感觉。

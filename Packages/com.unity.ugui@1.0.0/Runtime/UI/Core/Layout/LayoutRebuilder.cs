@@ -145,6 +145,10 @@ namespace UnityEngine.UI
             rect.GetComponents(typeof(ILayoutElement), components);
             StripDisabledBehavioursFromList(components);
 
+            /*Tip：这里的计算过程，从侧面印证了，在Mark布局重建的时候，就是要向上查找到最上面那个带有ILayoutGroup组件的对象，那么在这里才能够遍历完整。
+            准确来说，是连续的最上面，因为LayoutGroup只管直接子对象。
+            */
+
             // If there are no controllers on this rect we can skip this entire sub-tree
             // We don't need to consider controllers on children deeper in the sub-tree either,
             // since they will be their own roots.
@@ -152,6 +156,7 @@ namespace UnityEngine.UI
             {
                 // Layout calculations needs to executed bottom up with children being done before their parents,
                 // because the parent calculated sizes rely on the sizes of the children.
+                //Tip：这里是重点，必须从下到上计算布局，因为父对象计算尺寸是依赖于子对象的。
 
                 for (int i = 0; i < rect.childCount; i++)
                     PerformLayoutCalculation(rect.GetChild(i) as RectTransform, action);
@@ -232,6 +237,7 @@ namespace UnityEngine.UI
 
             var rebuilder = s_Rebuilders.Get();
             rebuilder.Initialize(controller);
+            //已经有了那就无法重复注册，这里就直接返回对象池了。
             if (!CanvasUpdateRegistry.TryRegisterCanvasElementForLayoutRebuild(rebuilder))
                 s_Rebuilders.Release(rebuilder);
         }

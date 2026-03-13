@@ -792,12 +792,16 @@ namespace UnityEngine.UI
 
             UpdateBounds();
 
-            var pointerDelta = localCursor - m_PointerStartLocalCursor;
+            var pointerDelta = localCursor - m_PointerStartLocalCursor; //开始拖拽时鼠标指向当前鼠标。
             Vector2 position = m_ContentStartPosition + pointerDelta;
 
             // Offset to get content into place in the view.
             Vector2 offset = CalculateOffset(position - m_Content.anchoredPosition);
-            position += offset;
+            /*Tip：这里是将可视区域出现的剩余空间填补回去，也就是到此处，比如水平，如果Content左边界在Viewport右边或右边界在左边，就会加上offset修正到边界重合。
+            而下方的弹性模式处理，就是不完全填补这个偏移量，而是经过函数曲线处理，实现弹性的效果，具体就是之前position就是原本的移动量，这里offset就是修正量，而下面的
+            弹性处理让这个修正量变小，
+            */
+            position += offset; 
             if (m_MovementType == MovementType.Elastic)
             {
                 if (offset.x != 0)
@@ -814,6 +818,7 @@ namespace UnityEngine.UI
         /// </summary>
         protected virtual void SetContentAnchoredPosition(Vector2 position)
         {
+            //把不移动的方向的移动量覆盖掉。
             if (!m_Horizontal)
                 position.x = m_Content.anchoredPosition.x;
             if (!m_Vertical)
@@ -822,7 +827,7 @@ namespace UnityEngine.UI
             if (position != m_Content.anchoredPosition)
             {
                 m_Content.anchoredPosition = position;
-                UpdateBounds();
+                UpdateBounds(); 
             }
         }
 
@@ -887,6 +892,7 @@ namespace UnityEngine.UI
                 }
             }
 
+            //更新滚动条。只要前后的值不同就更新。
             if (m_ViewBounds != m_PrevViewBounds || m_ContentBounds != m_PrevContentBounds || m_Content.anchoredPosition != m_PrevPosition)
             {
                 UpdateScrollbars(offset);
@@ -1398,6 +1404,7 @@ namespace UnityEngine.UI
                 min.x += delta.x;
                 max.x += delta.x;
 
+                //可视区域出现剩余空间，记录剩余空间的尺寸作为偏移量返回。
                 float maxOffset = viewBounds.max.x - max.x;
                 float minOffset = viewBounds.min.x - min.x;
 

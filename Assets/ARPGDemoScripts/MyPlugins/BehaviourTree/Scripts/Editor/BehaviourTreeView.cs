@@ -11,6 +11,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
 {
     public class BehaviourTreeView : GraphView {
 
+        //注册自定义控件。
         public new class UxmlFactory : UxmlFactory<BehaviourTreeView, UxmlTraits> { } 
         public Action<NodeView> OnNodeSelected; //选中节点时的回调，用于传递给NodeView，因为它才有被选中时调用的消息方法
         /*暴露给UI Builder，这样可以在UI Builder中将自定义控件添加到对应的容器中，如果是代码中添加的话，就必须先获取容器，
@@ -20,7 +21,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
         BehaviourTreeSettings settings; //从该设置的资产文件中获取视图内要使用的UI Toolkit资产
 
         public struct ScriptTemplate {
-            public TextAsset templateFile; //文本文件的运行时代表
+            public TextAsset templateFile; //文本文件的运行时代表。脚本文件本质上就是文本文件。
             public string defaultFileName;
             public string subFolder;
         }
@@ -28,9 +29,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
         //脚本模板
         public ScriptTemplate[] scriptFileAssets = {
             
-            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().scriptTemplateActionNode, defaultFileName="NewActionNode.cs", subFolder="Actions" },
-            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().scriptTemplateCompositeNode, defaultFileName="NewCompositeNode.cs", subFolder="Composites" },
-            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().scriptTemplateDecoratorNode, defaultFileName="NewDecoratorNode.cs", subFolder="Decorators" },
+            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().ActionNodeTemplate, defaultFileName="NewActionNode.cs", subFolder="Actions" },
+            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().CompositeNodeTemplate, defaultFileName="NewCompositeNode.cs", subFolder="Composites" },
+            new ScriptTemplate{ templateFile=BehaviourTreeSettings.GetOrCreateSettings().DecoratorNodeTemplate, defaultFileName="NewDecoratorNode.cs", subFolder="Decorators" },
         };
 
         public BehaviourTreeView() {
@@ -39,7 +40,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             
             Insert(0, new GridBackground()); //网格背景
 
-            this.AddManipulator(new ContentZoomer());
+            this.AddManipulator(new ContentZoomer()); //缩放网格。
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
@@ -69,9 +70,10 @@ namespace MyPlugins.BehaviourTree.EditorSection
             //Undo.undoRedoPerformed += OnUndoRedo;
         }
 
+        //撤销或重做时都应该调用，
         public void OnUndoRedo() {
             AssetDatabase.SaveAssets(); //撤销修改的是内存对象，需要及时保存到外存上。
-            PopulateTreeView(tree);
+            PopulateTreeView(tree); //数据变化，所以重新填充显示内容。
         }
 
         /// <summary>
@@ -94,23 +96,25 @@ namespace MyPlugins.BehaviourTree.EditorSection
             this.tree = tree; //节点视图的行为树。
 
             graphViewChanged -= OnGraphViewChanged; //视图中发生某些改变时调用
-            DeleteElements(graphElements.ToList()); //首先清空GraphView中的所有元素GraphElement
+            //首先清空GraphView中的所有元素GraphElement，GraphView内置方法，直接调用即可。
+            DeleteElements(graphElements.ToList()); 
             graphViewChanged += OnGraphViewChanged;
 
-            //也就是说只要在编辑窗口中打开行为树，如果没有就会自动生成一个根节点
+            //Tip：只要在编辑窗口中打开行为树，如果没有就会自动生成一个根节点
             if (tree.rootNode == null) { 
                 tree.rootNode = tree.CreateNode(typeof(RootNode)) as RootNode;
                 EditorUtility.SetDirty(tree);
                 AssetDatabase.SaveAssets();
             }
 
-            // Creates node view创建视图节点（这里注意所有节点的子节点都必须在dataNodes列表中，否则就会因为没有创建对应的NodeView而在下面的连线逻辑中出现空引用错误）
+            //Tip：为每个数据节点创建视图节点（这里注意所有节点的子节点都必须在dataNodes列表中，否则就会因为没有创建对应的NodeView而在下面的连线逻辑中出现空引用错误）
             tree.dataNodes.ForEach(n => {
-                if (n is Timeout timeout)
-                {
-                    if (timeout.child == null)
-                        Debug.Log("Timeout节点的子节点为空");
-                }
+                //Ques：忘了这是我写的还是从开源项目里面带过来的了。。。
+                // if (n is Timeout timeout)
+                // {
+                //     if (timeout.child == null)
+                //         Debug.Log("Timeout节点的子节点为空");
+                // }
                 CreateNodeView(n);
             });
 
@@ -137,7 +141,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
         /// </summary>
         public void ClearNodeGraph()
         {
-            foreach (var node in nodes)
+            foreach (var node in nodes) //GraphView记录图中节点的集合。
             {
                 //移除连线
                 //ToList 方法是一个 LINQ 扩展方法，主要用于将实现了 IEnumerable<T> 接口的集合转化为一个 List<T> 对象。这对于需要以列表的形式操作集合时非常有用。
@@ -288,7 +292,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             NodeView nodeView = new NodeView(node);
             //将注册到委托OnNodeSelected中的用于选中节点时的回调方法传递到NodeView中，然后通过GraphElement.OnSelected方法调用NodeView中的OnNodeSelected
             nodeView.OnNodeSelected = OnNodeSelected; 
-            AddElement(nodeView);
+            AddElement(nodeView); //GraphView内置方法，添加GraphElement。
         }
 
         /// <summary>

@@ -444,6 +444,7 @@ namespace UnityEngine.UI
                 t.GetComponents(m_CanvasGroupCache);
                 for (var i = 0; i < m_CanvasGroupCache.Count; i++)
                 {
+                    //默认就是允许交互的，所以这里判断不允许交互的条件。
                     if (m_CanvasGroupCache[i].enabled && !m_CanvasGroupCache[i].interactable)
                         return false;
 
@@ -657,11 +658,12 @@ namespace UnityEngine.UI
         /// </summary>
         /// <param name="state">State to transition to</param>
         /// <param name="instant">Should the transition occur instantly.</param>
-        protected virtual void DoStateTransition(SelectionState state, bool instant)
+        protected virtual void DoStateTransition(SelectionState state, bool instant) //instant专用于ColorTween，因为它才有过渡过程。
         {
             if (!gameObject.activeInHierarchy)
                 return;
 
+            //三个变量，对应三种过渡方式。
             Color tintColor;
             Sprite transitionSprite;
             string triggerName;
@@ -779,7 +781,7 @@ namespace UnityEngine.UI
         /// ]]>
         ///</code>
         /// </example>
-        public Selectable FindSelectable(Vector3 dir)
+        public Selectable FindSelectable(Vector3 dir) //确定方向后，在这里查找。
         {
             dir = dir.normalized;
             Vector3 localDir = Quaternion.Inverse(transform.rotation) * dir;

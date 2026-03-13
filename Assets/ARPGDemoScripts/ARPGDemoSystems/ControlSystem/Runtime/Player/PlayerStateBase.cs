@@ -1,10 +1,12 @@
 
 
+using System;
 using MyPlugins.AnimationPlayer;
 using UnityEngine;
 
 namespace ARPGDemo.ControlSystem.Player
 {
+    [Serializable]
     public class PlayerStateBase : StateBehaviour
     {
         // [SerializeField] protected Animator m_Animator;

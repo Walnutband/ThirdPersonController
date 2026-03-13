@@ -10,6 +10,7 @@ namespace UnityEngine.UI
     {
         private static GraphicRegistry s_Instance;
 
+        //Graphic以及可作为投射目标的Graphic
         private readonly Dictionary<Canvas, IndexedSet<Graphic>> m_Graphics = new Dictionary<Canvas, IndexedSet<Graphic>>();
         private readonly Dictionary<Canvas, IndexedSet<Graphic>> m_RaycastableGraphics = new Dictionary<Canvas, IndexedSet<Graphic>>();
 

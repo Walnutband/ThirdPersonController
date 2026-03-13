@@ -20,12 +20,8 @@ namespace ARPGDemo.UISystem.EditorSection
             {
                 canvas = new GameObject("Canvas").AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                go.transform.SetParent(canvas.transform);
             }
-            else
-            {
-                go.transform.SetParent(canvas.transform);
-            }
+            go.transform.SetParent(canvas.transform);
 
             GameObject mask = new GameObject("UIMask");
             rect = mask.AddComponent<RectTransform>();
@@ -34,7 +30,7 @@ namespace ARPGDemo.UISystem.EditorSection
             mask.AddComponent<SimpleButton>();
             mask.transform.SetParent(go.transform);
 
-            GameObject root = new GameObject("UIRoot");
+            GameObject root = new GameObject("UIRoot"); //代表该面板的实际内容。
             rect = root.AddComponent<RectTransform>();
             rect.SetAnchor(AnchorPresets.StretchAll);
             root.transform.SetParent(go.transform);

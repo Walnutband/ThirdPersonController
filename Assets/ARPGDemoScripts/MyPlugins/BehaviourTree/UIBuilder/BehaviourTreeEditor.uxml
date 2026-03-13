@@ -12,7 +12,7 @@
         <ui:VisualElement name="left-panel" style="min-width: 200px;">
             <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
                 <ui:VisualElement name="TabContainer" style="flex-grow: 0; background-color: rgb(0, 0, 0); left: 0; right: 0; top: 0; bottom: 0; flex-direction: row; height: 40px; max-height: 30px; min-height: 30px; align-items: stretch;">
-                    <ui:Button text="Inspector" display-tooltip-when-elided="true" name="InspectorTab" class="tab-button" style="flex-grow: 1; font-size: 18px; -unity-text-align: middle-center; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" />
+                    <ui:Button text="Inspector" display-tooltip-when-elided="true" name="InspectorTab" class="tab-button" style="flex-grow: 1; font-size: 18px; -unity-text-align: middle-center; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;" />
                     <ui:Button text="Blackboard" display-tooltip-when-elided="true" name="BlackboardTab" class="tab-button" style="flex-grow: 1; font-size: 18px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="InfoViewContainer" style="flex-grow: 1; position: relative; left: 0; bottom: 0; right: -13px; top: auto; height: 411px;">

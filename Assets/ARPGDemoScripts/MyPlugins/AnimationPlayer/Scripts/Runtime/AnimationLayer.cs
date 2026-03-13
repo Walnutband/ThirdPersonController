@@ -10,13 +10,15 @@ namespace MyPlugins.AnimationPlayer
     作为一个整体节点连接到作为一个Layer的AnimationMixerPlayable上来实现的，混合效果就是根据参数值来实时计算并调整连接的各个ClipPlayable节点的权重，
     实质上是调用AnimationMixerPlayable的SetInputWeight方法传入index设置对应端口上的子节点的权重占比。*/
     // public class AnimationMixerNode : AnimationNodeBase
-    public class AnimationLayer : IFadeTarget
+    public class AnimationLayer : IFadeTarget, IAnimationMixer
     {
         private AnimationGraph m_Graph;
 
         private AnimationMixerPlayable m_Playable;
-        public AnimationMixerPlayable playable => m_Playable;
+        // public AnimationMixerPlayable playable => m_Playable;
+        public Playable playable => m_Playable;
         private AnimationLayerMixer m_LayerMixer;
+        internal AnimationLayerMixer layerMixer {set {m_LayerMixer = value;}}
 
         /*Tip：我发现在AnimationLayerMixerPlayable的有关Layer设置的方法中，索引的参数类型设置为了uint而非int。*/
         private int m_Index;
@@ -37,8 +39,9 @@ namespace MyPlugins.AnimationPlayer
         internal List<AnimationStateBase> states => m_States;
         private AnimationStateBase m_CurrentState;
         internal AnimationStateBase currentState => m_CurrentState;
-        internal bool isPlaying => m_CurrentState != null;
+        internal bool isPlaying => m_CurrentState != null; 
 
+        //Tip：底层机制，在一个层级中，同时只会存在一个过渡。
         private FadeHandler m_FadeHandler = null;
         private bool m_IsFading => m_FadeHandler != null;
 
@@ -48,30 +51,30 @@ namespace MyPlugins.AnimationPlayer
         internal float currentFadeDuration => m_CurrentState.fadeDuration;
 
 
-        public AnimationLayer(AnimationGraph _graph, AnimationLayerMixer _layerMixer)
+        public AnimationLayer(AnimationGraph _graph)
         {
-            m_States = new List<AnimationStateBase>();
+            m_States = new List<AnimationStateBase>(); //记录自己所拥有的动画状态。
             m_Graph = _graph;
             m_Playable = AnimationMixerPlayable.Create(_graph.graph);
-            m_CurrentState = null;
-            m_LayerMixer = _layerMixer;
+            m_CurrentState = null; //一个层级只会有一个当前播放的状态，多个状态只是在过渡而已。
         }
 
         //就是要播放该状态。
-        private void SetState(AnimationStateBase _state, int _index)
+        private void SetState(AnimationStateBase _state, int _index, float _weight)
         {
+            /*Tip：只要索引非负，就是有效索引，尤其要注意的是，这里是在该Layer中计算出来的索引，因为外界传入就是指定要播放什么状态，并不关心索引，而Layer中由于依赖
+            的节点结构，肯定要有一个明确的索引，将状态的节点连接上去，然后才能在Playables中正常运行，这就是有关无关的变化。
+            */
             if (_index < 0)
             {
                 Debug.Log("在设置状态所在Layer时传入的索引小于0，请检查。");
                 return;
             }
-            _state.index = _index;
-            _state.layer = this;
-            m_Graph.Connect(_state, this, _index);
-            m_States[_index] = _state;
-            m_CurrentState = _state; //Ques：按理来说，既然设置状态了，那么就是当前要播放的状态了？
+            m_Graph.Connect(_state, this, _index); //连接的同时设置index。
+            m_CurrentState = _state; //更新当前状态。
             _state.time = 0; //直接默认从头开始。
-            _state.EnterPlaying();
+            _state.weight = _weight; //实际就是0或1，过渡就是从0开始，不过渡就是直接1。
+            _state.OnStatePlay();
         }
 
         /*Tip：如果播放的是同一个动画的话，由于一开始就会全部清空，所以不会出现重复之类的问题。*/
@@ -79,49 +82,45 @@ namespace MyPlugins.AnimationPlayer
         {
             if (m_IsFading)
             {
-                // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
                 m_FadeHandler.Complete(); //首先结束过渡
-                // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
 
             ClearStates();
 
-            // int index = 0;
             int index = FindNullIndex(); //Tip：统一通道，因为除了最后的值以外，还有不可或缺的额外逻辑必须执行。
-            SetState(_state, index);
-            _state.weight = 1f; //直接权重初始化为1
+            SetState(_state, index, 1f);
         }
 
         public void Play(AnimationStateBase _fadeIn, float _fadeDuration)
         {
-            if (m_CurrentState == null || (_fadeDuration - 0.001f) <= 0f)
-            {
+            //Tip:在基础层，如果没有正在播放，那么就不进行过渡，而非基础层则照样过渡。
+            if ((m_Index == 0 && m_CurrentState == null) || (_fadeDuration - 0.001f) <= 0f)
+            // if (_fadeDuration - 0.001f <= 0f)
+            {//当前没有播放的状态，也就是该层级此时没有播放动画，那就不会进行过渡。
                 Play(_fadeIn); //不进行过渡
                 return;
             }
 
             if (m_IsFading)
             {
-                // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
                 m_FadeHandler.Complete(); //首先结束过渡
-                // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
 
             //当前存在的元素都作为fadeOut，然后新的即要播放的元素作为fadeIn
             List<IFadeTarget> fadeOuts = new List<IFadeTarget>();
-            fadeOuts.AddRange(m_States.FindAll(x => x != null && x != _fadeIn));
+            fadeOuts.AddRange(m_States.FindAll(x => x != null && x != _fadeIn)); //正常情况下是不可能存在与将要播放的状态相同的状态，因为状态基于AnimationClip具有唯一性。
 
-            int index = FindNullIndex(); //找出槽位
-            SetState(_fadeIn, index);
-            _fadeIn.weight = 0f;
+            int index = FindNullIndex(); //找出空槽位
+            // Debug.Log($"找到槽位：{index}");
+            SetState(_fadeIn, index, 0f);
             m_FadeHandler = new FadeHandler(fadeOuts, _fadeIn, _fadeDuration, () =>
             {
                 m_FadeHandler = null; //预处理器以及这里的引用清理之后，就等GC回收了。
-                // ClearStates(_fadeIn);
                 /*Ques：改成成员变量，可以避免捕获局部变量，因为捕获的话会将局部变量从栈提升到堆，浪费性能。但是这样的话有可能会出现逻辑问题？因为m_CurrenState不一定和fadeIn就
                 保持一致，这需要前面的代码做基础。*/
                 ClearStates(m_CurrentState);
             });
+            //注册，参与PrepareFrame的轮询。
             m_Graph.pre.AddUpdatable(m_FadeHandler);
 
             // m_CurrentFadeDuration = _fadeDuration;
@@ -129,8 +128,11 @@ namespace MyPlugins.AnimationPlayer
         }
 
         //Tip：正常情况下应该是不会调用Stop的，因为在播放其他状态时就会自动停止之前的状态了。可能用的多的还是在非Base层上。
-        public void Stop(AnimationStateBase _state)
+        public void Stop(AnimationStateBase _state, float _duration)
         {
+            //先过前提条件判定再说。
+            if (_state == null || _state.index < 0 || _state.layer != this) return;
+
             if (m_IsFading)
             {
                 // Debug.Log("在播放新动画时正处于过渡状态，请检查是否符合意愿");
@@ -138,7 +140,24 @@ namespace MyPlugins.AnimationPlayer
                 // m_FadeHandler = null; //利用注册的方法顺带就置空了。
             }
 
-            RemoveState(_state);
+            //处理结束过渡。
+            if (_duration > 0f)
+            {
+                // Debug.Log("处理结束过渡");
+                List<IFadeTarget> outs = new List<IFadeTarget>(1) { _state };
+                m_FadeHandler = new FadeHandler(outs, null, _duration, () =>
+                {
+                    // Debug.Log("结束过渡完成");
+                    m_FadeHandler = null; //预处理器以及这里的引用清理之后，就等GC回收了。
+                    RemoveState(_state);
+                });
+                //注册，参与PrepareFrame的轮询。
+                m_Graph.pre.AddUpdatable(m_FadeHandler);
+            }
+            else //否则直接移除。
+            {
+                RemoveState(_state);
+            }
         }
 
         //只是清空连接的节点，仍然保持输入端口数量
@@ -150,20 +169,9 @@ namespace MyPlugins.AnimationPlayer
             for (int i = 0; i < m_States.Count; i++)
             {
                 AnimationStateBase state = m_States[i];
-                if (state != null && state != _exclude)
+                if (state != _exclude) //排除参数状态。
                 {
-                    // Debug.Log($"清理槽位{i}上的{state.key}");
-                    //断开，然后置空
                     m_Graph.Disconnect(state, this);
-                    /*BUG：注意这是C#的一个常见错误，因为没有使用指针，而是所谓的“引用类型”，这里的m_States[i]与state指向的并非同一块内存，所以要直接对m_States[i]置空。*/
-                    // state = null;
-                    m_States[i] = null;
-
-                    /*Ques：发现在Graph的Disconnect方法中*/
-                    // if (_exclude != null && state.key == _exclude.key)
-                    // {//说明是基于相同动画的状态，也就是自己转入自己，所以要将老状态直接销毁掉。
-                    //     m_Graph.DestroyFreeState(state);
-                    // }
                 }
             }
         }
@@ -199,7 +207,6 @@ namespace MyPlugins.AnimationPlayer
                 else
                 {//扩展一个位置
                     nullIndex = m_States.Count;
-                    // ExpandInputCount(m_States.Count + 1);
                     ExpandInputCount(1);
                     /*Tip：注意List的索引访问仅限于Count范围内，也就是说必须要用Add填充才能够访问，尽管对应位置的元素本来就是默认值null。*/
                     m_States.Add(null);
@@ -240,7 +247,8 @@ namespace MyPlugins.AnimationPlayer
         {
             if (_state == null || _state.index < 0)
             {
-                Debug.LogError("在获取状态权重时传入的State为空，或者是索引小于0");
+                //Tip：注意，这里Error只是提示，并不是真的出错了，因为已经把该情况排除掉了。
+                Debug.LogError($"在获取状态权重时传入的State为空，或者是索引小于0。\n{(_state == null ? "State为空" : $"State不为空且index为{_state.index}")}");
                 return;
             }
             m_Playable.SetInputWeight(_state.index, _weight);
@@ -256,7 +264,6 @@ namespace MyPlugins.AnimationPlayer
                 Debug.LogError("传入状态索引与Layer自己记录的不一致，请检查。");
                 return;
             }
-            m_States[_state.index] = null;
             m_Graph.Disconnect(_state, this);
             /*Tip:如果移除的是当前状态。。。但其实按照这个动画系统的运行逻辑来看，调用该方法时，必然移除的就是当前状态。。。*/
             if (m_CurrentState == _state)
@@ -265,9 +272,14 @@ namespace MyPlugins.AnimationPlayer
             }
         }
 
-        
-        void IFadeTarget.StartFadeOut() { }
-        void IFadeTarget.StartFadeIn() {}
-        
+        public void StartFadeOut()
+        {
+            
+        }
+
+        public void StartFadeIn()
+        {
+            
+        }
     }
 }

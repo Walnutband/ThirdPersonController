@@ -229,6 +229,7 @@ namespace UnityEngine.UI
         // should not be called by users
         protected Graphic()
         {
+            //维护该Tweener的生命期，传入自己让协程依附运行。
             if (m_ColorTweenRunner == null)
                 m_ColorTweenRunner = new TweenRunner<ColorTween>();
             m_ColorTweenRunner.Init(this);
@@ -976,7 +977,7 @@ namespace UnityEngine.UI
                 (useRGB ? ColorTween.ColorTweenMode.RGB : ColorTween.ColorTweenMode.Alpha));
 
             var colorTween = new ColorTween {duration = duration, startColor = canvasRenderer.GetColor(), targetColor = targetColor};
-            colorTween.AddOnChangedCallback(canvasRenderer.SetColor);
+            colorTween.AddOnChangedCallback(canvasRenderer.SetColor); //值改变时回调。
             colorTween.ignoreTimeScale = ignoreTimeScale;
             colorTween.tweenMode = mode;
             m_ColorTweenRunner.StartTween(colorTween);

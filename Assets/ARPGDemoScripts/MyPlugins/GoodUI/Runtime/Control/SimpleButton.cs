@@ -9,11 +9,7 @@ namespace MyPlugins.GoodUI
     //挂载在UIMask上，替代Button，因为通常只需要响应一下点击事件，其他逻辑都不需要。
     public class SimpleButton : UIBehaviour, IPointerClickHandler
     {
-        // [Serializable]
-        // public class ButtonClickedEvent : UnityEvent { }
-        // private ButtonClickedEvent m_OnClick = new ButtonClickedEvent();
         private event Action onClick;
-        // public Action onClick { get => m_OnClick; set => m_OnClick = value; }
 
         protected SimpleButton() { }
 

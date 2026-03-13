@@ -25,7 +25,8 @@ public class RandomPosition : ActionNode
         // moveToPosition.z = Random.Range(min.y, max.y);
         float x = Random.Range(min.x, max.x);
         float z = Random.Range(min.y, max.y);
-        moveToPosition.Value = new Vector3(x, moveToPosition.Value.y, z);
+        // moveToPosition.Value = new Vector3(x, moveToPosition.Value.y, z);
+        moveToPosition.Value = new Vector3(context.transform.position.x + x, moveToPosition.Value.y, context.transform.position.z + z);
         return State.Success;
     }
 

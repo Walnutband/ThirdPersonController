@@ -5,9 +5,14 @@ namespace ARPGDemo.Test
     public class SignalTest : MonoBehaviour
     {
 
-        public void SignalReceived()
+        private SignalTest()
         {
-            Debug.Log("成功接收到信号");
+            Debug.Log("Constructor called");
+        }
+
+        void Awake()
+        {
+            Debug.Log("Awake called");
         }
     }
 }

@@ -1,7 +1,8 @@
 
+using ARPGDemo.CustomAttributes;
 using UnityEditor;
 
-namespace ARPGDemo
+namespace ARPGDemo.CustomAttributes.EditorSection
 {
     [CustomPropertyDrawer(typeof(RangedNumericAttribute))]
     public class RangedNumericDrawer : PropertyDrawer

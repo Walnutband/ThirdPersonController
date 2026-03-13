@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace ARPGDemo
+namespace ARPGDemo.CustomAttributes
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class RangedNumericAttribute : PropertyAttribute

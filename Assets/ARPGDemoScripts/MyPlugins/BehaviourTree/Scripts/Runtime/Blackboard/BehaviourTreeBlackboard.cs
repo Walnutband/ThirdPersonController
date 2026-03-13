@@ -91,29 +91,15 @@ namespace MyPlugins.BehaviourTree
                     return;
                 }
             }
-            // for (int i = 0; i < variables.Count; i++)
-            // {
-            //     if (variables[i].key == k)
-            //     {
-            //         Debug.LogWarning("变量 \"" + k + "\"已存在");
-            //         return;
-            //     }
-            // }
             //创建对应类型的实例。
             //Tip：这里的特殊性在于虽然是编辑时，但是想要通过在编辑窗口中指定的类型自动创建对应类型的实例
-            // BlackboardVariable var = CreateVariableInstance(variableType);
-            // BlackboardVariable var = CreateVariableInstance(k, variableType);
-            // //if (var is null) return; //这里用is而不是==，因为Object的特殊机制，至于具体细节，自行搜索记忆。
-            // if (var == null) return; //继承自ScriptableObject之后，
-            // // var.hideFlags = HideFlags.HideInInspector;
-            // var.key = k;
-            // variables.Add(var);
             CreateVariableInstance(newVariableKey, variableType);
         }
 
-        //创建实际变量类型的实例，每次新增变量类型时都要在这里添加分支
+        //Tip：创建实际变量类型的实例，每次新增变量类型时都要在这里添加分支
         //不过从实际开发中的分工来看，添加变量类型和建立分支本来就都是程序的工作，一般也不会因此出现工作不同步的情况
         //TODO:应该可以使用代码生成相关的技术来自动生成，比如代码模板。
+        //Tip：资产必须转换为具体类型，才能按照对应的成员进行存储，否则就只能存储基类的成员。
         private void CreateVariableInstance(string name, Type realType)
         {
             BlackboardVariable newVar = null;
@@ -130,7 +116,8 @@ namespace MyPlugins.BehaviourTree
                 newVar.name = name; 
                 newVar.key = name;
                 variables.Add(newVar);
-                AssetDatabase.AddObjectToAsset(newVar, this); //添加到该黑板作为子资产。不过应该和newVar不是同一个实例。
+                //添加到该黑板作为子资产。不过应该和newVar不是同一个实例。
+                AssetDatabase.AddObjectToAsset(newVar, this); 
                 AssetDatabase.SaveAssets(); 
                 //经测试发现其实在列表中引用的就是对应的子资产。
             }
@@ -157,13 +144,12 @@ namespace MyPlugins.BehaviourTree
         {
             //删除引用的实例，但元素本身还没有删除
             //注意这里要求类型必须是Object的派生类，所以应该让BlackboardVariable继承自Object或者其派生类
-            DestroyImmediate(variables.Find(v => v.key == key));
+            DestroyImmediate(variables.Find(v => v.key == key)); 
             variables.RemoveAll(v => v == null); //清空所有空引用的对象
-            // var variable = variables.Find(v => v.key == key);
-            // variable = null;
         }
     }
 
+    //Tip：这个编辑器的目的，就是为了将黑板中的变量不可直接编辑。
     [CustomEditor(typeof(BehaviourTreeBlackboard))]
     public class BTBlackboardEditor : Editor
     {

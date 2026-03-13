@@ -24,6 +24,7 @@ namespace MyPlugins.AnimationPlayer
         internal AnimationClipState(AnimationGraph _graph, AnimationClip _clip) : base(_graph)
         {
             m_Playable = AnimationClipPlayable.Create(_graph.graph, _clip);
+            // m_Playable.SetDuration(_clip.length); //以片段长度直接作为时长。
             m_EndTime = _clip.length;
             m_Clip = _clip;
         }
@@ -31,6 +32,7 @@ namespace MyPlugins.AnimationPlayer
         internal AnimationClipState(AnimationGraph _graph, FadeAnimation _anim) : base(_graph)
         {
             m_Playable = AnimationClipPlayable.Create(_graph.graph, _anim.clip);
+            // m_Playable.SetDuration(_anim.clip.length);
             m_Clip = _anim.clip;
             m_EndTime = (_anim.endTime - 0.001f) <= 0f ? _anim.clip.length : _anim.endTime; //不大于零的话，就等于没有设置，就直接设置为片段长度才是合理的。
             m_CustomEndTime = _anim.customEndTime;
@@ -39,14 +41,15 @@ namespace MyPlugins.AnimationPlayer
         internal AnimationClipState(AnimationGraph _graph, AnimationClip _clip, float _endTime, float _customEndTime) : base(_graph)
         {
             m_Playable = AnimationClipPlayable.Create(_graph.graph, _clip);
+            // m_Playable.SetDuration(_clip.length);
             m_Clip = _clip;
             m_EndTime = (_endTime - 0.001f) <= 0f ? _clip.length : _endTime; //不大于零的话，就等于没有设置，就直接设置为片段长度才是合理的。
             m_CustomEndTime = _customEndTime;
         }
 
-        internal override void EnterPlaying() 
+        internal override void OnStatePlay() 
         {
-            base.EnterPlaying();
+            base.OnStatePlay();
             //因为需要复用，这里就是防止残留。
             ClearEvents();
         }
@@ -85,7 +88,7 @@ namespace MyPlugins.AnimationPlayer
 
         void IFadeTarget.StartFadeOut()
         {//通常是，中途指定要播放其他动画，所以当前动画就变成了fadeOut状态参与过渡，这样的话就不要触发当前动画的后续事件了。
-            Debug.Log("ClipState调用StartFadeOut");
+            // Debug.Log("ClipState调用StartFadeOut");
             ClearEvents();
         }
     }

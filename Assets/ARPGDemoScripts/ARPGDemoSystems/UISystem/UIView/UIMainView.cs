@@ -68,12 +68,13 @@ namespace ARPGDemo.UISystem_Old
             // UIManager.Instance.GetPlayerInput().SwitchCurrentActionMap("UI");
         }
 
-        //OnResume，卧槽，直到需要控制鼠标的显隐时，才体会到这个框架为UIView设置的OnResume和OnPause方法的用处。
+        //Tip：OnResume，卧槽，直到需要控制鼠标的显隐时，才体会到这个框架为UIView设置的OnResume和OnPause方法的用处。
         public override void OnResume()
         {
             base.OnResume();
             // UIManager.Instance.GetPlayerInput().SwitchCurrentActionMap("Player");
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
             UIManager.Instance.InMainView = true;
         }
 
@@ -82,6 +83,7 @@ namespace ARPGDemo.UISystem_Old
             base.OnPause();
             // UIManager.Instance.GetPlayerInput().SwitchCurrentActionMap("UI");
             Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             UIManager.Instance.InMainView = false;
         }
 

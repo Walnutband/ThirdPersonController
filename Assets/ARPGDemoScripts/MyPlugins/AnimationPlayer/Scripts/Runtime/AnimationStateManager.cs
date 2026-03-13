@@ -19,7 +19,7 @@ namespace MyPlugins.AnimationPlayer
 
         public bool ExistState(AnimationStateBase _state)
         {
-
+            //状态存储自己的key信息。
             if (!m_StateDic.ContainsKey(_state.key) || m_StateDic[_state.key] != _state) return false;
             return true;
         }
@@ -35,34 +35,41 @@ namespace MyPlugins.AnimationPlayer
             return false;
         }
 
+        //Tip：传入不同类型，这是源数据，也就是使用者所提供的数据，在这里为其创建动画状态。所以参数就是使用者可以使用的数据类型。
 
+        //直接传入Clip，就是最简单的一个Clip对应一个AnimationClipPlayable。
         public AnimationClipState GetOrCreateState(AnimationClip _clip)
         {
-            if (m_StateDic.TryGetValue(StateID(_clip), out var _state))
+            int id = StateID(_clip);
+            //已经存在，直接返回。
+            if (m_StateDic.TryGetValue(id, out var _state))
             {
                 return _state as AnimationClipState;
             }
             //没有就新建
             AnimationClipState state = new AnimationClipState(m_Graph, _clip);
-            state.key = StateID(_clip);
-            m_StateDic.Add(state.key, state);
+            state.key = id;
+            m_StateDic.Add(state.key, state); //记录。
             return state;
 
         }
 
         //对于FadeAnimation，默认是必须播放，而如果存在同片段的状态，就看是否游离，游离的话就直接复用即可
-        public AnimationClipState GetOrCreateState(FadeAnimation _anim)
+        public AnimationClipState GetOrCreateState(FadeAnimation _anim, PlayOptions _option = PlayOptions.None)
         {
-            int id = StateID(_anim.clip);
+            int id = StateID(_anim);
             //存在且处于游离状态才能复用。
             if (m_StateDic.TryGetValue(id, out var _state) && _state.index < 0)
             {
                 _state.fadeDuration = _anim.fadeDuration;
                 return _state as AnimationClipState;
             }
+
+            // if (_option == PlayOptions.None && m_StateDic.ContainsKey(id)) return null;
+
             AnimationClipState state = new AnimationClipState(m_Graph, _anim);
             state.key = id;
-            if (m_StateDic.ContainsKey(id))
+            if (m_StateDic.ContainsKey(id)) //此时就是已经存在且正在播放的同一个动画，直接覆盖，随后移除时（AnimationGraph的Disconnect）会同时将该动画节点销毁。
             {
                 m_StateDic[id] = state; //直接覆盖，而其所在Layer还存储着对其的引用。
             }
@@ -99,9 +106,12 @@ namespace MyPlugins.AnimationPlayer
             return state;
         }
 
-        /*Tip：不同类型的ID，由于Key是object类型，所以能够引用这些不同类型的ID。*/
+        /*Tip：不同类型的ID，由于Key是object类型，所以能够引用这些不同类型的ID。
+        这里就是将AnimationClip作为ID，合情合理，这就是天然的唯一标识符。
+        */
         public static int StateID(AnimationClip _clip) => _clip.GetInstanceID();
-        public static int StateID(MixerAnimation _mixer) => _mixer.key;
+        // public static int StateID(MixerAnimation _mixer) => _mixer.key;
+        public static int StateID(IAnimationInfo _anim) => _anim.key;
     }
 
 
@@ -110,12 +120,12 @@ namespace MyPlugins.AnimationPlayer
     直接从字典查询对应状态了，因为在字典外部其实直接存储的并非这里的StateID，而是比如AnimationClip这种可以直接作为ID的类型，所以此时这个封装外壳反而成了阻碍。*/
     /*TODO：还是从Animancer参考，我能想到的是在要个体类中声明字段时，就将字段设置为专门的类型，其实Animancer中除了直接AnimationClip以外就常用ClipTransition指定动画片段以及
     过渡参数、还有LinearMixerTransition实现混合动画（就像AnimatorController中的混合树一样），在这个专门的类型中就定义了字段存储自己的ID信息或者说Key信息。*/
-    public class StateID
-    {
-        private object m_ID;
-        public StateID(AnimationClip _id)
-        {
-            m_ID = _id;
-        }
-    }
+    // public class StateID
+    // {
+    //     private object m_ID;
+    //     public StateID(AnimationClip _id)
+    //     {
+    //         m_ID = _id;
+    //     }
+    // }
 }

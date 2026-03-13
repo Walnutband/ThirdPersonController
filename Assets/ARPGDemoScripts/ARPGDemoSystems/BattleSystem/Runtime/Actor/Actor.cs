@@ -1,3 +1,4 @@
+using ARPGDemo.CustomAttributes;
 using UnityEngine;
 
 

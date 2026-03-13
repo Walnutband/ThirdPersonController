@@ -36,7 +36,7 @@ namespace UnityEngine.EventSystems
     /// </example>
     public abstract class BaseInputModule : UIBehaviour
     {
-        [NonSerialized]
+        [NonSerialized] //显式指明，这是运行时缓存，不要将其序列化保存。也是防止意外修改。
         protected List<RaycastResult> m_RaycastResultCache = new List<RaycastResult>();
 
         /// <summary>
@@ -77,6 +77,7 @@ namespace UnityEngine.EventSystems
                         }
                     }
 
+                    //寻找之后还是为空，即没有找到。直接添加。
                     if (m_DefaultInput == null)
                         m_DefaultInput = gameObject.AddComponent<BaseInput>();
                 }
@@ -207,6 +208,7 @@ namespace UnityEngine.EventSystems
                 for (var i = 0; i < hoveredCount; ++i)
                 {
                     currentPointerData.fullyExited = true;
+                    //Move再Exit
                     ExecuteEvents.Execute(currentPointerData.hovered[i], currentPointerData, ExecuteEvents.pointerMoveHandler);
                     ExecuteEvents.Execute(currentPointerData.hovered[i], currentPointerData, ExecuteEvents.pointerExitHandler);
                 }
@@ -235,6 +237,8 @@ namespace UnityEngine.EventSystems
             GameObject commonRoot = FindCommonRoot(currentPointerData.pointerEnter, newEnterTarget);
             GameObject pointerParent = ((Component)newEnterTarget.GetComponentInParent<IPointerExitHandler>())?.gameObject;
 
+            //Tip：处理PointerExit事件
+
             // and we already an entered object from last time
             if (currentPointerData.pointerEnter != null)
             {
@@ -253,6 +257,7 @@ namespace UnityEngine.EventSystems
                     if (!m_SendPointerHoverToParent && pointerParent == t.gameObject)
                         break;
 
+                    //每次循环都在更新该fullExited属性。
                     currentPointerData.fullyExited = t.gameObject != commonRoot && currentPointerData.pointerEnter != newEnterTarget;
                     ExecuteEvents.Execute(t.gameObject, currentPointerData, ExecuteEvents.pointerMoveHandler);
                     ExecuteEvents.Execute(t.gameObject, currentPointerData, ExecuteEvents.pointerExitHandler);
@@ -267,6 +272,8 @@ namespace UnityEngine.EventSystems
                     if (!m_SendPointerHoverToParent) t = t.parent;
                 }
             }
+
+            //Tip：处理PointerEnter事件
 
             // now issue the enter call up to but not including the common root
             var oldPointerEnter = currentPointerData.pointerEnter;

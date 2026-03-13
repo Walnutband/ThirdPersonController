@@ -41,7 +41,6 @@ namespace MyPlugins.BehaviourTree.EditorSection
             IMGUIContainer container = new IMGUIContainer(() => { //存放数据节点的检视面板
                 // Debug.Log("dd");
                 if (editor && editor.target) {
-                    // Debug.Log("editor");
                     //这里就是按照默认方式渲染检视面板
                     editor.OnInspectorGUI(); //创建检视面板（似乎是默认进行了数据绑定，这是IMGUI的数据绑定，注意与UI Toolkit的数据绑定区分，后者更加复杂，也更加丰富）
                 }

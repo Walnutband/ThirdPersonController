@@ -53,6 +53,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
                 clickedElement = ve.GetFirstAncestorOfType<NodeView>();
                 if (clickedElement == null)
                     return;
+                Debug.Log("双击目标为NodeView的");
             }
 
             // Add children to selection so the root element can be moved

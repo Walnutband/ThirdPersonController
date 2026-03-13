@@ -30,7 +30,7 @@ namespace ARPGDemo.UISystem_Old
 #pragma warning restore 0649
         #endregion
 
-
+        //记录动态加载滚动条
         private Tweener _tweener;
 
         //TODO:问题在于，
@@ -67,11 +67,12 @@ namespace ARPGDemo.UISystem_Old
                 
             },
             loadComplete: () =>
-            {//（Single模式下）在加载新场景和卸载旧场景都完成之后，淡出，在黑屏下悄悄关闭加载界面，然后淡入。
+            {//Tip：（Single模式下）在加载新场景和卸载旧场景都完成之后，淡出，在黑屏下悄悄关闭加载界面，然后淡入。
                 UIManager.Instance.FadeOutIn(1f, () =>
                 {
                     UIManager.Instance.Close(UIViewType.UILoadingView);
-                    if (toScene == "MainScene")
+                    // if (toScene == "MainScene")
+                    if (toScene == "TestScene")
                     {//TODO：硬编码，耦合等问题严重。
                         UIManager.Instance.Open(UIViewType.UIMainView);
                     }

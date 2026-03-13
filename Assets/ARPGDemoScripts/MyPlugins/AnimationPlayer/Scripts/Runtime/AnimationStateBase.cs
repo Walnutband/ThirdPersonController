@@ -22,7 +22,7 @@ namespace MyPlugins.AnimationPlayer
 
         //节点的权重，不过并非Playble节点公开属性，这里只是记录，最终通过SetInputWeight落实到权重影响，而是是调用父节点的SetInputWeight，这里的Weight主要是记录给父节点访问的。
         public float weight
-        {
+        {//状态知道自己位于哪一层。
             get => m_Layer.GetStateWeight(this);
             set
             {
@@ -42,7 +42,6 @@ namespace MyPlugins.AnimationPlayer
             }
             set
             {
-                // m_TimeD = value;
                 m_Playable.SetTime(value);
                 m_Playable.SetTime(value);
             }
@@ -53,18 +52,21 @@ namespace MyPlugins.AnimationPlayer
 
         internal bool isValid => m_Playable.IsValid();
 
+        public bool isPlaying => m_Playable.IsValid() && m_Index >= 0;
+
+        //位于某个Graph中。初始索引为-1意味着未连接到任何节点上。
         protected AnimationStateBase(AnimationGraph _graph)
         {
             m_Graph = _graph;
             m_Index = -1;
         }
 
-        /*Tip：开始播放时执行一些逻辑、类似于OnEnable方法的作用，而结束播放时可能也会有一些逻辑类似OnDisable。*/
-        internal virtual void EnterPlaying()
+        /*Tip：这两个方法很自然，PlayableBehaviour本来就有OnBehaviourPlay和OnBehaviourPause的两个周期方法，刚开始和刚结束。*/
+        internal virtual void OnStatePlay()
         {
-            time = 0; //复用时就会体会到这里的用处了。
+            
         }
-        internal virtual void ExitPlaying()
+        internal virtual void OnStateStop()
         {
 
         }
@@ -79,14 +81,15 @@ namespace MyPlugins.AnimationPlayer
             m_Graph.Play(_layerIndex, this);
         }
 
-        public void Stop()
+        public void Stop(float _duration = 0f)
         {
+            // Debug.Log("调用Stop");
             if (!isValid)
             {
                 Debug.LogError("正在尝试停止无效的动画状态，请检查");
                 return;
             }
-            m_Graph.Stop(m_Layer, this);
+            m_Graph.Stop(m_Layer, this, _duration);
         }
 
         void IFadeTarget.StartFadeOut()
@@ -97,5 +100,6 @@ namespace MyPlugins.AnimationPlayer
         {
 
         }
+
     }
 }

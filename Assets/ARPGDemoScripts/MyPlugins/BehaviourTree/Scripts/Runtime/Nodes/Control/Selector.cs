@@ -21,7 +21,7 @@ namespace MyPlugins.BehaviourTree
                 current = i;
                 var child = children[current];
 
-                //只有失败才会继续
+                //只有失败才会继续，因为逻辑是“直到有一个成功的节点”
                 switch (child.Update())
                 {
                     case State.Running:

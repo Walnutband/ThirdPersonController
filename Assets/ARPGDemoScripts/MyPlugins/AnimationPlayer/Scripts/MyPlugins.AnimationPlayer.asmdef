@@ -1,3 +1,16 @@
 {
-	"name": "MyPlugins.AnimationPlayer"
+    "name": "MyPlugins.AnimationPlayer",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e3047cc83dbe5a34880df21a1e2b4255"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -70,8 +70,8 @@ namespace MyPlugins.GoodUI
         [SerializeField]
         private RectTransform expandFlag;
         private Image expandImage; //用于表示折叠状态的Image对象
-        private Sprite expandTopSprite; //折叠时图片
-        private Sprite expandBottomSprite; //展开时图片
+        [SerializeField] private Sprite expandTopSprite; //折叠时图片
+        [SerializeField] private Sprite expandBottomSprite; //展开时图片
 
         [SerializeField]
         private AccordionGroup m_Group;
@@ -219,12 +219,14 @@ namespace MyPlugins.GoodUI
         private void LoadAssets()
         {
             Debug.Log("LoadAssets");
+            // expandTopSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Top (64x).png");
+            // expandTopSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Bottom (64x).png");
             //异步加载的同步执行写法。
-            SimpleLoadAsset<SpriteAtlas>("Textures/Icons/Navigation/Flags.spriteatlasv2", (atlas) =>
-            {
-                expandTopSprite = atlas.GetSprite("Arrow Top (64x)");
-                expandBottomSprite = atlas.GetSprite("Arrow Bottom (64x)");
-            });
+            // SimpleLoadAsset<SpriteAtlas>("Textures/Icons/Navigation/Flags.spriteatlasv2", (atlas) =>
+            // {
+            //     expandTopSprite = atlas.GetSprite("Arrow Top (64x)");
+            //     expandBottomSprite = atlas.GetSprite("Arrow Bottom (64x)");
+            // });
             // expandTopSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Flags.spriteatlasv2[Arrow Top (64x)]").Result;
             // expandBottomSprite = Addressables.LoadAssetAsync<Sprite>("Textures/Icons/Navigation/Flags.spriteatlasv2[Arrow Bottom (64x)]").Result;
             // ResourceManager.Instance.SimpleLoadAsset<Sprite>("Textures/Icons/Navigation/Arrow Top (64x).png", (result) => expandTopSprite = result);

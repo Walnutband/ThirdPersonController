@@ -506,7 +506,7 @@ namespace UnityEngine.EventSystems
             // If direction changed at least 90 degree, or we already had the delay, repeat at repeat rate.
             else
             {
-                if (time <= m_PrevActionTime + 1f / m_InputActionsPerSecond)
+                if (time <= m_PrevActionTime + 1f / m_InputActionsPerSecond) //个数/s，取倒数就是s/个，而使用前者作为编辑单位，主要还是符合人的直觉。
                     return false;
             }
 

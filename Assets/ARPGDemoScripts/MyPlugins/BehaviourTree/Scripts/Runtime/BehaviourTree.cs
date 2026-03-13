@@ -92,9 +92,14 @@ namespace MyPlugins.BehaviourTree
             });
         }
 
+        /*Tip：我草，2026.3.13回看这里，之前就觉得别扭，需要为每个类型都进行转换、判断，而且作为基类的NodeData竟然没有定义子对象的字段或属性，而是由这些派生节点定义，
+        实际上我在开发那个简单的Timeline运行时系统的时候就遇到过这个问题，其实因为类型确定，就是List<NodeData>，那么就可以直接在基类中定义一个public virtual List<NdoeData> children {get;}
+        让派生类自己重写，而记录数据的字段就定义在派生类中，那么这里就只需要访问NodeData的children属性就可以了，不需要判断具体类型，显然又简单又好。
+        */
+
         public static List<NodeData> GetChildren(NodeData parent) {
             List<NodeData> children = new List<NodeData>();
-            //条件和动作节点都是叶子节点，所以必然没有子节点
+            //条件和动作节点都是叶子节点，所以必然没有子节点，就不考虑了。即返回的就是创建的空列表。
             if (parent is DecoratorNode decorator && decorator.child != null) {
                 children.Add(decorator.child);
             }
@@ -104,32 +109,36 @@ namespace MyPlugins.BehaviourTree
             }
             //注意这里就没有判空
             if (parent is ControlNode composite) {
-                composite.children.RemoveAll(n => n == null); //移除掉所有空引用
+                composite.children.RemoveAll(n => n == null); //移除掉所有空引用，正常来说不会有空引用。
                 return composite.children;
             }
 
             return children;
         }
 
+        /*Tip：判断错了，其实是前序遍历，因为中间节点优先执行，就是中左右的顺序。*/
+        //Tip：这个遍历方法非常好用，对整个树的所有节点统一执行指定操作（visiter）。
         /// <summary>
         /// 遍历树（相当于二叉树的中序遍历，也就是深度优先搜索）
         /// </summary>
         /// <param name="node"></param>
         /// <param name="visiter">代表要对每个节点执行某个统一操作</param>
         public static void Traverse(NodeData node, System.Action<NodeData> visiter) {
-            if (node) {
+            if (node) { //理解这个中序遍历的逻辑，先对节点自己执行逻辑，然后递归遍历子节点，逐一执行逻辑。
                 visiter.Invoke(node); //Action可以用Invoke调用，其实和直接括号调用没有任何区别，只是表明这是个Action
                 var children = GetChildren(node);
                 children.ForEach((n) => Traverse(n, visiter));
             }
         }
 
+        //TODO：实际上不应该直接把资产类作为运行时类型，应该分别定义类型。
+
         /// <summary>
         /// 克隆树（实例化行为树，以及添加好各个节点）
         /// </summary>
         /// <returns></returns>
         public BehaviourTree Clone() { //行为树，根节点，各节点。由于是获取每一个具体的行为树资产文件，所以必然是实例方法
-            BehaviourTree tree = Instantiate(this);
+            BehaviourTree tree = Instantiate(this); //实例化，将使用实例与源实例隔离。
             tree.rootNode = tree.rootNode.Clone(); //每个节点都记录了自己的父节点和子节点的信息，所以从根节点开始，递归遍历，最终将所有节点添加到nodes列表中
             tree.dataNodes = new List<NodeData>();
             Traverse(tree.rootNode, (n) => {
@@ -139,7 +148,7 @@ namespace MyPlugins.BehaviourTree
             return tree;
         }
 
-        //上下文指的是执行器所控制的对象身上的各个组件，比如要调用其方法、读写其属性等等，而黑板指的是那些记录全局状态的变量
+        //Tip：上下文指的是执行器所控制的对象身上的各个组件，比如要调用其方法、读写其属性等等，而黑板指的是那些记录全局状态的变量，用于节点之间进行数据交流。
         public void Bind(Context context, BehaviourTreeBlackboard blackboard) {
             //这里是通过让所有节点都拥有对于上下文和黑板的引用，来实现共享，也就是全局，也可以将其设置为静态来实现全局效果
             Traverse(rootNode, node => {
@@ -158,17 +167,16 @@ namespace MyPlugins.BehaviourTree
         /// <param name="type"></param>
         /// <returns></returns>
         public NodeData CreateNode(System.Type type) {
-            //这个方法创建的实例仅存在于内存中，并不会自动保存为 .asset 文件。需要通过如下的AssetDatabase方法保存在外存中。
-            //如果不保存到外存中的话，在方法结束后也仍然会存在于内存中，不过此处只有局部变量node指向它，在方法结束后node销毁，导致失去引用，则会被GC所回收。
+            /*这个方法创建的实例仅存在于内存中，并不会自动保存为 .asset 文件。需要通过如下的AssetDatabase方法保存在外存中。如果不保存到外存中的话，
+            在方法结束后也仍然会存在于内存中，不过此处只有局部变量node指向它，在方法结束后node销毁，导致失去引用，则会被GC所回收。*/
             NodeData node = ScriptableObject.CreateInstance(type) as NodeData; 
             node.name = type.Name; //实例名
             node.guid = GUID.Generate().ToString(); //分配一个GUID
-            //在执行这行代码后，对 this（当前对象）的任何更改都会被记录到撤销堆栈中。
+            //在执行这行代码后，对 this（当前对象）的任何更改都会被记录到撤销堆栈中。实际上就是记录直接的成员变量的值变化，而由于引用的存在，所引用对象的有些变化则不会被记录。
             Undo.RecordObject(this, "Behaviour Tree (CreateNode)"); //可以在Edit-Undo History中查看撤销堆栈
             dataNodes.Add(node);
 
             if (!Application.isPlaying) { //在运行时是不可做这种操作的。
-                //将节点添加到行为树文件下（就是添加为同一个.asset文件，不过在项目窗口中会看到成为了原文件的子文件）
                 AssetDatabase.AddObjectToAsset(node, this);
                 //当然也可以创建为一个单独的文件，不过就不方便管理了
                 //AssetDatabase.CreateAsset(node, "Assets");

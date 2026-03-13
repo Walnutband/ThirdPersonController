@@ -134,7 +134,7 @@ namespace UnityEngine.UI
 
         // Private fields
 
-        private RectTransform m_ContainerRect;
+        private RectTransform m_ContainerRect; //Handle滑块所在的区域。
 
         // The offset from handle position to mouse down position
         private Vector2 m_Offset = Vector2.zero;
@@ -283,7 +283,7 @@ namespace UnityEngine.UI
                 m_Tracker.Add(this, m_HandleRect, DrivenTransformProperties.Anchors);
                 Vector2 anchorMin = Vector2.zero;
                 Vector2 anchorMax = Vector2.one;
-
+                //Tip：似乎直接使用anchor进行控制的一个好处就是，它是归一化的，size和value也都是如此，所以方便统一计算，然后让布局系统自动就可以计算出更新后的布局值。
                 float movement = Mathf.Clamp01(value) * (1 - size);
                 if (reverseValue)
                 {
@@ -318,9 +318,11 @@ namespace UnityEngine.UI
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(m_ContainerRect, position, eventData.pressEventCamera, out localCursor))
                 return;
 
-            Vector2 handleCenterRelativeToContainerCorner = localCursor - m_Offset - m_ContainerRect.rect.position;
+            //rect.position是自身左下角相对于pivot的坐标。m_Offset是鼠标相对于HandleRect中心的坐标。
+            Vector2 handleCenterRelativeToContainerCorner = localCursor - m_Offset - m_ContainerRect.rect.position; 
             Vector2 handleCorner = handleCenterRelativeToContainerCorner - (m_HandleRect.rect.size - m_HandleRect.sizeDelta) * 0.5f;
-
+            Debug.Log($"handleCorner: {handleCorner}");
+            //因为size是归一化的，代表的是滑块尺寸所占总区域的比例。
             float parentSize = axis == 0 ? m_ContainerRect.rect.width : m_ContainerRect.rect.height;
             float remainingSize = parentSize * (1 - size);
             if (remainingSize <= 0)
@@ -349,6 +351,7 @@ namespace UnityEngine.UI
             }
         }
 
+
         private bool MayDrag(PointerEventData eventData)
         {
             return IsActive() && IsInteractable() && eventData.button == PointerEventData.InputButton.Left;
@@ -368,6 +371,7 @@ namespace UnityEngine.UI
                 return;
 
             m_Offset = Vector2.zero;
+            //落在Handle内
             if (RectTransformUtility.RectangleContainsScreenPoint(m_HandleRect, eventData.pointerPressRaycast.screenPosition, eventData.enterEventCamera))
             {
                 Vector2 localMousePos;
@@ -406,26 +410,31 @@ namespace UnityEngine.UI
             return ClickRepeat(eventData.pointerPressRaycast.screenPosition, eventData.enterEventCamera);
         }
 
+        /*Tip：处理的就是鼠标在滑动区域内、滑块外的情况，因为此时应该让滑块移动向鼠标。*/
+
         /// <summary>
         /// Coroutine function for handling continual press during Scrollbar.OnPointerDown.
         /// </summary>
         protected IEnumerator ClickRepeat(Vector2 screenPosition, Camera camera)
         {
+            //按住且未拖拽。
             while (isPointerDownAndNotDragging)
             {
+                //如果鼠标没有落在滑块内部就处理，
                 if (!RectTransformUtility.RectangleContainsScreenPoint(m_HandleRect, screenPosition, camera))
                 {
                     Vector2 localMousePos;
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(m_HandleRect, screenPosition, camera, out localMousePos))
                     {
+                        //鼠标位置相对于滑块坐标系的坐标。
                         var axisCoordinate = axis == 0 ? localMousePos.x : localMousePos.y;
 
                         // modifying value depending on direction, fixes (case 925824)
 
                         float change = axisCoordinate < 0 ? size : -size;
                         value += reverseValue ? change : -change;
-                        value = Mathf.Clamp01(value);
-                        // Only keep 4 decimals of precision
+                        value = Mathf.Clamp01(value); 
+                        // Only keep 4 decimals of precision，四位精度。
                         value = Mathf.Round(value * 10000f) / 10000f;
                     }
                 }

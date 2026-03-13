@@ -1,0 +1,95 @@
+.custom-list-container {
+    margin-bottom: 5px;
+    padding: 2px;
+}
+
+.custom-list-header {
+    flex-direction: row;
+    background-color: rgba(100, 100, 100, 0.1);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    padding: 2px;
+    margin-bottom: 2px;
+}
+
+.custom-list-header-label {
+    flex-grow: 1;
+    font-size: 12px;
+    font-weight: bold;
+    unity-font-style: bold;
+}
+
+.custom-list-header-label .unity-foldout__text {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.custom-list-header-count {
+    color: rgb(150, 150, 150);
+    font-size: 11px;
+    padding-right: 5px;
+    align-self: center;
+}
+
+.custom-list-content {
+    margin-left: 15px;
+    margin-right: 5px;
+}
+
+.custom-element-container {
+    margin-bottom: 2px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    background-color: rgba(128, 128, 128, 0.05);
+}
+
+.custom-element-header {
+    flex-direction: row;
+    background-color: rgba(100, 100, 100, 0.2);
+    padding: 4px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    cursor: move;
+}
+
+.custom-element-header:hover {
+    background-color: rgba(100, 100, 100, 0.3);
+}
+
+.custom-element-header-text {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 11px;
+    color: rgb(200, 200, 200);
+}
+
+.custom-element-content {
+    padding: 5px;
+    padding-left: 15px;
+    background-color: rgba(128, 128, 128, 0.02);
+}
+
+.custom-list-add-button {
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-right: 5px;
+    height: 20px;
+    background-color: rgba(50, 150, 50, 0.3);
+    border: 1px solid rgba(50, 150, 50, 0.5);
+}
+
+.custom-list-add-button:hover {
+    background-color: rgba(50, 150, 50, 0.5);
+}
+
+/* 拖拽指示器 */
+.custom-element-container.dragover {
+    border: 2px solid rgb(0, 150, 255);
+    background-color: rgba(0, 150, 255, 0.1);
+}
+
+/* 交替行背景色 */
+/* .custom-element-container:nth-child(odd) {
+    background-color: rgba(128, 128, 128, 0.02);
+}
+
+.custom-element-container:nth-child(even) {
+    background-color: rgba(128, 128, 128, 0.05);
+} */

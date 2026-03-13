@@ -13,9 +13,9 @@ namespace ARPGDemo.UISystem_Old
     /// </summary>
     public abstract class UIView : MonoBehaviour, IBindableUI //IBindableUI这种空接口，可以提供的信息是存在性以及数量，即有没有这种类型的对象以及有多少。
     {
-        private UIViewController _controller;
-        private GameObject _lastSelect;
-        private Canvas _canvas;
+        private UIViewController _controller; //控制该UIView的控制器。
+        private GameObject m_LastSelect;
+        private Canvas m_Canvas;
         protected CanvasGroup canvasGroup;
         
         //在OnResume即恢复时会尝试将该变量引用的游戏对象设置为选中对象，如果有的话。比如在当前UI视图中有什么按钮即Selectable类型的组件，那就可以被该变量所引用
@@ -37,7 +37,7 @@ namespace ARPGDemo.UISystem_Old
             _controller = controller;
 
             //为每个预制体根对象添加Canvas相关组件。显然会将每个UI视图本身的根对象视为一个Canvas画布，这样在同一UI层下的不同UI视图就可以通过Canvas组件来设置渲染层级和渲染顺序了。
-            _canvas = gameObject.GetOrAddComponent<Canvas>();
+            m_Canvas = gameObject.GetOrAddComponent<Canvas>();
             gameObject.GetOrAddComponent<CanvasScaler>();
             gameObject.GetOrAddComponent<GraphicRaycaster>();
             canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>(); //使用CanvasGroup主要方便做一些动效，还有防止异常的连续响应之类的。
@@ -63,13 +63,14 @@ namespace ARPGDemo.UISystem_Old
             SortOrder();
 
             //当 overrideSorting = true 时，该 Canvas 将脱离 Sorting Layer 规则，仅依据 sortingOrder 进行排序。
-            _canvas.overrideSorting = true;
+            m_Canvas.overrideSorting = true;
             //
-            _canvas.sortingOrder = _controller.order;
+            m_Canvas.sortingOrder = _controller.order;
 
             OnAddListener();
 
-            _lastSelect = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+            //记录下此时选中的GO，在关闭时将其恢复。
+            m_LastSelect = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
 
             // OnOpenAnim();
             canvasGroup.interactable = true;
@@ -90,7 +91,7 @@ namespace ARPGDemo.UISystem_Old
         protected int SortOrder(Transform target, int order)
         {
             var canvas = target.GetComponent<Canvas>();
-            if (canvas != null && canvas != _canvas)
+            if (canvas != null && canvas != m_Canvas)
             {
                 canvas.overrideSorting = true;
                 canvas.sortingOrder = order++;
@@ -146,9 +147,9 @@ namespace ARPGDemo.UISystem_Old
         {
             OnRemoveListener();
 
-            if (_lastSelect != null && _lastSelect.activeInHierarchy)
+            if (m_LastSelect != null && m_LastSelect.activeInHierarchy)
             {
-                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(_lastSelect);
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(m_LastSelect);
             }
 
             // OnCloseAnim();

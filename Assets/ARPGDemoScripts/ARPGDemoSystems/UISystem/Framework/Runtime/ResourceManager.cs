@@ -22,13 +22,13 @@ namespace ARPGDemo.UISystem_Old
         /// <summary>
         /// 正在进行加载状态中的资源的数量（因为加入了异步操作，也就是多线程编程，这类变量都是因为线程间交流而产生的）
         /// </summary>
-        private int _loadingAssetCount = 0;
+        private int m_LoadingAssetCount = 0;
         /// <summary>
         /// 资源的引用个数（实例个数？）
         /// 键：通常是预制体路径
         /// 值：引用次数
         /// </summary>
-        private Dictionary<string, int> _loadedAssetInstanceCountDic = new Dictionary<string, int>();
+        private Dictionary<string, int> m_LoadedAssetInstanceCountDic = new Dictionary<string, int>();
         /// <summary>
         /// 已实例化对象对应的Key
         /// </summary>
@@ -36,11 +36,11 @@ namespace ARPGDemo.UISystem_Old
         /// key: instanceId实例ID，系统自动分配                 
         /// value: path通常是预制体路径
         /// </remarks>
-        private Dictionary<int, string> _objectInstanceIdKeyDic = new Dictionary<int, string>();
+        private Dictionary<int, string> m_ObjectInstanceIdKeyDic = new Dictionary<int, string>();
         /// <summary>
         /// 对象池
         /// </summary>
-        private InstancePool _instancePool;
+        private InstancePool m_InstancePool;
         /// <summary>
         /// 更新列表
         /// </summary>
@@ -51,7 +51,7 @@ namespace ARPGDemo.UISystem_Old
         /// </summary>
         public bool IsProcessLoading
         {
-            get => _loadingAssetCount > 0;
+            get => m_LoadingAssetCount > 0;
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace ARPGDemo.UISystem_Old
         public override void OnInitialize()
         {
             base.OnInitialize();
-            _instancePool = new InstancePool();
+            m_InstancePool = new InstancePool();
         }
 
         #region 初始化/清除
@@ -127,7 +127,7 @@ namespace ARPGDemo.UISystem_Old
         }
 
         /// <summary>
-        /// 回收游戏对象
+        /// 回收游戏对象（其实就是UI预制体实例化得到的GO，因为UI会频繁使用，所以很自然地应该使用对象池）
         /// </summary>
         /// <param name="instanceObject"></param>
         /// <param name="forceDestroy"></param>
@@ -139,15 +139,15 @@ namespace ARPGDemo.UISystem_Old
             }
 
             int id = instanceObject.GetInstanceID();
-            if (_objectInstanceIdKeyDic.ContainsKey(id))
+            if (m_ObjectInstanceIdKeyDic.ContainsKey(id))
             {
-                _instancePool.Recycle(_objectInstanceIdKeyDic[id], instanceObject, forceDestroy);
-                _loadedAssetInstanceCountDic[_objectInstanceIdKeyDic[id]]--;
-                _objectInstanceIdKeyDic.Remove(id);
+                m_InstancePool.Recycle(m_ObjectInstanceIdKeyDic[id], instanceObject, forceDestroy);
+                m_LoadedAssetInstanceCountDic[m_ObjectInstanceIdKeyDic[id]]--;
+                m_ObjectInstanceIdKeyDic.Remove(id);
             }
             else
             {
-                Debug.LogErrorFormat("此模块不回收不是从这个模块实例化出去的对象：{0}", instanceObject.name);
+                Debug.LogError("此模块不回收不是从这个模块实例化出去的对象：" + instanceObject.name);
                 GameObject.Destroy(instanceObject);
             }
         }
@@ -159,7 +159,7 @@ namespace ARPGDemo.UISystem_Old
         /// <param name="callback">以实例化对象作为参数的回调方法</param>
         private void InternalInstantiate(string path, Action<UnityEngine.GameObject> callback, bool active = true)
         {
-            GameObject result = _instancePool.Get(path); //尝试从对象池中获取
+            GameObject result = m_InstancePool.Get(path); //尝试从对象池中获取
             GameObject invokeResult = null;
 
             if (result == null)
@@ -179,9 +179,9 @@ namespace ARPGDemo.UISystem_Old
 
             if (invokeResult != null)
             {
-                _instancePool.InitInst(invokeResult, active); //放在对象池对象之下。
-                _objectInstanceIdKeyDic[invokeResult.GetInstanceID()] = path; //记录实例ID及其资源路径
-                _loadedAssetInstanceCountDic[path]++; //记录引用次数
+                m_InstancePool.InitInst(invokeResult, active); //放在对象池对象之下。
+                m_ObjectInstanceIdKeyDic[invokeResult.GetInstanceID()] = path; //记录实例ID及其资源路径
+                m_LoadedAssetInstanceCountDic[path]++; //记录引用次数
             }
             callback?.Invoke(invokeResult);
         }
@@ -216,6 +216,8 @@ namespace ARPGDemo.UISystem_Old
         }
 
 #endif
+
+        /*Tip：在这个UI框架中，主要就是用于加载预制体（GameObject）和配置文件（TextAsset）*/
         /// <summary>
         /// 异步加载
         /// </summary>
@@ -230,7 +232,7 @@ namespace ARPGDemo.UISystem_Old
             //已加载或在加载中
             if (m_HandleCaches.TryGetValue(path, out handle))
             {
-                if (handle.IsDone)
+                if (handle.IsDone) //加载完成
                 {
                     onComplete?.Invoke(m_HandleCaches[path].Result as T);
                 }
@@ -257,13 +259,13 @@ namespace ARPGDemo.UISystem_Old
             }
             else //未加载过
             {
-                _loadingAssetCount++;
-                _loadedAssetInstanceCountDic.Add(path, 1);
+                m_LoadingAssetCount++;
+                m_LoadedAssetInstanceCountDic.Add(path, 1);
                 //处理异步加载
                 handle = Addressables.LoadAssetAsync<T>(path);
                 handle.Completed += (op) =>
                 {
-                    _loadingAssetCount--; //完成时调用，所以此处确定减一
+                    m_LoadingAssetCount--; //完成时调用，所以此处确定减一
                     if (op.Status == AsyncOperationStatus.Succeeded)
                     {
                         onComplete?.Invoke(op.Result as T);
@@ -274,7 +276,7 @@ namespace ARPGDemo.UISystem_Old
                     }
                     else
                     {
-                        //Debug.LogErrorFormat("[LoadAssetAsync] {0} 加载失败！", path);
+                        Debug.LogError($"[LoadAssetAsync] {path} 加载失败！");
                         onComplete?.Invoke(null);
                     }
                 };

@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-namespace ARPGDemo
+namespace ARPGDemo.CustomAttributes
 {
     public class DisplayNameAttribute : PropertyAttribute
     {

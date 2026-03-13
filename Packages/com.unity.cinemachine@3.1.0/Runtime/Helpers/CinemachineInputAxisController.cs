@@ -158,8 +158,8 @@ namespace Unity.Cinemachine
                         float r = ResolveAndReadInputAction(c, hint);
                         // inputValue = ResolveAndReadInputAction(c, hint) * Gain;
                         inputValue = r * Gain; //乘以缩放因子
-                        if (hint == IInputAxisOwner.AxisDescriptor.Hints.Default)
-                            Debug.Log($"原始值: {r}, Gain: {Gain}, inputValue: {inputValue}");
+                        // if (hint == IInputAxisOwner.AxisDescriptor.Hints.Default)
+                            // Debug.Log($"原始值: {r}, Gain: {Gain}, inputValue: {inputValue}");
                     }
                 }
 #endif
@@ -174,7 +174,7 @@ namespace Unity.Cinemachine
 #endif
                 // return (Time.deltaTime > 0 && CancelDeltaTime) ? inputValue / Time.deltaTime : inputValue;
                 float result = (Time.deltaTime > 0 && CancelDeltaTime) ? inputValue / Time.deltaTime : inputValue;
-                if (hint == IInputAxisOwner.AxisDescriptor.Hints.Default) Debug.Log($"返回结果：{result}");
+                // if (hint == IInputAxisOwner.AxisDescriptor.Hints.Default) Debug.Log($"返回结果：{result}");
                 return result;
             }
 

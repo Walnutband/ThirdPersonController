@@ -43,6 +43,7 @@ namespace ARPGDemo.BattleSystem
 
 }
 
+/*
 namespace ARPGDemo.AbilitySystem
 {
 
@@ -225,3 +226,4 @@ namespace ARPGDemo.AbilitySystem
         }
     }
 }
+*/

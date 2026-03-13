@@ -48,17 +48,20 @@ namespace Unity.Cinemachine.Samples
 
         void Update()
         {
+            Debug.Log("ExpandingAimReticle Update");
             var screenCenterPoint = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             float distanceFromCenter = 0;
+            //求出当前准心距离屏幕中心的距离。
             if (AimTargetReticle != null)
             {
                 var hitPoint = (Vector2)AimTargetReticle.position;
                 distanceFromCenter = (screenCenterPoint - hitPoint).magnitude;
             }
-
+            //平滑过渡，接近时减速。
             m_CurrentRadius = Mathf.SmoothDamp(m_CurrentRadius, distanceFromCenter * 2f, ref m_BlendVelocity, BlendTime);
             m_CurrentRadius = Mathf.Clamp(m_CurrentRadius, RadiusRange.x, RadiusRange.y);
 
+            //注意position都是世界坐标系，因为本来准心就肯定是直接在屏幕中心。
             Left.rectTransform.position = screenCenterPoint + (Vector2.left * m_CurrentRadius);
             Right.rectTransform.position = screenCenterPoint + (Vector2.right * m_CurrentRadius);
             Top.rectTransform.position = screenCenterPoint + (Vector2.up * m_CurrentRadius);

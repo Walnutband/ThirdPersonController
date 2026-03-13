@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ec7517a2fede5459fea03fb10db3fa, type: 3}
+  m_Name: ThreeLayer
+  m_EditorClassIdentifier: 
+  layerCount: 3
+  layerInfos:
+  - mask: {fileID: 31900000, guid: 297d9a2c3952c694bbd972fe6d1ae9f2, type: 2}
+    additive: 0
+  - mask: {fileID: 31900000, guid: 297d9a2c3952c694bbd972fe6d1ae9f2, type: 2}
+    additive: 0
+  - mask: {fileID: 31900000, guid: f23852169b205a740851c5b1b100d3b3, type: 2}
+    additive: 0

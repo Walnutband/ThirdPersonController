@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,7 +16,7 @@ namespace MyPlugins.AnimationPlayer
         private AnimationStateManager m_StateManager;
         //层级混合节点，就是对各个层级做最后的遮罩过滤处理，混合之后就传递给输出节点输出到Animator中了。
         private AnimationLayerMixer m_LayerMixer;
-        internal AnimationLayerMixer layers => m_LayerMixer;
+        internal AnimationLayerMixer layerMixer => m_LayerMixer;
         private Preprocessor preprocessor;
         internal Preprocessor pre => preprocessor;
         private Postprocessor postprocessor;
@@ -27,10 +26,6 @@ namespace MyPlugins.AnimationPlayer
         {
             //首先创建真正的PlayableGraph
             m_Graph = CreateGraph(_Animator.gameObject.name);
-            // m_Graph.Play(); //其实多此一举，本来创建之后就会自动开始播放。
-
-            // Debug.Log("创建Graph");
-
             //创建状态管理器
             m_StateManager = new AnimationStateManager(this);
             //然后是各个节点
@@ -39,18 +34,19 @@ namespace MyPlugins.AnimationPlayer
             var prePlayable = ScriptPlayable<Preprocessor>.Create(m_Graph, 1);
             output.SetSourcePlayable(prePlayable);
             preprocessor = prePlayable.GetBehaviour();
+            preprocessor.graph = this; //为了让预处理器可以获取到LayerMixer和Layer，处理分层混合权重。
             
             m_LayerMixer = new AnimationLayerMixer(this);
             m_Graph.Connect(m_LayerMixer.playable, 0, prePlayable, 0);
             prePlayable.SetInputWeight(0, 1f);
 
             //后处理器，由于需要调用ProcessFrame（在动画更新之后调用），所以需要连接到ScriptPlayableOutput节点
-            ScriptPlayableOutput scriptOutput = ScriptPlayableOutput.Create(m_Graph, "ScriptOutput");
-            var postPlayable = ScriptPlayable<Postprocessor>.Create(m_Graph);
-            scriptOutput.SetSourcePlayable(postPlayable);
+            // ScriptPlayableOutput scriptOutput = ScriptPlayableOutput.Create(m_Graph, "ScriptOutput");
+            // var postPlayable = ScriptPlayable<Postprocessor>.Create(m_Graph);
+            // scriptOutput.SetSourcePlayable(postPlayable);
 
-            postprocessor = postPlayable.GetBehaviour();
-            postprocessor.GetStates = AllPlayingStates;
+            // postprocessor = postPlayable.GetBehaviour();
+            // postprocessor.GetStates = AllPlayingStates;
 
         }
 
@@ -75,7 +71,7 @@ namespace MyPlugins.AnimationPlayer
             }
         }
 
-        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, PlayOption option)
+        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, PlayOptions option = PlayOptions.None)
         {
 
 #if UNITY_EDITOR //Ques：这种写法如何？因为在编辑时需要这种判断信息，就是为了将这些前提条件在编辑时做好，而在运行时就不用进行这些判断来浪费性能了。
@@ -100,7 +96,7 @@ namespace MyPlugins.AnimationPlayer
         }
 
         //需要过渡的话，那么可能自己转向自己了，因为默认是就算正在播放，也要过渡，也就是产生一个新的状态。
-        public AnimationClipState Play(int _layerIndex, FadeAnimation _fadeAnimation)
+        public AnimationClipState Play(int _layerIndex, FadeAnimation _fadeAnimation, PlayOptions _option = PlayOptions.None)
         {
             if (_layerIndex < 0)
             {
@@ -112,15 +108,23 @@ namespace MyPlugins.AnimationPlayer
             if (_fadeAnimation.fadeDuration <= 0.001f)
             {
                 Debug.Log("！注意！传入的过渡动画指定的过渡时间过小，无法进行过渡过程");
-                return Play(_layerIndex, _fadeAnimation.clip, PlayOption.FromStart);
+                // return Play(_layerIndex, _fadeAnimation.clip, PlayOptions.FromStart);
+                return Play(_layerIndex, _fadeAnimation.clip, _option);
             }
             else
             {
+                // Debug.Log("执行过渡");
                 //过渡必执行。
-                AnimationClipState state = m_StateManager.GetOrCreateState(_fadeAnimation);
-                m_LayerMixer.Play(_layerIndex, state, _fadeAnimation.fadeDuration);
+                //Tip：之前认为过渡必执行，但是现在想来感觉不太对劲，不应该给带有过渡时间的动画这样一个特殊逻辑，还是由用户自己指定好一点。
+                AnimationClipState state = m_StateManager.GetOrCreateState(_fadeAnimation, _option);
+                Play(_layerIndex, state, _fadeAnimation.fadeDuration, _option);
                 return state;
             }
+        }
+
+        public AnimationClipState Play(int _layerIndex, AnimationClip _clip, float _fadeDuration)
+        {
+            return Play(_layerIndex, new FadeAnimation(_clip, _fadeDuration));
         }
 
         public AnimationMixerState Play(int _layerIndex, MixerAnimation _mixer)
@@ -147,20 +151,20 @@ namespace MyPlugins.AnimationPlayer
         }
 
         //直接播放状态。
-        public AnimationStateBase Play(int _layerIndex, AnimationStateBase _state, PlayOption _option = PlayOption.None)
-        {//能成功调用该方法，就说明该状态
-         //state不可能为空，就根据其是否游离而分支。
+        public AnimationStateBase Play(int _layerIndex, AnimationStateBase _state, PlayOptions _option = PlayOptions.None)
+        {//能成功调用该方法，就说明该状态state不可能为空，就根据其是否游离而分支。
             if (_state.index < 0) //游离状态
             {
                 m_LayerMixer.Play(_layerIndex, _state);
             }
-            else //非游离状态，也就是正在播放
+            //Tip：因为在指定要播放时，才创建状态，或者是刚从管理器中取得状态，总之都应该是处于游离状态，所以这里非游离状态，就说明之前就有且正在播放。
+            else //非游离状态，也就是正在播放。
             {
-                if (_option == PlayOption.None)
+                if (_option == PlayOptions.None)
                 {
                     //正在播放，那么什么都不做。
                 }
-                else if (_option == PlayOption.FromStart)
+                else if (_option == PlayOptions.FromStart)
                 {
                     m_LayerMixer.Play(_layerIndex, _state);
                 }
@@ -168,10 +172,33 @@ namespace MyPlugins.AnimationPlayer
             return _state;
         }
 
-
-        public void Stop(AnimationLayer _layer, AnimationStateBase _state)
+        public AnimationStateBase Play(int _layerIndex, AnimationStateBase _state, float _fadeDuration, PlayOptions _option = PlayOptions.None)
         {
-            m_LayerMixer.Stop(_layer.index, _state);
+            if (_state.index < 0) //游离状态
+            {
+                // m_LayerMixer.Play(_layerIndex, _state);
+                m_LayerMixer.Play(_layerIndex, _state, _fadeDuration);
+            }
+            //Tip：因为在指定要播放时，才创建状态，或者是刚从管理器中取得状态，总之都应该是处于游离状态，所以这里非游离状态，就说明之前就有且正在播放。
+            else //非游离状态，也就是正在播放。
+            {
+                if (_option == PlayOptions.None)
+                {
+                    Debug.Log("正在播放，那么什么都不做。");
+                    //正在播放，那么什么都不做。
+                }
+                else if (_option == PlayOptions.FromStart)
+                {
+                    m_LayerMixer.Play(_layerIndex, _state, _fadeDuration);
+                }
+            }
+            return _state;
+        }
+
+
+        public void Stop(AnimationLayer _layer, AnimationStateBase _state, float _duration)
+        {
+            m_LayerMixer.Stop(_layer.index, _state, _duration);
         }
 
         public List<AnimationStateBase> AllPlayingStates()
@@ -184,36 +211,35 @@ namespace MyPlugins.AnimationPlayer
         public void SetLayerMask(uint _index, AvatarMask _mask) => m_LayerMixer.SetLayerMask(_index, _mask);
         public void SetLayerAdditive(uint _index, bool _additive) => m_LayerMixer.SetLayerAdditive(_index, _additive);
 
+        //TODO：统一通道的重要性，连接和断连都放在这里处理，其实这里的两个Connect也可以合并，只要设置好接口。
+
         //将State连接到Layer
         internal void Connect(AnimationStateBase _state, AnimationLayer _layer, int _index)
         {
             m_Graph.Connect(_state.playable, 0, _layer.playable, _index);
             _state.index = _index; //记录自己的索引
-            // _layer.SetStateWeight(_state, _state.weight);
+            _state.layer = _layer;
+            _layer.states[_index] = _state;
         }
         //将layer连接到layerMixer
         internal void Connect(AnimationLayer _layer, AnimationLayerMixer _layerMixer, int _index)
         {
             m_Graph.Connect(_layer.playable, 0, _layerMixer.playable, _index);
             _layer.index = _index;
-
-            //索引为0就是Base Layer，否则大于0的话就是附加的层级了，这是动画系统的底层条件，就是这样特殊处理。
-            // if (_layer.index == 0)
-            // {
-            //     _layerMixer.SetLayerWeight(_layer, 1f);
-            // }
-            //为附加层级的话，大概是让LayerMixer自己处理权重等等逻辑。
-            // else //保证大于0
-            // {
-            //     _layerMixer.SetLayerWeight(_layer, 0f);
-            // }
+            _layer.layerMixer = _layerMixer;
+            _layerMixer[_index] = _layer;
         }
 
         internal void Disconnect(AnimationStateBase _state, AnimationLayer _layer)
         {
-            m_Graph.Disconnect(_layer.playable, _state.index);
-            _state.index = -1; //游离状态
+            if (_state == null) return;
 
+            _state.weight = 0f;
+            m_Graph.Disconnect(_layer.playable, _state.index);
+            _layer.states[_state.index] = null;
+            _state.index = -1; //游离状态
+            // _state.Disconnect(); //新增的一个回调，断连时或许会有一些清理逻辑。
+            _state.OnStateStop();
             /*BUG：打个补丁，在断开连接的时候，如果发现该状态已经没有记录了，那么就直接销毁其节点，同时其他地方的逻辑保证也已经清除了对该状态的引用，那么就可以等待GC自动回收了。
             也就是说，实际上，
             */

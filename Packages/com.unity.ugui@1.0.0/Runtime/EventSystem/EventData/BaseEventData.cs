@@ -15,6 +15,8 @@ namespace UnityEngine.EventSystems
             m_Used = false;
         }
 
+        //用于外部访问，是否已经在逻辑上使用过该事件，可以据此做出一些决策。
+
         /// <summary>
         /// Use the event.
         /// </summary>
@@ -40,6 +42,7 @@ namespace UnityEngine.EventSystems
     /// </summary>
     public class BaseEventData : AbstractEventData
     {
+        //Tip：说明在构造之后就不能改变所属的事件系统了。
         private readonly EventSystem m_EventSystem;
         public BaseEventData(EventSystem eventSystem)
         {

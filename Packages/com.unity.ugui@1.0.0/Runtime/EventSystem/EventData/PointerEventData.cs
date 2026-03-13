@@ -307,6 +307,8 @@ namespace UnityEngine.EventSystems
             return scrollDelta.sqrMagnitude > 0.0f;
         }
 
+        //Tip：因为事件的相关判定，就需要依赖于相机。
+
         /// <summary>
         /// The camera associated with the last OnPointerEnter event.
         /// </summary>

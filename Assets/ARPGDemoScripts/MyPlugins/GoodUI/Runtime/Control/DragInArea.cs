@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 [ExecuteAlways]
 [RequireComponent(typeof(Image))]
-public class ScriptTest : UIBehaviour, IBeginDragHandler, IDragHandler
+public class ScriptTest : UIBehaviour, IBeginDragHandler, IDragHandler, IInitializePotentialDragHandler
 {
     private RectTransform areaRect;
     private RectTransform selfRect;
@@ -19,6 +19,7 @@ public class ScriptTest : UIBehaviour, IBeginDragHandler, IDragHandler
     public bool horizontal = true;
     public bool vertical = true;
     // private Transform beginTransform;
+    public bool useDragThreshold;
     private DrivenRectTransformTracker tracker;
 
     protected override void Awake()
@@ -30,6 +31,7 @@ public class ScriptTest : UIBehaviour, IBeginDragHandler, IDragHandler
 
     protected override void OnEnable()
     {
+        //固定在左上角，即左上角为原点，这样左边界和上边界的最值都是0，虽然似乎也没啥区别。。
         tracker.Add(this, selfRect, DrivenTransformProperties.AnchorMin | DrivenTransformProperties.AnchorMax | DrivenTransformProperties.Pivot);
         selfRect.anchorMin = selfRect.anchorMax = new Vector2(0f, 1f);
         selfRect.pivot = new Vector2(0f, 1f);
@@ -184,4 +186,9 @@ public class ScriptTest : UIBehaviour, IBeginDragHandler, IDragHandler
 
     private bool IsMouseOutAreaY(Vector2 localPoint) => (Mathf.Approximately(selfRect.anchoredPosition.y, 0f - (areaRect.rect.height - selfRect.rect.height)) || Mathf.Approximately(selfRect.anchoredPosition.y, 0f))
         && !areaRect.rect.Contains(localPoint);
+
+    public void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        eventData.useDragThreshold = useDragThreshold;
+    }
 }

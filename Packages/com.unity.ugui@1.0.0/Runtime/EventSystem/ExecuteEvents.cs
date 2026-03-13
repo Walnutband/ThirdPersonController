@@ -326,6 +326,8 @@ namespace UnityEngine.EventSystems
             if (results == null)
                 throw new ArgumentException("Results array is null", "results");
 
+            //注意考虑启用状态。
+
             if (go == null || !go.activeInHierarchy)
                 return;
 

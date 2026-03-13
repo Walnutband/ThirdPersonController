@@ -10,7 +10,9 @@
         "DOTween",
         "MyPlugins.AnimationPlayer",
         "Unity.TextMeshPro",
-        "Physalia.Flexi"
+        "Physalia.Flexi",
+        "ARPGDemo.Attributes",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -11,14 +11,14 @@ using UnityEditor.UIElements;
 namespace MyPlugins.BehaviourTree.EditorSection
 {
     public class BehaviourTreeSettings : ScriptableObject {
-        public VisualTreeAsset behaviourTreeEditorUxml;
+        public VisualTreeAsset behaviourTreeEditorUxml; //行为树编辑器本体。
         public StyleSheet behaviourTreeStyle;
-        public VisualTreeAsset nodeViewUxml; //视图节点的uxml文件的实例
-        public VisualTreeAsset variableUxml; //变量
+        public VisualTreeAsset nodeViewUxml; //视图节点
+        public VisualTreeAsset variableUxml; //黑板变量
         [Header("脚本模板文本文件")]
-        public TextAsset scriptTemplateActionNode;
-        public TextAsset scriptTemplateCompositeNode;
-        public TextAsset scriptTemplateDecoratorNode;
+        public TextAsset ActionNodeTemplate;
+        public TextAsset CompositeNodeTemplate;
+        public TextAsset DecoratorNodeTemplate;
         [Space(10)]
         public string newNodeBasePath = "Assets/";
 
@@ -46,7 +46,7 @@ namespace MyPlugins.BehaviourTree.EditorSection
             if (settings == null) {
                 settings = ScriptableObject.CreateInstance<BehaviourTreeSettings>();
                 AssetDatabase.CreateAsset(settings, "Assets/BehaviourTreeSettings.asset"); //创建资产文件，到路径Asset下。
-                AssetDatabase.SaveAssets();
+                AssetDatabase.SaveAssets(); //保存到硬盘。
             }
             return settings;
         }
@@ -59,22 +59,19 @@ namespace MyPlugins.BehaviourTree.EditorSection
         }
     }
 
-    // Register a SettingsProvider using UIElements for the drawing framework:
+    //
     static class MyCustomSettingsUIElementsRegister {
         [SettingsProvider]
         public static SettingsProvider CreateMyCustomSettingsProvider() {
-            // First parameter is the path in the Settings window.第一个参数是在窗口中的路径
-            // Second parameter is the scope of this setting: it only appears in the Settings window for the Project scope.
-            //第二个参数是一个枚举类型SettingsScope，Project就是在Projec Settings，User就是在Preferences
+            //第一个参数是在窗口中的路径
+            //第二个参数是一个枚举类型SettingsScope，Project就是在Project Settings，User就是在Preferences
             var provider = new SettingsProvider("Project/MyCustomUIElementsSettings", SettingsScope.Project) {
                 label = "BehaviourTree", //指定页面显示名，相当于替换掉指定路径的最后一段。
-                // activateHandler is called when the user clicks on the Settings item in the Settings window.
                 //UIElements用这个，而IMGUI用guiHandler
                 activateHandler = (searchContext, rootElement) => {
                     var settings = BehaviourTreeSettings.GetSerializedSettings();
 
-                    // rootElement is a VisualElement. If you add any children to it, the OnGUI function
-                    // isn't called because the SettingsProvider uses the UIElements drawing framework.
+                    //如果添加了子对象到rootElement下，那么OnGUI就不会被调用了，而是采用UIElements的绘制框架。
                     var title = new Label() {
                         text = "Behaviour Tree Settings"
                     };

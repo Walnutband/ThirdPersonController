@@ -9,6 +9,7 @@ namespace UnityEngine.UI
     [Serializable]
     public class AnimationTriggers
     {
+        //默认名称。
         private const string kDefaultNormalAnimName      = "Normal";
         private const string kDefaultHighlightedAnimName = "Highlighted";
         private const string kDefaultPressedAnimName     = "Pressed";

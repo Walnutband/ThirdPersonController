@@ -12,11 +12,11 @@ namespace ARPGDemo.UISystem_Old
     [System.Serializable]
     public struct UIConfigItem
     {//预制体路径和所属的UILayer都是一个UI视图的基本属性。s
-        //这就是注册在配置文件中的每个UI预制体的标识符，并且会使用该标识符来获取到UI视图的逻辑组件即UIView的相应派生类的Type信息，所以必须保证逻辑组件的类名与枚举类型UIViewType中相同
+        //Tip：这就是注册在配置文件中的每个UI预制体的标识符，并且会使用该标识符来获取到UI视图的逻辑组件即UIView的相应派生类的Type信息，所以必须保证逻辑组件的类名与枚举类型UIViewType中相同
         public UIViewType UIViewType; 
         public string path; //资源路径
         public bool isPopWindow;
-        public UILayer UILayer;
+        public UILayerType UILayer;
     }
 
     //Ques:到底是直接使用SO资产，还是专门转换为Json文件呢

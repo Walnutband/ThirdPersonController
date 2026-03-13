@@ -36,17 +36,14 @@ namespace ARPGDemo.UISystem_Old
             //UIManager的Awake、OnEnable和Start方法应该都会在IniUIConfig方法之前调用
             yield return UIManager.Instance.InitUIConfig(); //初始化（加载）所有UI的配置
 
+            // UIManager.Instance.InitializeUIConfig();
+
             //预加载UIStartView预制体。（只是加载到内存，还没有显示，）
             yield return UIManager.Instance.Preload(UIViewType.UIStartView);
 
             EnterLoading(); //进入到加载界面，渐入后正式开始加载。
         }
 
-        // private void Update()
-        // {
-
-
-        // }
 
         /*进入加载界面，从黑布Splash渐入，透明之后就开始加载。*/
         private void EnterLoading()
@@ -59,8 +56,6 @@ namespace ARPGDemo.UISystem_Old
             image.DOFade(0f, 0.5f).onComplete += () =>
             {
                 image.raycastTarget = false; //此时已经完全透明，切勿阻挡射线。
-                // Destroy(gameObject); //直接销毁该对象,因为只是起到启动器的作用,之后的逻辑完全交给所启动的内容。
-                                    // UIManager.instance.Open(UIType.UILoadingView); //打开UILoadingView
 
             };
 

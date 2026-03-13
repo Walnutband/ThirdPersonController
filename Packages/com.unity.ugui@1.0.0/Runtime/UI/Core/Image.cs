@@ -1837,10 +1837,11 @@ namespace UnityEngine.UI
 
             local = MapCoordinate(local, rect);
 
-            // Convert local coordinates to texture space.
+            // Convert local coordinates to texture space.（横向像素数量和纵向像素数量）
             float x = local.x / activeSprite.texture.width;
             float y = local.y / activeSprite.texture.height;
 
+            //Tip：至此已经为true了，只不过存在“透明度检测”的机制，在此处理。
             try
             {
                 return activeSprite.texture.GetPixelBilinear(x, y).a >= alphaHitTestMinimumThreshold;

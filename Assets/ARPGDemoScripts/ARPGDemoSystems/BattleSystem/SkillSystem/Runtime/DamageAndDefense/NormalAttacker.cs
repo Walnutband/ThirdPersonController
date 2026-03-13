@@ -9,7 +9,6 @@ namespace ARPGDemo.BattleSystem
     [RequireComponent(typeof(Collider))]
     public class NormalAttacker : MonoBehaviour, IAttacker
     {
-        [DisplayName("伤害值")]
         [SerializeField] private Damage m_Damage;
         public Damage damage
         {

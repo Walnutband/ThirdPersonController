@@ -17,8 +17,53 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: e404123cdd2899f47813656fddcc839d
   m_SerializeEntries:
+  - m_GUID: 0bf9fd6d92fff3d46911d15ebd3250cc
+    m_Address: AssetsPackage/GoodUI/Prefabs/UILoadingView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 14457fe471ff61d4783e769ed846d408
     m_Address: AssetsPackage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 147e8e6dfc06b5c4594b8e2b77d9f479
+    m_Address: AssetsPackage/GoodUI/Prefabs/UICharacterView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 64834f5eb59b20c4998326eeb8de040e
+    m_Address: AssetsPackage/GoodUI/Prefabs/UIStartView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6ccec38e6a215f440925c2f47fa1f0ea
+    m_Address: AssetsPackage/GoodUI/UIConfigData.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97c6ce7d570eae744b5f48d0596897cd
+    m_Address: AssetsPackage/GoodUI/Prefabs/UIMainView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a40140d8b2f8b244ea401cdec3402138
+    m_Address: AssetsPackage/GoodUI/Prefabs/UIExitView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f7f6c752716068543990f9cb0bcf8e32
+    m_Address: AssetsPackage/GoodUI/UIConfigData.json
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc045236ad7f8204697db265497a541e
+    m_Address: AssetsPackage/GoodUI/Prefabs/UIAttributeView.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fe4426b628270ac438aff9f886558dc4
+    m_Address: AssetsPackage/GoodUI/Prefabs/UISettingsView.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -25,8 +25,11 @@ namespace ARPGDemo.UISystem_Old
         AutoBlack,  // 自动黑边(选中左右或上下黑边最少的一方)
     }
 
+    [AddComponentMenu("ARPGDemo/UISystem/UIManager")]
     public class UIManager : SingletonMono<UIManager>
     {
+
+        public UIConfigData configData;
         //参考分辨率，通常应该是1920*1080
         // public int width = 1080;
         // public int height = 1920;
@@ -53,7 +56,7 @@ namespace ARPGDemo.UISystem_Old
 
         //字典和哈希集合都是提供查询UIType和UILayer的标识符集合，应该说枚举类型本身就是用作标识符的。查询操作是O(1)，非常快
         private Dictionary<UIViewType, UIViewController> m_ViewControllers; //在InitUIConfig方法中填充
-        private Dictionary<UILayer, UILayerLogic> _layers; //在Initialize方法中填充
+        private Dictionary<UILayerType, UILayerLogic> m_Layers; //在Initialize方法中填充
         private HashSet<UIViewType> m_OpenViews;
         private HashSet<UIViewType> _residentViews;
 
@@ -76,19 +79,20 @@ namespace ARPGDemo.UISystem_Old
         {
 
             ///为数据成员分配内存///
-            _layers = new Dictionary<UILayer, UILayerLogic>();
+            m_Layers = new Dictionary<UILayerType, UILayerLogic>();
             m_ViewControllers = new Dictionary<UIViewType, UIViewController>(); //注意UIType的成员就是根据当前有哪些存在的可用的UI视图来确定的，命名为UIType确实不够准确
-            m_OpenViews = new HashSet<UIViewType>();
-            _residentViews = new HashSet<UIViewType>();
+            m_OpenViews = new HashSet<UIViewType>(); //打开的UI视图。
+            _residentViews = new HashSet<UIViewType>(); //常驻UI
             Event = new EventController<UIEvent>();
 
 
-            ///准备好存放UI元素的根对象，以及UI相机///
+            //Tip：准备好存放UI元素的根对象，以及UI相机
             //获取主摄像机（Tag为MainCamera）
             _worldCamera = Camera.main;
-            //异或，为1时就为0，为0时就为1，所以主相机的cullingMask其他位会保持不变，而UI位会置零即一定会剔除UI层级对象，因为会有一个专门的UI相机来渲染UI元素。
-            //所以一定
+            //异或得到所以主相机的cullingMask其他位会保持不变，而UI位会置零即一定会剔除UI层级对象，因为会有一个专门的UI相机来渲染UI元素。
             _worldCamera.cullingMask &= int.MaxValue ^ (1 << Layer.UI);
+
+            //Tip：两个硬编码，“UIRoot”代表整个UI视图，“UICamera”是专门用于渲染UI（限定UI层级对象）的相机。
 
             //UIRoot对象用于存放UI元素。UICamera专门用于渲染UI对象
             var root = GameObject.Find("UIRoot");
@@ -122,22 +126,23 @@ namespace ARPGDemo.UISystem_Old
             EventSystem = EventSystem.current; //UGUI的EventSystem
 
             ///生成各个UILayer的游戏对象，以及两个渐变遮罩///
-            var layers = Enum.GetValues(typeof(UILayer)); //获取枚举类型的成员数组
-            foreach (UILayer layer in layers)
+            var layers = Enum.GetValues(typeof(UILayerType)); //获取枚举类型的成员数组
+            foreach (UILayerType layer in layers)
             {
-                bool is3d = layer == UILayer.SceneLayer; //SceneLayer用于显示3DUI，所以Canvas会使用World Space模式，其他均使用Screen Space模式。
+                bool is3d = layer == UILayerType.SceneLayer; //SceneLayer用于显示3DUI，所以Canvas会使用World Space模式，其他均使用Screen Space模式。
                 //这里意思是3DUI就用世界相机，否则就用UI相机。但是在上面世界相机不是剔除掉了UI层级吗？看了该方法后发现，如果是3D的话就会把Canvas层级设置为Default，否则就是UI。
                 /*Tip：这里还有个细节，就是3DUI就应该使用透视相机来渲染，虽然正交相机也可以渲染，但是会出现很多奇怪的现象，总之就是用正交相机来渲染2DUI，使用透视相机来渲染3DUI。*/
                 //这里是创建各个UILayer的游戏对象，而在框架设定上，每个UILayer都是一个Canvas，以及每个UI视图也都是一个Canvas，其实本质上是为了使用Canvas来控制渲染顺序，但可能还有通过分层来优化性能的考虑。
                 Canvas layerCanvas = UIExtension.CreateLayerCanvas(layer, is3d, m_Root, is3d ? _worldCamera : m_UICamera, width, height);
                 //有了Canvas之后就可以创建逻辑类了，将UILayer使用UILayerLogic封装起来，以便执行特殊操作。
                 UILayerLogic uILayerLogic = new UILayerLogic(layer, layerCanvas); 
-                _layers.Add(layer, uILayerLogic);
+                m_Layers.Add(layer, uILayerLogic); //记录层级，便于查找。
             }
             //创建渐变遮罩，实质上是在Canvas下创建一个Image对象，设置为黑色，初始alpha为0，挂载上CanvasGroup组件并且返回，后续就是通过设置CanvasGroup的alpha来调整整个图片的不透明度，从而实现渐变效果。
             //由于设置了渲染顺序，所以遮罩对象的层级关系并不强制。
-            _blackMask = UIExtension.CreateBlackMask(_layers[UILayer.BlackMaskLayer].canvas.transform);
-            _backgroundMask = UIExtension.CreateBlackMask(_layers[UILayer.BackgroundLayer].canvas.transform);
+            // _blackMask = UIExtension.CreateBlackMask(_layers[UILayerType.BlackMaskLayer].canvas.transform);
+            _blackMask = UIExtension.CreateBlackMask(m_Layers[UILayerType.SystemLayer].canvas.transform);
+            _backgroundMask = UIExtension.CreateBlackMask(m_Layers[UILayerType.BackgroundLayer].canvas.transform);
         }
 
         public void UpdateCameraStack()
@@ -150,89 +155,89 @@ namespace ARPGDemo.UISystem_Old
                 mainCameraData.cameraStack.Add(m_UICamera);
         }
 
-        private void Update()
-        {
-            // TODO：不应该Update设置应该放在屏幕状态变动事件里
-            ChangeOrCreateBlack();
-        }
+        // private void Update()
+        // {
+        //     // TODO：不应该Update设置应该放在屏幕状态变动事件里
+        //     ChangeOrCreateBlack();
+        // }
 
-        /// <summary>
-        /// 创建或者调整黑边，需间隔触发，由于有些设备屏幕是可以转动，是动态的
-        /// </summary>
-        private void ChangeOrCreateBlack()
-        {
-            if (_layers == null) return;
-            var parent = _layers[UILayer.BackgroundLayer].canvas.transform as RectTransform;
-            var uIBlackType = GetUIBlackType();
-            switch (uIBlackType)
-            {
-                case UIBlackType.Height:
-                    // 高度适配时的左右黑边
-                    var rect = _blacks[0];
-                    if (rect == null)
-                    {
-                        _blacks[0] = rect = UIExtension.CreateBlackMask(parent, 1, "right").transform as RectTransform;
-                    }
-                    else if (Mathf.Abs(rect.anchoredPosition.x * 2 + parent.rect.width - width) < 1)
-                    {
-                        return;
-                    }
-                    rect.pivot = new Vector2(0, 0.5f);
-                    rect.anchorMin = new Vector2(1, 0);
-                    rect.anchorMax = new Vector2(1, 1);
-                    rect.sizeDelta = new Vector2(Mathf.Abs(width - parent.rect.width), 0);
-                    rect.anchoredPosition = new Vector2((width - parent.rect.width) / 2, 0);
+        // /// <summary>
+        // /// 创建或者调整黑边，需间隔触发，由于有些设备屏幕是可以转动，是动态的
+        // /// </summary>
+        // private void ChangeOrCreateBlack()
+        // {
+        //     if (m_Layers == null) return;
+        //     var parent = m_Layers[UILayerType.BackgroundLayer].canvas.transform as RectTransform;
+        //     var uIBlackType = GetUIBlackType();
+        //     switch (uIBlackType)
+        //     {
+        //         case UIBlackType.Height:
+        //             // 高度适配时的左右黑边
+        //             var rect = _blacks[0];
+        //             if (rect == null)
+        //             {
+        //                 _blacks[0] = rect = UIExtension.CreateBlackMask(parent, 1, "right").transform as RectTransform;
+        //             }
+        //             else if (Mathf.Abs(rect.anchoredPosition.x * 2 + parent.rect.width - width) < 1)
+        //             {
+        //                 return;
+        //             }
+        //             rect.pivot = new Vector2(0, 0.5f);
+        //             rect.anchorMin = new Vector2(1, 0);
+        //             rect.anchorMax = new Vector2(1, 1);
+        //             rect.sizeDelta = new Vector2(Mathf.Abs(width - parent.rect.width), 0);
+        //             rect.anchoredPosition = new Vector2((width - parent.rect.width) / 2, 0);
 
-                    rect = _blacks[1];
-                    if (rect == null)
-                    {
-                        _blacks[1] = rect = UIExtension.CreateBlackMask(parent, 1, "left").transform as RectTransform;
-                    }
-                    rect.pivot = new Vector2(1, 0.5f);
-                    rect.anchorMin = new Vector2(0, 0);
-                    rect.anchorMax = new Vector2(0, 1);
-                    rect.sizeDelta = new Vector2(Mathf.Abs(width - parent.rect.width), 0);
-                    rect.anchoredPosition = new Vector2(-(width - parent.rect.width) / 2, 0);
-                    break;
-                case UIBlackType.Width:
-                    // 宽度适配时的上下黑边
-                    rect = _blacks[0];
-                    if (rect == null)
-                    {
-                        _blacks[0] = rect = UIExtension.CreateBlackMask(parent, 1, "top").transform as RectTransform;
-                    }
-                    else if (Mathf.Abs(rect.anchoredPosition.y * 2 + parent.rect.height - height) < 1)
-                    {
-                        return;
-                    }
-                    rect.pivot = new Vector2(0.5f, 0);
-                    rect.anchorMin = new Vector2(0, 1);
-                    rect.anchorMax = new Vector2(1, 1);
-                    rect.sizeDelta = new Vector2(0, Mathf.Abs(height - parent.rect.height));
-                    rect.anchoredPosition = new Vector2(0, (height - parent.rect.height) / 2);
+        //             rect = _blacks[1];
+        //             if (rect == null)
+        //             {
+        //                 _blacks[1] = rect = UIExtension.CreateBlackMask(parent, 1, "left").transform as RectTransform;
+        //             }
+        //             rect.pivot = new Vector2(1, 0.5f);
+        //             rect.anchorMin = new Vector2(0, 0);
+        //             rect.anchorMax = new Vector2(0, 1);
+        //             rect.sizeDelta = new Vector2(Mathf.Abs(width - parent.rect.width), 0);
+        //             rect.anchoredPosition = new Vector2(-(width - parent.rect.width) / 2, 0);
+        //             break;
+        //         case UIBlackType.Width:
+        //             // 宽度适配时的上下黑边
+        //             rect = _blacks[0];
+        //             if (rect == null)
+        //             {
+        //                 _blacks[0] = rect = UIExtension.CreateBlackMask(parent, 1, "top").transform as RectTransform;
+        //             }
+        //             else if (Mathf.Abs(rect.anchoredPosition.y * 2 + parent.rect.height - height) < 1)
+        //             {
+        //                 return;
+        //             }
+        //             rect.pivot = new Vector2(0.5f, 0);
+        //             rect.anchorMin = new Vector2(0, 1);
+        //             rect.anchorMax = new Vector2(1, 1);
+        //             rect.sizeDelta = new Vector2(0, Mathf.Abs(height - parent.rect.height));
+        //             rect.anchoredPosition = new Vector2(0, (height - parent.rect.height) / 2);
 
-                    rect = _blacks[1];
-                    if (rect == null)
-                    {
-                        _blacks[1] = rect = UIExtension.CreateBlackMask(parent, 1, "bottom").transform as RectTransform;
-                    }
-                    rect.pivot = new Vector2(0.5f, 1);
-                    rect.anchorMin = new Vector2(0, 0);
-                    rect.anchorMax = new Vector2(1, 0);
-                    rect.sizeDelta = new Vector2(0, Mathf.Abs(height - parent.rect.height));
-                    rect.anchoredPosition = new Vector2(0, -(height - parent.rect.height) / 2);
-                    break;
-                default:
-                    break;
-            }
-        }
+        //             rect = _blacks[1];
+        //             if (rect == null)
+        //             {
+        //                 _blacks[1] = rect = UIExtension.CreateBlackMask(parent, 1, "bottom").transform as RectTransform;
+        //             }
+        //             rect.pivot = new Vector2(0.5f, 1);
+        //             rect.anchorMin = new Vector2(0, 0);
+        //             rect.anchorMax = new Vector2(1, 0);
+        //             rect.sizeDelta = new Vector2(0, Mathf.Abs(height - parent.rect.height));
+        //             rect.anchoredPosition = new Vector2(0, -(height - parent.rect.height) / 2);
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // }
 
         public UIBlackType GetUIBlackType()
         {
             var uIBlackType = uiBlackType;
             if (uIBlackType == UIBlackType.AutoBlack)
             {
-                var parent = _layers[UILayer.BackgroundLayer].canvas.transform as RectTransform;
+                var parent = m_Layers[UILayerType.BackgroundLayer].canvas.transform as RectTransform;
                 float widthDis = Mathf.Abs(width - parent.rect.width);
                 float heightDis = Mathf.Abs(height - parent.rect.height);
 
@@ -251,14 +256,14 @@ namespace ARPGDemo.UISystem_Old
             Rect rect = Screen.safeArea;
             if (uiBlackType == UIBlackType.Width)
             {
-                var parent = _layers[UILayer.BackgroundLayer].canvas.transform as RectTransform;
+                var parent = m_Layers[UILayerType.BackgroundLayer].canvas.transform as RectTransform;
                 float blackArea = Mathf.Abs(height - parent.rect.height) / 2;
                 rect.yMin = Mathf.Max(0, rect.yMin - blackArea);
                 rect.yMax = Mathf.Min(rect.yMax + blackArea, Screen.height);
             }
             else if (uiBlackType == UIBlackType.Height)
             {
-                var parent = _layers[UILayer.BackgroundLayer].canvas.transform as RectTransform;
+                var parent = m_Layers[UILayerType.BackgroundLayer].canvas.transform as RectTransform;
                 float blackArea = Mathf.Abs(width - parent.rect.width) / 2;
                 rect.xMin = Mathf.Max(0, rect.xMin - blackArea);
                 rect.xMax = Mathf.Min(rect.xMax + blackArea, Screen.width);
@@ -269,6 +274,72 @@ namespace ARPGDemo.UISystem_Old
         public void EnableBackgroundMask(bool enable)
         {
             _backgroundMask.alpha = enable ? 1 : 0;
+        }
+
+        public void InitializeUIConfig()
+        {
+            var list = new List<UIConfig>();
+            // UIConfigData configData = Resources.Load<UIConfigData>("UIConfigData");
+            UIConfigData configData = this.configData;
+            var uiConfigs = configData.UIConfig;
+            foreach (var config in uiConfigs)
+            {
+                //确定是哪个视图，再确定其所在层级。
+                UIViewType type = config.UIViewType;
+                UILayerType layer = config.UILayer;
+                //通过枚举类型UIViewType的枚举常量名来获取对应的UIView派生类的类型信息，所以必须保证UIView派生类与注册在UIViewType中的名称完全一致。
+                Type viewLogicType = GetType(config.UIViewType.ToString()); //GetType获取的类型名就会包含命名空间，可以通过Type.Name获取类型名，Type.FullName获取完整名。
+                if (viewLogicType == null) //前后的区别在于，这里会加上UIConfig所在的命名空间名称。但是我比较疑惑如果前面都没有找到，那后面加上命名空间就有可能找到吗？
+                {//命名空间.类型名
+                    viewLogicType = GetType($"{typeof(UIConfig).Namespace}.{config.UIViewType}");
+                }
+                list.Add(new UIConfig //设置配置数据，就可以得到一个UIConfig的实例了，也就代表一个特定UI元素（UI控件，UI视图）的各项基本数据。
+                {
+                    path = config.path,
+                    uiLayer = layer,
+                    uiViewType = type,
+                    viewLogicType = viewLogicType,
+                    isWindow = config.isPopWindow
+                });
+            }
+            foreach (var cfg in list) //遍历UIConfig列表
+            {
+                if (m_ViewControllers.ContainsKey(cfg.uiViewType))
+                {
+                    Debug.LogErrorFormat("存在相同的uiType:{0}， 请检查UIConfig是否重复！", cfg.uiViewType.ToString());
+                    continue;
+                }
+                //填充字典，就是为了复用UIViewController实例以及方便且快速地通过UIType来获取到对应的UIViewController实例。
+                m_ViewControllers.Add(cfg.uiViewType, new UIViewController
+                {
+                    uiPath = cfg.path, //预制体路径
+                    uiViewType = cfg.uiViewType, //视图类型。
+                    uiLayer = m_Layers[cfg.uiLayer], //所属层级
+                    uiViewLogic = cfg.viewLogicType,
+                    isPopWindow = cfg.isWindow,
+                });
+            }
+        }
+
+        public static Type GetType(string typeName)
+        {
+            var type = Type.GetType(typeName);
+            if (type != null)
+            {
+                return type;
+            }
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (System.Reflection.Assembly assembly in assemblies)
+            {
+                type = Type.GetType(string.Format("{0}, {1}", typeName, assembly.FullName));
+                if (type != null)
+                {
+                    return type;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -302,8 +373,8 @@ namespace ARPGDemo.UISystem_Old
                     m_ViewControllers.Add(cfg.uiViewType, new UIViewController
                     {
                         uiPath = cfg.path, //预制体路径
-                        uiViewType = cfg.uiViewType,
-                        uiLayer = _layers[cfg.uiLayer],
+                        uiViewType = cfg.uiViewType, //视图类型。
+                        uiLayer = m_Layers[cfg.uiLayer], //所属层级
                         uiViewLogic = cfg.viewLogicType, 
                         isPopWindow = cfg.isWindow,
                     });
@@ -352,6 +423,11 @@ namespace ARPGDemo.UISystem_Old
             }
             return controller.Load();
         }
+
+        // public void Preload()
+        // {
+            
+        // }
 
         /// <summary>
         /// 预加载所有UI视图预制体。

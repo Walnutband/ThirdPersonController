@@ -1,5 +1,6 @@
 namespace ARPGDemo.UISystem_Old
 {
+    //TODO：这里是假定每个UI视图只会有一个实例，虽然好像也够用了，但总感觉不太合适。
     //在UIType中定义了的成员，就应该在UIConfig文件中编写相关配置信息，当然还要有对应的预制体。
     public enum UIViewType
     {

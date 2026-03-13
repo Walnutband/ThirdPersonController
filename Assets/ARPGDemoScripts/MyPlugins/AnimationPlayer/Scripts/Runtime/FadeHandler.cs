@@ -28,6 +28,11 @@ namespace MyPlugins.AnimationPlayer
         //     m_FadeIn = new FadeInfo(_in, _in.weight, 1f);
         // }
 
+        // public FadeHandler(IFadeTarget _in, float _duration, Action _onEnd) : this(null, _in, _duration, _onEnd)
+        // {
+            
+        // }
+
         /*Tip：在注册时就保证列表中没有空元素*/
         //默认情况（大多数情况）下，就是转出节点从1到0，转入节点从0到1，不过更准确来说，目标权重必然是0和1，但开始权重并不一定。
         public FadeHandler(List<IFadeTarget> _outs, IFadeTarget _in, float _fadeDuration, Action _onEnd) : this(_outs, _in, _fadeDuration, 0f, 1f, _onEnd)
@@ -53,8 +58,8 @@ namespace MyPlugins.AnimationPlayer
             else OutsIsNull = true;
             if (_in != null)
             {
-                m_FadeIn = new FadeInfo(_in, _in.weight, _inTargetWeight);
                 _in.StartFadeIn();
+                m_FadeIn = new FadeInfo(_in, _in.weight, _inTargetWeight);
             }
             else InIsNull = true;
         }
@@ -62,17 +67,18 @@ namespace MyPlugins.AnimationPlayer
         /*Tip：过渡算法是分开计算的，并不存在什么权重合为1的强制要求，只是各自从开始权重以指定的过渡时间过渡到目标权重而已。
         而且为了兼顾处理层级混合，甚至可以没有转出或转入对象。
         */
-
+        
         public bool Update(float _deltaTime)
         {
             m_Progress = Mathf.Clamp01(m_Progress + _deltaTime / m_FadeDuration);
 
             if (m_Progress >= 1f - 0.001f)
-            {//结束了，修正。
+            {//结束了，收尾修正。
                 Ended();
                 return true; //告知处理器，已经结束。
             }
 
+            //确定不变的开始权重和目标权重，以及确定的过渡时间，直接计算出进度、插值即可，不需要搞个速度来计算、绕远路。
             if (OutsIsNull == false)
             {
                 foreach (var info in m_FadeOuts)
@@ -104,6 +110,7 @@ namespace MyPlugins.AnimationPlayer
 
         private void Ended()
         {
+            //就是权重直接达到目标值。
             if (OutsIsNull == false)
             {
                 m_FadeOuts.ForEach(info =>

@@ -10,25 +10,26 @@ namespace MyPlugins.AnimationPlayer
     public class AnimatorAgentSettings : ScriptableObject
     {
         //层级数量
-        public int layerCount = 1;
+        public int layerCount;
         //层级遮罩
-        public List<LayerMask> layerMasks;
-        //层级混合
-        public List<LayerBlend> layerBlends;
-
+        public List<LayerInfo> layerInfos = new List<LayerInfo>();
 
         [Serializable]
-        public struct LayerMask
+        public struct LayerInfo
         {
-            public uint layerIndex;
             public AvatarMask mask;
-        }
-        [Serializable]
-        public struct LayerBlend
-        {
-            public uint layerIndex;
             public bool additive;
         }
 
+        public void AddLayer()
+        {
+            layerCount++;
+            layerInfos.Add(default);
+        }
+        public void RemoveLayer()
+        {
+            layerCount--;
+            layerInfos.RemoveAt(layerCount);
+        }
     }
 }

@@ -93,6 +93,11 @@ public static class ExtensionMethods
         return null;
     }
 
+    /// <summary>
+    /// 设置父对象，并且重置属性值。
+    /// </summary>
+    /// <param name="transform"></param>
+    /// <param name="parent"></param>
     public static void SetParentEx(this Transform transform, Transform parent)
     {
         transform.SetParent(parent);

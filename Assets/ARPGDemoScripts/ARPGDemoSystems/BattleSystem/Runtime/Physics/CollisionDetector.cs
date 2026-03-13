@@ -26,7 +26,7 @@ namespace ARPGDemo.BattleSystem
         public event Action<Collider> triggerExit;
 
         //命中事件。
-        private Action<GameObject> hitEvent;
+        private HitCallback hitEvent;
 
         private void Awake()
         {
@@ -38,13 +38,14 @@ namespace ARPGDemo.BattleSystem
             m_Collider.isTrigger = true; //默认就应该是触发器
         }
 
-        public void SetHitCallback(Action<GameObject> _action)
+        public void SetHitCallback(HitCallback _action)
         {
             hitEvent = _action;
         }
 
         private void OnTriggerEnter(Collider other)
         {//TODO：需要进一步审视这里触发后就立刻置空的操作。还有如何不触发呢？
+            Debug.Log("TriggerEnter");
             m_TriggerEnter?.Invoke(other);
             m_TriggerEnter = null;
             hitEvent?.Invoke(other.gameObject);
@@ -73,47 +74,6 @@ namespace ARPGDemo.BattleSystem
         }
 
     }
+
+    public delegate void HitCallback(GameObject _target);
 }
-
-// namespace ARPGDemo.AbilitySystem
-// {
-//     //TODO：暂时使用Unity内置物理系统来检测。
-//     // [RequireComponent(typeof(Collider))]
-//     public class CollisionDetector : MonoBehaviour
-//     {
-//         //Tip：可以指定其他GO的Collider，不过那样就必须设置一个事件转发器，否则会无法触发这里的回调方法。
-//         [SerializeField] private Collider m_Collider;
-
-//         private void Awake()
-//         {
-//             if (m_Collider == null)
-//             {
-//                 m_Collider = GetComponent<Collider>();
-//                 if (m_Collider == null)
-//                 {
-//                     Debug.Log("无法找到Collider组件");
-//                 }
-//                 else if (m_Collider.isTrigger == false)
-//                 {
-//                     Debug.Log("该碰撞器不是触发器");
-//                 }
-//             }
-
-//         }
-
-//         private void OnTriggerEnter(Collider other)
-//         {
-            
-//         }
-
-//         public void EnableDetector()
-//         {
-//             m_Collider.enabled = true;
-//         }
-
-//         public void DisableDetector()
-//         {
-//             m_Collider.enabled = false;
-//         }
-//     }
-// }

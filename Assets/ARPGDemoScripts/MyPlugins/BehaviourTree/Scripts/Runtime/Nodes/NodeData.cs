@@ -21,7 +21,7 @@ namespace MyPlugins.BehaviourTree
         不过问题核心并非这里的成员，而是整个运行时行为树的类型结构设计就有问题，*/
         [HideInInspector] public Vector2 position;
         /*TODO：context和blackboard非常重要，节点要完成任务几乎必然要从中访问自己需要的对象或数据*/
-        [HideInInspector] public Context context; //作用对象（控制对象身上的各部分）
+        [HideInInspector] public Context context; //作用对象（控制对象身上的各部分），也就是代行对象，委托其执行一些特定任务。
         [HideInInspector] public BehaviourTreeBlackboard blackboard; //每一个节点都能够直接访问黑板
         [TextArea] public string description; //节点描述,可以描述节点作用，以及需要的黑板变量。这就是完全靠开发者遵守开发规范了。
         public bool drawGizmos = false;
@@ -39,6 +39,7 @@ namespace MyPlugins.BehaviourTree
                 //在基类中统一调用获取黑板变量的方法。默认为空，各个派生节点根据自己所需要的黑板变量重写该方法即可
                 /*Tip：受到值类型和引用类型的机制影响，也不一定就会在开头调用，且只在开头调用一次，也可能会在Update中刷新变量值，就是因为值类型副本不会跟随原本值的变化.
                 这也是为什么要进行封装，将所有数据类型封装为各自的一个类，这样就可以获取引用，就可以随时访问其值*/
+                //准备好Context和Blackboard，再执行逻辑。
                 GetContextObjects();
                 GetBlackboardVariables();
                 OnStart();
@@ -48,7 +49,7 @@ namespace MyPlugins.BehaviourTree
             state = OnUpdate();
             //通常是每帧运行一次，但是Running就会延续，而正是如此就引入了打断的机制
             /*Tip：通常来说*/
-            if (state != State.Running)
+            if (state != State.Running) 
             {
                 OnStop();
                 started = false;
@@ -79,8 +80,10 @@ namespace MyPlugins.BehaviourTree
         protected virtual void GetContextObjects() { }
         protected virtual void GetBlackboardVariables() { }
 
-        protected abstract void OnStart();
-        protected abstract void OnStop();
-        protected abstract State OnUpdate();
+        /*Tip：实际来看，应该只有OnUpdate是所有节点都需要定义的逻辑，而OnStart和OnStop主要是给动作节点的回调，因为存在持续运行的情况，而其他的节点只是在遍历行为树时执行一次Update即可。*/
+        protected virtual void OnStart() {}
+        // protected abstract void OnStop();
+        protected virtual void OnStop() {}
+        protected abstract State OnUpdate(); //返回的就是执行情况，或者说执行状态。
     }
 }

@@ -13,13 +13,13 @@ namespace ARPGDemo.UISystem_Old
         #region 控件绑定变量声明，自动生成请勿手改
     #pragma warning disable 0649
         [ControlBinding]
-        private RectTransform rect_Content;
+        [SerializeField] private RectTransform rect_Content;
         [ControlBinding]
-        private Button button_Close;
+        [SerializeField] private Button button_Close;
         [ControlBinding]
-        private SimpleButton sbutton_Return;
+        [SerializeField] private SimpleButton sbutton_Return;
         [ControlBinding]
-        private AccordionGroup accordionGroup;
+        [SerializeField] private AccordionGroup accordionGroup;
 
     #pragma warning restore 0649
         #endregion
@@ -33,8 +33,7 @@ namespace ARPGDemo.UISystem_Old
         {
             base.OnInit(uIControlData, controller);
             position = rect_Content.anchoredPosition;
-            offset = rect_Content.rect.width / 6;
-            // rect_Content.anchoredPosition = position + new Vector2(offset, 0f); //取比例，而不是绝对数值，可能更合适。
+            offset = rect_Content.rect.width / 6; //取比例。
         }
 
         public override void OnOpen(object userData)
@@ -42,11 +41,6 @@ namespace ARPGDemo.UISystem_Old
             base.OnOpen(userData);
             accordionGroup.ResetElementState();
             // transform.localScale = Vector3.one;
-        }
-
-        public void CloseTest()
-        {
-            transform.localScale = Vector3.zero;
         }
 
         public override void OnOpenAnim()

@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -67,6 +66,9 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
+    m_FinalGather: 0
+    m_FinalGatherFiltering: 1
+    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -154,6 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tree: {fileID: 11400000, guid: 5613f57763d5942479943035b460390c, type: 2}
+  blackboard: {fileID: 0}
 --- !u!195 &73805060
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -273,9 +276,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 165910766}
-  - component: {fileID: 165910765}
-  - component: {fileID: 165910764}
-  - component: {fileID: 165910763}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -283,60 +283,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &165910763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165910762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4422846adb43fa44854c3ea5f143d41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  treeName: New Name
-  executor: {fileID: 165910764}
-  treeNodes: []
-  rootNode: {fileID: 0}
-  repeatTree: 1
-  executeNodes: []
-  executeNodesLog: []
-  tryInterruptNodes: []
---- !u!114 &165910764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165910762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 414d25a655752ea44bddf877b0c03ae3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentExecuteTree: {fileID: 165910763}
-  currentEditorTree: {fileID: 165910763}
-  behaviorTrees:
-  - {fileID: 165910763}
-  treeExecuteStart: 1
-  treeExecutePause: 0
-  treeRestart: 0
-  treeBlackboard: {fileID: 0}
---- !u!114 &165910765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165910762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30645a5eca2e4ef43b794e3b5aa2d59d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  variables: []
-  targetExecutor: {fileID: 0}
 --- !u!4 &165910766
 Transform:
   m_ObjectHideFlags: 0
@@ -483,12 +429,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &872421535
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,7 +703,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6,
+    type: 3}
   m_Color: {r: 0, g: 0.52820516, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

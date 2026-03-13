@@ -98,6 +98,9 @@ namespace MyPlugins.GoodUI
             //TODO：在检视面板中直接设置ExpandFlag的尺寸，并且不在AccordionElement类中定义相应字段，其实RectTransform的检视面板就是如此的，这在开发效率上绝对有用。
             // FloatField floatField = new FloatField("")
 
+            root.Add(new PropertyField(serializedObject.FindProperty("expandTopSprite")));
+            root.Add(new PropertyField(serializedObject.FindProperty("expandBottomSprite")));
+
             serializedObject.ApplyModifiedProperties();
             return root;
         }

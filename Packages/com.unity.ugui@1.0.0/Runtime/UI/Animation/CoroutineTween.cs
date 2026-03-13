@@ -186,8 +186,8 @@ namespace UnityEngine.UI.CoroutineTween
     // The coroutine will live within the given
     // behaviour container.
     internal class TweenRunner<T> where T : struct, ITweenValue
-    {
-        protected MonoBehaviour m_CoroutineContainer;
+    { 
+        protected MonoBehaviour m_CoroutineContainer; //因为Unity协程是依附于组件运行的。
         protected IEnumerator m_Tween;
 
         // utility function for starting the tween

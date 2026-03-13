@@ -28,6 +28,7 @@ namespace ARPGDemo.UISystem_Old
 #pragma warning restore 0649
         #endregion
 
+        //TODO：硬编码的场景名称，其实应该需要一个专门的场景管理器。
         private string returnStartScene = "StartScene";
 
         private Vector2 sizeDelta;
@@ -40,6 +41,7 @@ namespace ARPGDemo.UISystem_Old
             canvasGroup.alpha = 0f;
         }
 
+        //打开时传入字符串，可以修改显示的文本。
         public override void OnOpen(object userData)
         {
             base.OnOpen(userData);
@@ -70,7 +72,7 @@ namespace ARPGDemo.UISystem_Old
             // rect_Content.DOSizeDelta(Vector2.zero, 0.2f).From();
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
-            rect_Content.DOSizeDelta(sizeDelta, 0.2f);
+            rect_Content.DOSizeDelta(sizeDelta, 0.2f); //因为关闭时就会
             canvasGroup.DOFade(1f, 0.1f);
         }
 
@@ -79,6 +81,7 @@ namespace ARPGDemo.UISystem_Old
             Debug.Log("OnCloseAnim");
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
+            //
             rect_Content.DOSizeDelta(Vector2.zero, 0.2f).onComplete += complete;
             canvasGroup.DOFade(0f, 0.1f);
         }

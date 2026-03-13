@@ -297,6 +297,7 @@ namespace UnityEngine.UI
                     || (renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null))
                     return null;
 
+                //Canvas指定优先，否则就是主相机。
                 return canvas.worldCamera ?? Camera.main;
             }
         }
