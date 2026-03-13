@@ -7,8 +7,12 @@
 Assets/ARPGDemoScripts/MyPlugins/AnimationPlayer
 
 ### 行为树编辑器
-主要参考：https://github.com/thekiwicoder0/UnityBehaviourTreeEditor.git
+主要参考：
+
+https://github.com/thekiwicoder0/UnityBehaviourTreeEditor.git
+
 https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
+
 支持节点的图形化编辑、运行时状态监控、操作撤销。
 
 Assets/ARPGDemoScripts/MyPlugins/BehaviourTree
