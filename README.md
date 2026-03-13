@@ -11,6 +11,8 @@ Assets/ARPGDemoScripts/MyPlugins/AnimationPlayer
 https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
 支持节点的图形化编辑、运行时状态监控、操作撤销。
 
+Assets/ARPGDemoScripts/MyPlugins/BehaviourTree
+
 ### 技能系统
 参考虚幻引擎的GAS，AbilitySystemComponent、AttributeSet、GameplayEffect的逻辑大概能用，不过到了AbilityTask，没有成熟的编辑器或者说技能编辑器，导致技能的表现层和
 一些区间逻辑（比如连段区间）非常难以编辑，而且现在写的AbilityTaskEditor也还不支持循环执行，不好做蓄力攻击之类的行为。
