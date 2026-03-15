@@ -20,5 +20,6 @@ https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
 
 ### 角色控制
 实现了一个简单的可以进行奔跑、连段普通攻击、普攻衔接重击的角色，以及简单的伤害和Buff逻辑。
+动画控制完全通过上述的动画系统实现。
 
 
