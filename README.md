@@ -1,5 +1,6 @@
 ## 开发内容记录
 [演示站点](https://walnutband.github.io/presentation)
+动画系统和行为树编辑器可以在[Releases](https://github.com/Walnutband/ThirdPersonController/releases)下载
 ### 动画系统
 主要参考Animancer插件https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522
 
