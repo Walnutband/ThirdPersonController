@@ -3,7 +3,7 @@
 
 动画系统和行为树编辑器可以在[Releases](https://github.com/Walnutband/ThirdPersonController/releases)下载
 ### 动画系统
-主要参考Animancer插件https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522
+主要参考[Animancer插件](https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522)
 
 基于Unity Playables系统开发、代码驱动的动画系统，用以替代AnimatorContorller，实现更加灵活的动画播放逻辑，支持线性混合动画和分层动画。
 
@@ -25,4 +25,9 @@ https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
 动画控制完全通过上述的动画系统实现。
 
 主要代码在[AbilitySystem](Assets/ARPGDemoScripts/ARPGDemoSystems/AbilitySystem)和[ControlSystem](Assets/ARPGDemoScripts/ARPGDemoSystems/ControlSystem)
+
+### UI
+主要参考来源：https://github.com/Unity-UI-Extensions/com.unity.uiextensions.git
+
+主要做了一个折叠框[AccordionElement](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionElement.cs)、[AccordionGroup](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionGroup.cs)，复刻了《绝区零》中的一个动效[HorizontalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/HorizontalSnapper.cs)、[VerticalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/VerticalSnapper.cs)。
 
