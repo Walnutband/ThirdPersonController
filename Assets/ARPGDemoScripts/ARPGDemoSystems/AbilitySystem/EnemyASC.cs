@@ -1,5 +1,7 @@
 
 using System.Collections.Generic;
+using ARPGDemo.ControlSystem.Enemy;
+using ARPGDemo.UISystem_Test;
 using UnityEngine;
 
 namespace ARPGDemo.AbilitySystem
@@ -12,6 +14,8 @@ namespace ARPGDemo.AbilitySystem
 
         private List<GEHandle> m_GEs = new List<GEHandle>();
 
+        public SimpleEnemyContorller controller;
+
         public void ApplyGameplayEffect(GameplayEffect _ge)
         {
             //作用于属性集
@@ -23,9 +27,18 @@ namespace ARPGDemo.AbilitySystem
                 case EffectType.HasDuration:
                 case EffectType.Infinite:
                     m_GEs.Add(new GEHandle(_ge, AS));
+                    // m_AS.RegisterHPChangedEvent(damage => DamageNumberGenerator.Instance.SpawnDamageNumber(damage, transform.position, false));
+                    m_AS.RegisterHPChangedEvent(Temp_DoDamageNumber);
                     break;
 
             }
+            
+            controller.OnHurt();
+        }
+
+        private void Temp_DoDamageNumber(float _damage)
+        {
+            DamageNumberGenerator.Instance.SpawnDamageNumber(_damage, transform.position, false);
         }
 
         private void Update()
@@ -38,9 +51,15 @@ namespace ARPGDemo.AbilitySystem
             List<GEHandle> handlesToRemove = new List<GEHandle>();
             m_GEs.ForEach(handle =>
             {
-                if (handle.OnTick(Time.deltaTime))
+                handle.OnEffect = () => controller.OnHurt();
+                if (handle != null)
                 {
-                    handlesToRemove.Add(handle); //记录要移除的GE
+                    if (handle.OnTick(Time.deltaTime))
+                    {
+                        handlesToRemove.Add(handle); //记录要移除的GE
+                        m_AS.UnregisterHPChangedEvent(Temp_DoDamageNumber);
+                    }
+                    // controller.OnHurt();
                 }
             });
 

@@ -4,6 +4,7 @@ using ARPGDemo.BattleSystem;
 using ARPGDemo.ControlSystem;
 using ARPGDemo.ControlSystem.InputActionBindings;
 using ARPGDemo.CustomAttributes;
+using ARPGDemo.UISystem_Test;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +32,9 @@ namespace ARPGDemo.AbilitySystem
         [SerializeField] private SingleAttack[] m_ComboAttacks;
         [ExpandInlineProperties("重击")]
         [SerializeField] private SingleAttack m_HeavyAttack; //Tip：其实重击也可以有多段，不过这里就默认只有单独的一段了。
+
+        public SingleAttack[] comboAttacks => m_ComboAttacks;
+        public SingleAttack heavyAttack => m_HeavyAttack;
 
         /*Tip：如何理解“一段伤害”所需的信息是关键——应该考虑到逻辑层和表现层，表现层主要就是基于时间轴的内容以及用于UI显示的信息，逻辑层主要就是初始伤害来源，*/
         //每一段伤害，来自于特定基础属性乘以一定倍率，在属性相同的情况下就直接比较倍率即可得知伤害高低
@@ -107,14 +111,17 @@ namespace ARPGDemo.AbilitySystem
             //从属性集获取初始值。
             float initialValue = m_CurrentAttack.acquirer.GetValue(m_ASC.actorAS);
             Debug.Log("伤害值：" + initialValue);
+            bool isCrit = false;
             //说明暴击了。乘以暴击伤害。
             if (UnityEngine.Random.Range(0f, 1f) <= m_ASC.actorAS.GetAttributeCurrentValue(ActorAttributeSet.AttributeType.CritRate))
             {
                 initialValue *= 1 + m_ASC.actorAS.GetAttributeCurrentValue(ActorAttributeSet.AttributeType.CritDamage);
                 Debug.Log("发生暴击！暴击后伤害为：" + initialValue);
+                isCrit = true;
             }
             //给对方造成伤害。
             targetASC.ApplyGameplayEffect(GEBuilder.CreateDamageEffect(initialValue));
+            DamageNumberGenerator.Instance.SpawnDamageNumber(initialValue, _target.transform.position, isCrit);
             //TODO：额外效果，其实应该和伤害一起处理的。
             targetASC.ApplyGameplayEffects(m_CurrentAttack.effects);
         }

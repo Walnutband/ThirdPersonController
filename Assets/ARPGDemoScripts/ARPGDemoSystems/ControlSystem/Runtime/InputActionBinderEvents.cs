@@ -3,6 +3,7 @@ using System;
 using ARPGDemo.AbilitySystem;
 using ARPGDemo.CustomAttributes;
 using UnityEngine;
+using ARPGDemo.UISystem_Test;
 
 namespace ARPGDemo.ControlSystem.InputActionBindings
 {
@@ -25,8 +26,26 @@ namespace ARPGDemo.ControlSystem.InputActionBindings
     }
 
     [Serializable]
+    public struct OpenSpecifiedUIPanel : IInputActionBinderEvent
+    {
+        [DisplayName("UI面板")]
+        [SerializeField] private GameObject m_Panel;
+        public void Execute()
+        {
+            // m_Panel.SetActive(true);
+            UIManager.Instance.OpenPanel(m_Panel);
+        }
+    }
+
+
+
+    [Serializable]
     public class InvokeSpecifiedCallback : IInputActionBinderEvent
     {
+        /*TODO：这种一般性，实际感觉没啥必要，要么是换成事件的标识符，设置统一的事件管理器，在执行事件时将标识符传入执行指定事件，这样就可以在检视器中编辑了，而另外一点在于，
+        这本来就是用于输入触发的方法，其实非常固定，比如执行某个行为、打开某个UI面板等等，而且有的确实需要额外的数据，那么就可以直接写成特定类型，而不是写成这么一个一般性回调，
+        不过从完整性来说，这种一般性类型确实也应该存在。
+        */
         private Action m_Action;
 
         public void Execute()

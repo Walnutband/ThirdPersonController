@@ -6,6 +6,7 @@ namespace ARPGDemo.ControlSystem
     public class InputController : MonoBehaviour 
     {
         [SerializeField] private InputActionAsset m_IAA;
+        public InputActionAsset iaa => m_IAA;
 
         private void OnEnable()
         {

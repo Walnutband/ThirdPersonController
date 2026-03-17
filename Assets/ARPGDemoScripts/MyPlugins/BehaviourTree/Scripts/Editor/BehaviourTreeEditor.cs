@@ -174,6 +174,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
             //获取当前项目中存在的黑板变量类型，只要出现了增减，就需要调用该方法刷新列表，当然最直接的方式就是关闭窗口重新打开。
             UpdateVariableTypeSelector(); //与有无黑板无关
 
+            //Ques: 
+            // Selection.selectionChanged += OnSelectionChange;
+
             //获取当前选择的行为树后再来执行，因为其中会同时尝试获取行为树绑定的黑板，如果没有的话，在选中黑板页面时就需要同时显示noBlackboardMSG
             // if (blackboard != null) GenerateVariableListView(); //这个工作就统一在SelectTree中做了。
             //默认选中第一个页面
@@ -200,6 +203,9 @@ namespace MyPlugins.BehaviourTree.EditorSection
             //Ques：这里的注册有什么用？难道是因为切换状态时会丢失掉选中的行为树？
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged; //严谨，避免重复注册，浪费内存
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+            Selection.selectionChanged -= OnSelectionChange;
+            Selection.selectionChanged += OnSelectionChange;
         }
 
         private void OnDisable() {
@@ -207,6 +213,8 @@ namespace MyPlugins.BehaviourTree.EditorSection
             Undo.undoRedoPerformed -= treeView.OnUndoRedo; //由于treeView要在CreateGUI中获取到引用后才可访问，所以不能在Enable中注册
             //就是清理回调，避免残留逻辑，在对应时刻触发导致意外。
             if (tree) tree.blackboardChanged = null;
+
+            Selection.selectionChanged -= OnSelectionChange;
         }
 
         /// <summary>
@@ -316,10 +324,14 @@ namespace MyPlugins.BehaviourTree.EditorSection
                         }
                     }
                 }
-                // if (tree == null) Debug.Log("树为空");
-                // else Debug.Log("树不空");
+                else if (this.tree == tree)
+                {
+                    BTName.text = tree.name;
+                    return;
+                }
                 if (tree != null) BTName.text = tree.name;
-                if (this.tree == tree) return; //切换选中的是同一棵树，或者同为非树即null，则直接返回就可以了
+                //BugFix: 这里没考虑到都为null的情况。
+                // if (this.tree == tree) return; //切换选中的是同一棵树，或者同为非树即null，则直接返回就可以了
                 SelectTree(tree);
                 // treeView.FrameAll();
             };
@@ -330,16 +342,20 @@ namespace MyPlugins.BehaviourTree.EditorSection
         /// 在编辑窗口中显示选中树的视图(只有改变选中对象时会调用，所以属于初始化方法)
         /// </summary>
         /// <param name="newTree"></param>
-        void SelectTree(BehaviourTree newTree) {
-
+        void SelectTree(BehaviourTree newTree) 
+        {
+            Debug.Log("SelectTree");
             if (treeView == null) {
                 return;
             }
-            //Tip:在编辑窗口打开时，只要选中了行为树，切换选中对象时如果不是其他行为树，则保持编辑当前的行为树
-            if (!newTree) { 
+            Debug.Log("SelectTree treeView不为空");
+            //Tip:在编辑窗口打开时，只要选中了行为树，切换选中对象时如果不是其他行为树（也就是没有选中行为树），则保持编辑当前的行为树
+            if (!newTree) {
+                Debug.Log($"SelectTree   {(newTree == null?"null":"not null")}");
                 //如果当前编辑窗口未指定行为树才显示幕布，否则在编辑时点击其他只要是非行为树的对象就会显示幕布，就很不方便，正常来说是选中其他行为树就会进行切换，没选中就保持当前行为树
                 if (tree == null) 
                 {
+                    Debug.Log($"SelectTree   当前tree为null");
                     // overlay.style.visibility = Visibility.Visible; //各情况都要进行设置，尽量避免依赖编辑时的默认设置。
                     overlay.style.display = DisplayStyle.Flex;
                     //在没有选中行为树时，会出现行为树的大幕布，而且因为默认选中的是黑板视图，那就还是不显示黑板的幕布了，因为还没选中行为树，就不应该出现“提醒绑定黑板”的内容

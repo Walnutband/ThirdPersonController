@@ -14,6 +14,8 @@ namespace ARPGDemo
             {//TODO:还要考虑在多线程环境下应该如何修改程序
                 if (m_Instance == null)
                 {
+                    // m_Instance = GameObject.Find(nameof(T)) as T;
+                    // if (m_Instance != null) return m_Instance;
                     //TODO: 注意这里是在运行时用到了C#的动态特性，这是依赖于.Net框架的，如果要以IL2CPP为后端的话，就不能在运行时使用C#的动态特性。
                     GameObject go = new GameObject(typeof(T).Name); //直接以类名作为对象名
                     m_Instance = go.AddComponent(typeof(T)) as T;
@@ -25,6 +27,10 @@ namespace ARPGDemo
 
         // protected virtual void Awake()
         protected virtual void Awake()
+        {
+            
+        }
+        protected virtual void Start()
         {
             //使用标签进行初步分类，然后用严格的游戏对象名来标识。注意ControlSystem本身是组件类型，不是游戏对象，所以不能传入泛型参数。
             // m_Instance = GameObject.FindGameObjectsWithTag("System").FirstOrDefault(go => go.name == "ControlSystem").GetComponent<ControlSystem> as ;
@@ -57,7 +63,12 @@ namespace ARPGDemo
             // Debug.Log($"游戏对象名：{m_Instance.gameObject.name}");
         }
 
-        protected virtual void RetrieveExistingInstance() { }
+        protected virtual void RetrieveExistingInstance()
+        {
+            //默认直接将类型名作为GO名，获取其组件然后转换类型。也可以放在派生类中实现，但其实只需要用到元数据，不会访问派生类的成员，所以就在这里统一处理或许更好。
+            // m_Instance = GameObject.Find(nameof(T)).GetComponent<T>(); //BugFix:
+            m_Instance = GameObject.Find(typeof(T).Name).GetComponent<T>();
+        }
     }
 
     public class Singleton<T> where T : class, new()

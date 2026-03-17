@@ -39,6 +39,8 @@ namespace ARPGDemo.AbilitySystem
         private ActorAttributeSet m_AS;
         private bool isPermanent;
 
+        public Action OnEffect;
+
         public GEHandle(GameplayEffect _ge, ActorAttributeSet _as)
         {
             m_GE = _ge;
@@ -56,6 +58,7 @@ namespace ARPGDemo.AbilitySystem
             m_EffectTimer += _deltaTime;
             if (m_EffectTimer >= m_GE.period)
             {
+                OnEffect?.Invoke();
                 Debug.Log($"作用GE，timer:{m_Timer}, effectTimer:{m_EffectTimer}");
                 m_GE.Apply(m_AS);
                 m_EffectTimer = 0f;

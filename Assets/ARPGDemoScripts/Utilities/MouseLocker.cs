@@ -6,13 +6,13 @@ namespace ARPGDemo.Utilities
 
 
     [AddComponentMenu("ARPGDemo/Utilities/MouseLocker")]
-    public class MouseLocker : MonoBehaviour 
+    public class MouseLocker : SingletonMono<MouseLocker> 
     {
-        public bool dontLock;
+        public bool lockCursor = true; //默认锁定。
 
         private void Update()
         {
-            if (dontLock)
+            if (lockCursor == false)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;

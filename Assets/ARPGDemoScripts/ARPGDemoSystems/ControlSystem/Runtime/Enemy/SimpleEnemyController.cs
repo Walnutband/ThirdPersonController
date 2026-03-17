@@ -1,5 +1,7 @@
 
+using System.Collections;
 using ARPGDemo.AbilitySystem;
+using MyPlugins.AnimationPlayer;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,6 +16,22 @@ namespace ARPGDemo.ControlSystem.Enemy
         public bool isMoving;
         public Transform targetPos;
         public NavMeshAgent agent;
+        public AnimationClip hurtAnim;
+        public int animLayer = 1;
+        public float fadeDuration;
+        public float stopDuration = 0.2f;
+        private AnimationClipState m_State;
+
+        public void OnHurt()
+        {
+            m_State = GetComponentInChildren<AnimatorAgent>().Play(animLayer, hurtAnim, fadeDuration);
+            StartCoroutine(ExitHurt(hurtAnim.length));
+        }
+        private IEnumerator ExitHurt(float _duration)
+        {
+            yield return new WaitForSeconds(_duration);
+            m_State.Stop(stopDuration);
+        }
 
         private void Awake()
         {

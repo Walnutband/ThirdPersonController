@@ -268,7 +268,7 @@
                     "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
                     "path": "<Pointer>/delta",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "DeltaTimeScale,ScaleVector2(x=0.1,y=0.1)",
                     "groups": ";Keyboard&Mouse;Touch",
                     "action": "Look",
                     "isComposite": false,
@@ -585,6 +585,15 @@
                     "name": "New action",
                     "type": "Button",
                     "id": "e8cd8fa2-58d5-4f44-902e-f90a45a557ca",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OpenAttributePanel",
+                    "type": "Button",
+                    "id": "0fcc9db6-d334-46b9-9885-5733f552b7e6",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -963,6 +972,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "45c0f1c7-9ced-4f6b-8a5c-a156d6613e23",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenAttributePanel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

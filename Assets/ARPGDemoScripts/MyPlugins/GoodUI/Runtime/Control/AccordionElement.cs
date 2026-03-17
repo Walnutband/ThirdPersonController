@@ -140,7 +140,7 @@ namespace MyPlugins.GoodUI
         //（编辑模式下）在选中组件所在对象时会调用OnEnable。不过测试了一下，似乎也不是，就是在热重载之后就会立刻统一调用
         protected override void OnEnable()
         {
-            Debug.Log("OnEnable");
+            // Debug.Log("OnEnable");
             onValueChanged.AddListener(OnValueChanged);
             AddToGroup();
             Init();
@@ -218,7 +218,7 @@ namespace MyPlugins.GoodUI
 
         private void LoadAssets()
         {
-            Debug.Log("LoadAssets");
+            // Debug.Log("LoadAssets");
             // expandTopSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Top (64x).png");
             // expandTopSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Bottom (64x).png");
             //异步加载的同步执行写法。
@@ -237,8 +237,7 @@ namespace MyPlugins.GoodUI
 #if UNITY_EDITOR
         private void LoadAssetsInEditor()
         {
-            //异步加载的同步执行写法。
-            Debug.Log("LoadAssetsInEditor");
+            // Debug.Log("LoadAssetsInEditor");
             expandTopSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Top (64x).png");
             expandBottomSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/AssetsPackage/Arts/Textures/Icons/Navigation/Arrow Bottom (64x).png");
         }
@@ -286,7 +285,7 @@ namespace MyPlugins.GoodUI
         {
             if (headerRect != null)
             {
-                Debug.Log("header");
+                // Debug.Log("header");
                 //通过AccordionElement检视器直接控制Header高度
                 headerRect.GetComponent<LayoutElement>().minHeight = m_MinHeight;
                 //BugFix:在实现单个AccordionElement即不位于组中时，因为不需要LayoutElement，就将其移除了，结果就出现空引用错误，并且检视面板直接黑屏了，最后发现是这里没有判空，因为之前都是默认有LayoutElement组件的，而且这次很迷惑的是，我印象中空引用错误是会打印出具体哪个变量空引用了，而且也仅仅是个空引用错误而已，结果这次竟然检视面板直接黑屏，简直离谱，前所未见。
@@ -298,7 +297,7 @@ namespace MyPlugins.GoodUI
 
             if (expandFlag != null)
             {
-                Debug.Log("flag");
+                // Debug.Log("flag");
                 // expandFlag.sizeDelta = new Vector2(m_MinHeight, 0);
                 // expandFlag.anchoredPosition = Vector2.zero;
             }

@@ -15,7 +15,7 @@ MonoBehaviour:
   state: 0
   started: 0
   guid: a2d0f5adabb22d045ba38a02aae4a000
-  position: {x: -382.35077, y: 230.40004}
+  position: {x: -401.39093, y: 78.47188}
   blackboard: {fileID: 0}
   description: 
   drawGizmos: 0
@@ -60,7 +60,6 @@ MonoBehaviour:
   treeState: 0
   dataNodes:
   - {fileID: -5867154761850565378}
-  - {fileID: 4625046649649839159}
   - {fileID: -8157623307617832585}
   - {fileID: 4576391204497067533}
 --- !u!114 &4576391204497067533
@@ -85,29 +84,3 @@ MonoBehaviour:
   parent: {fileID: -5867154761850565378}
   children:
   - {fileID: -8157623307617832585}
-  - {fileID: 4625046649649839159}
---- !u!114 &4625046649649839159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4489e3e257543504c8fc9f891246af6c, type: 3}
-  m_Name: MoveToPosition
-  m_EditorClassIdentifier: 
-  state: 0
-  started: 0
-  guid: 8dbc3ba86ed88de41b7b1446891f5f14
-  position: {x: -120.65361, y: 266.80005}
-  blackboard: {fileID: 0}
-  description: 
-  drawGizmos: 0
-  parent: {fileID: 4576391204497067533}
-  speed: 5
-  stoppingDistance: 0.1
-  updateRotation: 1
-  acceleration: 40
-  tolerance: 1
