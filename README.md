@@ -1,0 +1,33 @@
+## 开发内容记录
+[演示站点](https://walnutband.github.io/presentation)
+
+动画系统和行为树编辑器可以在[Releases](https://github.com/Walnutband/ThirdPersonController/releases)下载
+### 动画系统
+主要参考[Animancer插件](https://assetstore.unity.com/packages/tools/animation/animancer-pro-v8-293522)
+
+基于Unity Playables系统开发、代码驱动的动画系统，用以替代AnimatorContorller，实现更加灵活的动画播放逻辑，支持线性混合动画和分层动画。
+
+主要代码在[AnimationPlayer](Assets/ARPGDemoScripts/MyPlugins/AnimationPlayer)
+
+### 行为树编辑器
+主要参考：
+
+https://github.com/thekiwicoder0/UnityBehaviourTreeEditor.git
+
+https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
+
+支持节点的图形化编辑、运行时状态监控、操作撤销。
+
+主要代码在[BehaviourTree](Assets/ARPGDemoScripts/MyPlugins/BehaviourTree)
+
+### 角色控制
+实现了一个简单的可以进行奔跑、连段普通攻击、普攻衔接重击的角色，以及简单的伤害和Buff逻辑。
+动画控制完全通过上述的动画系统实现。
+
+主要代码在[AbilitySystem](Assets/ARPGDemoScripts/ARPGDemoSystems/AbilitySystem)和[ControlSystem](Assets/ARPGDemoScripts/ARPGDemoSystems/ControlSystem)
+
+### UI
+主要参考来源：https://github.com/Unity-UI-Extensions/com.unity.uiextensions.git
+
+主要做了一个折叠框[AccordionElement](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionElement.cs)、[AccordionGroup](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionGroup.cs)，复刻了《绝区零》中的一个动效[HorizontalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/HorizontalSnapper.cs)、[VerticalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/VerticalSnapper.cs)。
+
