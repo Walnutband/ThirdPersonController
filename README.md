@@ -31,4 +31,4 @@ https://github.com/HalfADog/Unity-ARPGGameDemo-TheDawnAbyss.git
 
 主要做了一个折叠框[AccordionElement](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionElement.cs)、[AccordionGroup](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/AccordionGroup.cs)，复刻了《绝区零》中的一个动效[HorizontalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/HorizontalSnapper.cs)、[VerticalSnapper](Assets/ARPGDemoScripts/MyPlugins/GoodUI/Runtime/Control/VerticalSnapper.cs)。
 
-简单复刻了UGUI的基本布局，代码在[UILayoutHandler](Assets/ARPGDemoScripts/MyPlugins/UILayoutHandler)
+简单复刻了UGUI的基本布局的核心逻辑（立体），代码在[UILayoutHandler](Assets/ARPGDemoScripts/MyPlugins/UILayoutHandler)
